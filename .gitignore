@@ -16,6 +16,8 @@ out/
 # Gradle files
 .gradle/
 build/
+/app/build
+/absdkcorekit/build
 
 # Local configuration file (sdk path, etc)
 local.properties
@@ -31,16 +33,14 @@ proguard/
 
 # Android Studio captures folder
 captures/
+crosscourse.jks
+gradle.properties
 
 # IntelliJ
 *.iml
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/gradle.xml
-.idea/assetWizardSettings.xml
-.idea/dictionaries
-.idea/libraries
-.idea/caches
+/local.properties
+/.idea
+.DS_Store
 
 # Keystore files
 # Uncomment the following line if you do not want to check your keystore files in.
