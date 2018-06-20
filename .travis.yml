@@ -1,5 +1,13 @@
 language: android
 sudo: false
+cache:
+  directories:
+  - "$HOME/travis/.rvm/"
+  - "$HOME/Library/Caches/Homebrew"
+  - "$HOME/travis/.gradle/"
+branches:
+  only:
+  - master
 android:
   components:
   - build-tools-27.0.3
