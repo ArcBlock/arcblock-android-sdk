@@ -28,6 +28,10 @@ import com.facebook.stetho.Stetho;
 
 public class ABCoreKit {
 
+    /**
+     * @param context
+     * @param isDebug
+     */
     public static void init(Context context, boolean isDebug) {
         DatabaseManager.getInstance().createDB(context);
         if (isDebug) {
