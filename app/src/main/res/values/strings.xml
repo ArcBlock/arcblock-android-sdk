@@ -1,0 +1,9 @@
+<resources>
+	<string name="app_name">Arcblock Android Sdk Demo</string>
+	<string name="core_kit_test">Core Kit Test</string>
+	<string name="account_kit_test">Account Kit Test(ToDo)</string>
+	<string name="message_kit_test">Message Kit Test(ToDo)</string>
+	<string name="wallet_kit_test">Wallet Kit Test(ToDo)</string>
+	<string name="query_data">Query Data</string>
+	<string name="test_add_new_data_to_db">Test add a new data to db</string>
+</resources>
