@@ -29,7 +29,6 @@ travis-init:
 	@gem install fir-cli
 
 travis:
-	@set -o pipefail
 	@make precommit
 
 travis-deploy:
