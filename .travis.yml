@@ -14,8 +14,6 @@ android:
   - android-27
   - extra-android-m2repository
   - extra-android-support
-script:
-- make build
 notifications:
   slack:
     secure: qHqIcGXhqUrprDck/cVKCBs0U6FQxtHVBsjF37bR/+AwohrWUnnoKLRN5BWg1q9TV91ADFbyWZDiSGDv+PZELGJalIL6i9NFvph5goJVG1kgnuHwwGCdcbLwy2rV7ShsWbXClC2iT+KXLTzmcUKYYaDvP5l/VOEiIQImQs4ErItoM3TvelRMLZVyhKQN5aT+tF86SkooFX2Lis/2p7mdNIhmHrNtnzd45424Ocu8lrAYUrSM2crskKp7wVhk7ycK1bMQMrmkWmrDrTWdGIyf7Vi/uGCBdeFp/3bR/zLAebTFibUw2IJG12FyF+F5MEgQHTnnHRNEn97wjcJRHI78U9Q4W/n3yxIEsZXx7wCPb/LQ3JNI3ooVioYq+0SUvLcPPcf16B++BDueBqyQ4v65PDA2+qHLW86GwiNOouleP7VtTPucXmo5dDKnWNdiysqN8paBUfnbdxuRIcw3ZMGro46Ckm6xIUuqVQXuPUQujdOcSnsna4AyGF1ldmToUiPC/i377sBg3av42iULAUrJIAIfKJZA6BbtEkIYEAJNYOIEZmPjEQJP0mI3OhY6sh3P4m0o5jyEvNRZmYejzGDpNWQkuFGLCaooYgE6mmNs9pZAhgaQ5WwjBwGBbhbY0rikjQkO5G9NDU50g0XycD3DLMCOj11XdkGEtsFzGlD1tzs=
@@ -23,6 +21,8 @@ before_install:
 - openssl aes-256-cbc -K $encrypted_27ddda8dd36c_key -iv $encrypted_27ddda8dd36c_iv
   -in crosscourse.jks.enc -out crosscourse.jks -d
 - make travis-init
+script: make travis
+before_deploy: make travis-deploy
 deploy:
   provider: releases
   api_key:

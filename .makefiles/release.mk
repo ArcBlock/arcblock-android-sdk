@@ -1,7 +1,7 @@
 RELEASE_VERSION=v$(VERSION)
 GIT_BRANCH=$(strip $(shell git symbolic-ref --short HEAD))
 
-release: all
+release: build
 	@git config --local user.name "NateRobinson"
 	@git config --local user.email "840501291@qq.com"
 	@git tag $(RELEASE_VERSION)

@@ -8,53 +8,46 @@ build:
 	./gradlew assembleRelease
 
 init:
-	@echo "Initializing the repo..."
-
-travis-init:
-	@echo "Initialize software required for travis (normally ubuntu software)"
-	@gem install fir-cli
-
-install:
-	@echo "Install software required for this repo..."
-
-dep:
-	@echo "Install dependencies required for this repo..."
-
-pre-build: install dep
-	@echo "Running scripts before the build..."
-
-post-build:
-	@echo "Running scripts after the build is done..."
-
-all: pre-build build post-build
-
-test:
-	@echo "Running test suites..."
+	@echo "Android Project doesn't need the init step, gradle will do it later when do build"
 
 lint:
 	@echo "Linting the software..."
+	./gradlew lint
+
+test:
+	@echo "Running test suites..."
+	./gradlew test
 
 doc:
 	@echo "Building the documenation..."
 	./gradlew javadoc
 
+precommit: lint test
+
+travis-init:
+	@echo "Initialize software required for travis (normally ubuntu software)"
+	@gem install fir-cli
+
 travis:
-	@set -o pipefail
 	@make precommit
 
 travis-deploy:
-	@echo "Preparing for deployment...";
-	@make release;
-	@make doc;
+	if ! [ -f "./app/build/outputs/apk/release/app-release.apk" ]; then \
+		echo "Preparing for deployment..."; \
+		make clean; \
+		make release; \
+		make doc; \
+	fi
 
 clean:
 	@echo "Cleaning the build..."
 	./gradlew clean
 
-run:
-	@echo "Running the software..."
+run: clean
+	@echo "Connect a Android Device to the CP, then will install a APK into it."
+	./gradlew installRelease
 
-deploy:
+deploy: release
 	@echo "Deploy software into local machine..."
 
 include .makefiles/release.mk
