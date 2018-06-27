@@ -1,0 +1,9 @@
+query ListBlocks {
+  blocks {
+    height
+    fees
+    total
+    hash
+    numberTxs
+  }
+}

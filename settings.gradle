@@ -1,1 +1,2 @@
-include ':app', ':absdkcorekit'
+include ':app'
+include ':absdkcorekit'
