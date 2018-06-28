@@ -23,7 +23,7 @@ doc:
 	javadoc @docargfile -header '<b>ArcBlock Android Sdk Documents</b><br><font size="-1">$(VERSION)</font>'
 
 
-precommit: lint test
+precommit: lint test build
 
 travis-init:
 	@echo "Initialize software required for travis (normally ubuntu software)"
@@ -53,4 +53,4 @@ deploy: release
 	@echo "Deploy software into local machine..."
 
 include .makefiles/release.mk
-.PHONY: clean
+.PHONY: clean build init lint test doc precommit travis-init travis travis-deploy run deploy
