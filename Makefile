@@ -23,7 +23,7 @@ doc:
 	javadoc @docargfile -header '<b>ArcBlock Android Sdk Documents</b><br><font size="-1">$(VERSION)</font>'
 
 
-precommit: lint test build
+precommit: lint test build clean
 
 travis-init:
 	@echo "Initialize software required for travis (normally ubuntu software)"
