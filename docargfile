@@ -1,0 +1,13 @@
+-d docs/
+-sourcepath app/src/main/java:absdkcorekit/src/main/java
+-subpackages com.arcblock.sdk.demo:com.arcblock.corekit
+-use
+-windowtitle 'ArcBlock Android Sdk Documents'
+-doctitle 'ArcBlock Android Sdk Documents'
+-bottom 'Copyright © 2018 ArcBlock Foundation Ltd.'
+-group "CoreKitLibrary" "com.arcblock.corekit:com.arcblock.corekit.*"
+-group "SDK Demo" "com.arcblock.sdk.demo:com.arcblock.sdk.demo.*"
+-overview overview.html
+-charset utf-8
+-encoding UTF8
+-quiet
