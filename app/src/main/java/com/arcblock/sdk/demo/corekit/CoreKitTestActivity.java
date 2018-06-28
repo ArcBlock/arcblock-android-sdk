@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.arcblock.sdk.demo.R;
 
@@ -39,9 +40,20 @@ public class CoreKitTestActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.core_kit_test);
 
-        findViewById(R.id.query_data).setOnClickListener(v -> {
-            Intent intent = new Intent(CoreKitTestActivity.this, QueryDataActivity.class);
-            startActivity(intent);
+        findViewById(R.id.query_list_blocks_data_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CoreKitTestActivity.this, QueryListBlocksActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        findViewById(R.id.query_transactions_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CoreKitTestActivity.this, QueryTransactionsActivity.class);
+                startActivity(intent);
+            }
         });
     }
 

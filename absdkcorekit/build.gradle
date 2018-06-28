@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.apollographql.android'
 
 android {
     compileSdkVersion 27
@@ -51,31 +52,12 @@ dependencies {
 	testImplementation "android.arch.persistence.room:testing:$room_version"
 
 	implementation 'com.facebook.stetho:stetho:1.3.1'
-}
 
-// generage javadoc
-def name = 'corekit'
-def docDest = '../docs/'
+	def apolloReleaseVersion = "0.5.1-SNAPSHOT"
+	api "com.apollographql.apollo:apollo-runtime:$apolloReleaseVersion"
+	api "com.apollographql.apollo:apollo-android-support:$apolloReleaseVersion"
+	api "com.apollographql.apollo:apollo-rx2-support:$apolloReleaseVersion"
 
-task javadoc(type: Javadoc) {
-    delete(docDest + name)
-    source = android.sourceSets.main.java.srcDirs
-    // 这里有用到aidl，所以也要导进来，否则会报找不到类的错误
-    source += 'build/generated/source/aidl/release/com/paxsz/easylink/aidl/'
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-
-    destinationDir = file(docDest + name)
-    exclude '**/R.java', '**/Constants.java', '**/*.aidl'
-
-    failOnError false
-}
-
-javadoc {
-    options {
-        // 语言
-        locale 'en_US'
-        encoding 'UTF-8'
-        charSet 'UTF-8'
-        links "http://docs.oracle.com/javase/7/docs/api"
-    }
+	implementation 'com.squareup.okhttp3:logging-interceptor:3.5.0'
+	implementation 'com.jakewharton.timber:timber:4.7.0'
 }

@@ -19,62 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.corekit.bean;
+package com.arcblock.sdk.demo.adapter;
 
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Ignore;
-import android.arch.persistence.room.PrimaryKey;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import java.util.Date;
+import com.arcblock.sdk.demo.ListBlocksQuery;
+import com.arcblock.sdk.demo.R;
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.BaseViewHolder;
 
-@Entity
-public class ArcBlockBean {
-	@NonNull
-	@PrimaryKey
-	private String id;
-	private String name;
-	private Date addDate;
+import java.util.List;
 
-	public ArcBlockBean() {
-
-	}
-
-
-	@Ignore
-	public ArcBlockBean(@NonNull String id, String name, Date addDate) {
-		this.id = id;
-		this.name = name;
-		this.addDate = addDate;
-	}
-
-	@NonNull
-	public String getId() {
-		return id;
-	}
-
-	public void setId(@NonNull String id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Date getAddDate() {
-		return addDate;
-	}
-
-	public void setAddDate(Date addDate) {
-		this.addDate = addDate;
+public class ListBlocksAdapter extends BaseQuickAdapter<ListBlocksQuery.Block, BaseViewHolder> {
+	public ListBlocksAdapter(int layoutResId, @Nullable List<ListBlocksQuery.Block> data) {
+		super(layoutResId, data);
 	}
 
 	@Override
-	public String toString() {
-		return "id:" + this.id + "-name:" + this.name + "-data:" + this.addDate;
+	protected void convert(BaseViewHolder helper, ListBlocksQuery.Block item) {
+		helper.setText(R.id.hash_tv, item.getHash());
+		helper.setText(R.id.txs_tv, "numberTxs:" + item.getNumberTxs());
+		helper.setText(R.id.height_tv, "height:" + item.getHeight());
+		helper.setText(R.id.feeds_tv, "fees:" + item.getFees());
+		helper.setText(R.id.total_tv, "total:" + item.getTotal());
 	}
 }

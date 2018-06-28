@@ -16,12 +16,18 @@
             android:padding="@dimen/page_padding">
 
             <Button
-                android:id="@+id/query_data"
+                android:id="@+id/query_list_blocks_data_btn"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/btn_height"
-                android:text="@string/query_data"
+                android:text="@string/query_list_blocks_data"
                 android:textAllCaps="false"/>
 
+            <Button
+                android:id="@+id/query_transactions_btn"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_height"
+                android:text="@string/query_transactions_data"
+                android:textAllCaps="false"/>
 
         </LinearLayout>
 

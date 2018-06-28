@@ -17,6 +17,6 @@ public class DemoApplication extends Application {
         super.onCreate();
         INSTANCE = this;
         // init ArcBlock CoreKit
-        ABCoreKit.init(this, true);
+        ABCoreKit.getInstance().init(this, true);
     }
 }

@@ -20,7 +20,8 @@ test:
 
 doc:
 	@echo "Building the documenation..."
-	./gradlew javadoc
+	javadoc @docargfile -header '<b>ArcBlock Android Sdk Documents</b><br><font size="-1">$(VERSION)</font>'
+
 
 precommit: lint test
 
@@ -41,6 +42,7 @@ travis-deploy:
 
 clean:
 	@echo "Cleaning the build..."
+	-rm -rf docs
 	./gradlew clean
 
 run: clean
@@ -51,3 +53,4 @@ deploy: release
 	@echo "Deploy software into local machine..."
 
 include .makefiles/release.mk
+.PHONY: clean
