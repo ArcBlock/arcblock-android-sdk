@@ -1,3 +1,6 @@
+## 0.0.7 (June 29, 2018)
+  - add release docs to s3.
+
 ## 0.0.6 (June 28, 2018)
 
 
