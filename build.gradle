@@ -1,33 +1,47 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    
-    repositories {
-        google()
-        jcenter()
-        maven { url "https://jitpack.io" }
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.2'
-        classpath 'com.apollographql.apollo:apollo-gradle-plugin:0.5.1-SNAPSHOT'
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
+	repositories {
+		google()
+		jcenter()
+		maven { url "https://jitpack.io" }
+		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+		maven {
+			url "s3://android-docs.arcblock.io.s3.amazonaws.com/release"
+			credentials(AwsCredentials) {
+				accessKey project.hasProperty("AWS_S3_ACCESSKEY") ? AWS_S3_ACCESSKEY : System.getenv("AWS_S3_ACCESSKEY")
+				secretKey project.hasProperty("AWS_S3_SECRETKEY") ? AWS_S3_SECRETKEY : System.getenv("AWS_S3_SECRETKEY")
+			}
+		}
+	}
+	dependencies {
+		classpath 'com.android.tools.build:gradle:3.1.2'
+		classpath 'com.apollographql.apollo:apollo-gradle-plugin:0.5.1-SNAPSHOT'
+
+		// NOTE: Do not place your application dependencies here; they belong
+		// in the individual module build.gradle files
+	}
 }
 
 allprojects {
-    repositories {
-        google()
-        jcenter()
-        maven { url "https://jitpack.io" }
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
-    }
+	repositories {
+		google()
+		jcenter()
+		maven { url "https://jitpack.io" }
+		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+		maven {
+			url "s3://android-docs.arcblock.io.s3.amazonaws.com/release"
+			credentials(AwsCredentials) {
+				accessKey project.hasProperty("AWS_S3_ACCESSKEY") ? AWS_S3_ACCESSKEY : System.getenv("AWS_S3_ACCESSKEY")
+				secretKey project.hasProperty("AWS_S3_SECRETKEY") ? AWS_S3_SECRETKEY : System.getenv("AWS_S3_SECRETKEY")
+			}
+		}
+	}
 }
 
 task clean(type: Delete) {
-    delete rootProject.buildDir
+	delete rootProject.buildDir
 }
 
 if (JavaVersion.current().isJava8Compatible()) {
