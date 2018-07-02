@@ -1,6 +1,3 @@
-## 0.0.8 (July 02, 2018)
-  - 1.sync to new btc schema.json; 2.add abcoreclient to the library;
-
 ## 0.0.7 (June 29, 2018)
   - add release docs to s3.
 
