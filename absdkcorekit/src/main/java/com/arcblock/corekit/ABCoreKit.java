@@ -23,22 +23,10 @@ package com.arcblock.corekit;
 
 import android.content.Context;
 
-import com.apollographql.apollo.ApolloClient;
-import com.apollographql.apollo.api.Operation;
-import com.apollographql.apollo.api.ResponseField;
-import com.apollographql.apollo.cache.normalized.CacheKey;
-import com.apollographql.apollo.cache.normalized.CacheKeyResolver;
-import com.apollographql.apollo.cache.normalized.NormalizedCacheFactory;
-import com.apollographql.apollo.cache.normalized.lru.EvictionPolicy;
-import com.apollographql.apollo.cache.normalized.lru.LruNormalizedCacheFactory;
-import com.apollographql.apollo.cache.normalized.sql.ApolloSqlHelper;
-import com.apollographql.apollo.cache.normalized.sql.SqlNormalizedCacheFactory;
 import com.arcblock.corekit.data.db.DatabaseManager;
 import com.facebook.stetho.Stetho;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Map;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -46,11 +34,8 @@ import timber.log.Timber;
 
 public class ABCoreKit {
 
-	private static final String BASE_URL = "http://ocap.arcblock.io/api/btc";
-	//private static final String SUBSCRIPTION_BASE_URL = "wss://api.githunt.com/subscriptions";
 	private static ABCoreKit INSTANCE = null;
-	private static final String SQL_CACHE_NAME = "arcblock_core_kit_db";
-	private ApolloClient apolloClient;
+	private ABCoreKitClient mABCoreClient;
 
 	private ABCoreKit() {
 	}
@@ -70,59 +55,34 @@ public class ABCoreKit {
 	 * @param context
 	 * @param isDebug
 	 */
-	public void init(Context context, boolean isDebug) {
+	public void init(Context context, final boolean isDebug) {
 		DatabaseManager.getInstance().createDB(context);
 		if (isDebug) {
 			Stetho.initializeWithDefaults(context);
 		}
 		HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
-			@Override public void log(String message) {
-				Timber.tag("ABCorekit-Okhttp").d(message);
+			@Override
+			public void log(String message) {
+				if (isDebug) {
+					Timber.tag("ABCorekit-Okhttp").d(message);
+				}
 			}
 		});
+		loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 		OkHttpClient okHttpClient = new OkHttpClient.Builder()
 				.addInterceptor(loggingInterceptor)
 				.build();
-		ApolloSqlHelper apolloSqlHelper = new ApolloSqlHelper(context, SQL_CACHE_NAME);
-		NormalizedCacheFactory normalizedCacheFactory = new LruNormalizedCacheFactory(EvictionPolicy.NO_EVICTION)
-				.chain(new SqlNormalizedCacheFactory(apolloSqlHelper));
-		CacheKeyResolver cacheKeyResolver = new CacheKeyResolver() {
-			@NotNull
-			@Override
-			public CacheKey fromFieldRecordSet(@NotNull ResponseField field, @NotNull Map<String, Object> recordSet) {
-				String typeName = (String) recordSet.get("__typename");
-				if ("User".equals(typeName)) {
-					String userKey = typeName + "." + recordSet.get("login");
-					return CacheKey.from(userKey);
-				}
-				if (recordSet.containsKey("id")) {
-					String typeNameAndIDKey = recordSet.get("__typename") + "." + recordSet.get("id");
-					return CacheKey.from(typeNameAndIDKey);
-				}
-				return CacheKey.NO_KEY;
-			}
-			// Use this resolver to customize the key for fields with variables: eg entry(repoFullName: $repoFullName).
-			// This is useful if you want to make query to be able to resolved, even if it has never been run before.
-			@NotNull
-			@Override
-			public CacheKey fromFieldArguments(@NotNull ResponseField field, @NotNull Operation.Variables variables) {
-				return CacheKey.NO_KEY;
-			}
-		};
-		apolloClient = ApolloClient.builder()
-				.serverUrl(BASE_URL)
-				.okHttpClient(okHttpClient)
-				.normalizedCache(normalizedCacheFactory, cacheKeyResolver)
-				//.subscriptionTransportFactory(new WebSocketSubscriptionTransport.Factory(SUBSCRIPTION_BASE_URL, okHttpClient))
+		mABCoreClient = ABCoreKitClient.builder(context)
+				.setOkHttpClient(okHttpClient)
 				.build();
 	}
 
 	@NotNull
-	public ApolloClient apolloClient() {
-		if (apolloClient == null) {
+	public ABCoreKitClient abCoreKitClient() {
+		if (mABCoreClient == null) {
 			throw new RuntimeException("Please init corekit first.");
 		}
-		return apolloClient;
+		return mABCoreClient;
 	}
 
 }

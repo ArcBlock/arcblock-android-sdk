@@ -28,37 +28,22 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
-import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.ApolloCallback;
-import com.apollographql.apollo.api.Response;
-import com.apollographql.apollo.exception.ApolloException;
-import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
-import com.arcblock.corekit.ABCoreKit;
 import com.arcblock.sdk.demo.R;
-import com.arcblock.sdk.demo.TransactionsQuery;
-import com.arcblock.sdk.demo.adapter.TransactionsAdapter;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class QueryTransactionsActivity extends AppCompatActivity {
 
 	private static final String TAG = QueryTransactionsActivity.class.getSimpleName();
-	private TransactionsAdapter mTransactionsAdapter;
+	//private TransactionsAdapter mTransactionsAdapter;
 
 	ViewGroup content;
 	ProgressBar progressBar;
 	Handler uiHandler = new Handler(Looper.getMainLooper());
-	ApolloCall<TransactionsQuery.Data> transactionsCall;
-	List<TransactionsQuery.Transaction> mTransactions = new ArrayList<>();
+	//ApolloCall<TransactionsQuery.Data> transactionsCall;
+	//List<TransactionsQuery.Transaction> mTransactions = new ArrayList<>();
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,36 +58,7 @@ public class QueryTransactionsActivity extends AppCompatActivity {
 
 		RecyclerView feedRecyclerView = (RecyclerView) findViewById(R.id.rv_feed_list);
 		feedRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-		mTransactionsAdapter = new TransactionsAdapter(R.layout.item_transactions, mTransactions);
-		feedRecyclerView.setAdapter(mTransactionsAdapter);
 
-		fetchTransactions();
-	}
-
-	private ApolloCall.Callback<TransactionsQuery.Data> dataCallback
-			= new ApolloCallback<>(new ApolloCall.Callback<TransactionsQuery.Data>() {
-		@Override
-		public void onResponse(@NotNull Response<TransactionsQuery.Data> response) {
-			mTransactions.clear();
-			mTransactions.addAll(response.data().getTransactions());
-			mTransactionsAdapter.notifyDataSetChanged();
-			progressBar.setVisibility(View.GONE);
-			content.setVisibility(View.VISIBLE);
-		}
-
-		@Override
-		public void onFailure(@NotNull ApolloException e) {
-			Log.e(TAG, e.getMessage(), e);
-		}
-	}, uiHandler);
-
-	private void fetchTransactions() {
-		TransactionsQuery transactionsQuery = TransactionsQuery.builder()
-				.build();
-		transactionsCall = ABCoreKit.getInstance().apolloClient()
-				.query(transactionsQuery)
-				.responseFetcher(ApolloResponseFetchers.NETWORK_FIRST);
-		transactionsCall.enqueue(dataCallback);
 	}
 
 	@Override
@@ -113,14 +69,6 @@ public class QueryTransactionsActivity extends AppCompatActivity {
 				return false;
 			default:
 				return super.onOptionsItemSelected(item);
-		}
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		if (transactionsCall != null) {
-			transactionsCall.cancel();
 		}
 	}
 }
