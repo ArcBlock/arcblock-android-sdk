@@ -1,3 +1,6 @@
+## 0.0.10 (July 03, 2018)
+  - make sdk demo implementation s3 maven repo
+
 ## 0.0.9 (July 03, 2018)
   - modify makefile
   - Merge branch 'master' into feature/ch401/upload-library-to-s3
