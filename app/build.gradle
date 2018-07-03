@@ -62,7 +62,7 @@ dependencies {
 	androidTestImplementation 'com.android.support.test:runner:1.0.2'
 	androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 	//implementation project(':absdkcorekit')
-	def absdkcorekitversion = version
+	def absdkcorekitversion = "0.0.9"
 	implementation ("com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"){
 		transitive = true
 	}
