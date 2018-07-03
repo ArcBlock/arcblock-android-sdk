@@ -61,11 +61,11 @@ dependencies {
 	testImplementation 'junit:junit:4.12'
 	androidTestImplementation 'com.android.support.test:runner:1.0.2'
 	androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-	//implementation project(':absdkcorekit')
-	def absdkcorekitversion = "0.0.9"
-	implementation ("com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"){
-		transitive = true
-	}
+	implementation project(':absdkcorekit')
+	//	def absdkcorekitversion = "0.0.9"
+	//	implementation ("com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"){
+	//		transitive = true
+	//	}
 	// https://github.com/mapbox/mapbox-navigation-android/issues/864
 	// we'd need to explicitly include android.arch.lifecycle:extensions:1.1.1
 	// in the app's build.gradle file to force use android.arch.lifecycle:runtime:1.1.1
