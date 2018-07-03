@@ -4,7 +4,7 @@
       "types": [
         {
           "possibleTypes": null,
-          "name": "BitcoinBlock",
+          "name": "BitcoinAccount",
           "kind": "OBJECT",
           "interfaces": [],
           "inputFields": null,
@@ -12,10 +12,46 @@
             {
               "type": {
                 "ofType": null,
+                "name": "String",
+                "kind": "SCALAR"
+              },
+              "name": "address",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
                 "name": "Int",
                 "kind": "SCALAR"
               },
-              "name": "bits",
+              "name": "balance",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "String",
+                "kind": "SCALAR"
+              },
+              "name": "pubKey",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "String",
+                "kind": "SCALAR"
+              },
+              "name": "scriptType",
               "isDeprecated": false,
               "description": null,
               "deprecationReason": null,
@@ -29,9 +65,9 @@
                   "kind": "SCALAR"
                 },
                 "name": null,
-                "kind": "NON_NULL"
+                "kind": "LIST"
               },
-              "name": "chainInstance",
+              "name": "subKeys",
               "isDeprecated": false,
               "description": null,
               "deprecationReason": null,
@@ -39,20 +75,39 @@
             },
             {
               "type": {
-                "ofType": {
-                  "ofType": null,
-                  "name": "String",
-                  "kind": "SCALAR"
-                },
-                "name": null,
-                "kind": "NON_NULL"
+                "ofType": null,
+                "name": "PagedBitcoinTransactions",
+                "kind": "OBJECT"
               },
-              "name": "chainName",
+              "name": "txsReceived",
               "isDeprecated": false,
               "description": null,
               "deprecationReason": null,
               "args": []
             },
+            {
+              "type": {
+                "ofType": null,
+                "name": "PagedBitcoinTransactions",
+                "kind": "OBJECT"
+              },
+              "name": "txsSent",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            }
+          ],
+          "enumValues": null,
+          "description": "The BitcoinAccount object implements the Account interface for Bitcoin chain."
+        },
+        {
+          "possibleTypes": null,
+          "name": "BitcoinBlock",
+          "kind": "OBJECT",
+          "interfaces": [],
+          "inputFields": null,
+          "fields": [
             {
               "type": {
                 "ofType": {
@@ -63,7 +118,7 @@
                 "name": null,
                 "kind": "NON_NULL"
               },
-              "name": "depth",
+              "name": "bits",
               "isDeprecated": false,
               "description": null,
               "deprecationReason": null,
@@ -119,18 +174,6 @@
             },
             {
               "type": {
-                "ofType": null,
-                "name": "Int",
-                "kind": "SCALAR"
-              },
-              "name": "medianTime",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
                 "ofType": {
                   "ofType": null,
                   "name": "String",
@@ -147,21 +190,13 @@
             },
             {
               "type": {
-                "ofType": null,
-                "name": "String",
-                "kind": "SCALAR"
-              },
-              "name": "miner",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": null,
-                "name": "Int",
-                "kind": "SCALAR"
+                "ofType": {
+                  "ofType": null,
+                  "name": "Int",
+                  "kind": "SCALAR"
+                },
+                "name": null,
+                "kind": "NON_NULL"
               },
               "name": "nonce",
               "isDeprecated": false,
@@ -219,9 +254,13 @@
             },
             {
               "type": {
-                "ofType": null,
-                "name": "Int",
-                "kind": "SCALAR"
+                "ofType": {
+                  "ofType": null,
+                  "name": "Int",
+                  "kind": "SCALAR"
+                },
+                "name": null,
+                "kind": "NON_NULL"
               },
               "name": "strippedSize",
               "isDeprecated": false,
@@ -275,9 +314,13 @@
             },
             {
               "type": {
-                "ofType": null,
-                "name": "Int",
-                "kind": "SCALAR"
+                "ofType": {
+                  "ofType": null,
+                  "name": "Int",
+                  "kind": "SCALAR"
+                },
+                "name": null,
+                "kind": "NON_NULL"
               },
               "name": "version",
               "isDeprecated": false,
@@ -287,9 +330,13 @@
             },
             {
               "type": {
-                "ofType": null,
-                "name": "Int",
-                "kind": "SCALAR"
+                "ofType": {
+                  "ofType": null,
+                  "name": "Int",
+                  "kind": "SCALAR"
+                },
+                "name": null,
+                "kind": "NON_NULL"
               },
               "name": "weight",
               "isDeprecated": false,
@@ -299,7 +346,7 @@
             }
           ],
           "enumValues": null,
-          "description": null
+          "description": "The BitcoinBlock object implements Block interface for Bitcoin chain."
         },
         {
           "possibleTypes": null,
@@ -335,54 +382,6 @@
                 "kind": "NON_NULL"
               },
               "name": "blockHeight",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": {
-                  "ofType": null,
-                  "name": "String",
-                  "kind": "SCALAR"
-                },
-                "name": null,
-                "kind": "NON_NULL"
-              },
-              "name": "chainInstance",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": {
-                  "ofType": null,
-                  "name": "String",
-                  "kind": "SCALAR"
-                },
-                "name": null,
-                "kind": "NON_NULL"
-              },
-              "name": "chainName",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": {
-                  "ofType": null,
-                  "name": "Int",
-                  "kind": "SCALAR"
-                },
-                "name": null,
-                "kind": "NON_NULL"
-              },
-              "name": "confirmations",
               "isDeprecated": false,
               "description": null,
               "deprecationReason": null,
@@ -638,7 +637,7 @@
             }
           ],
           "enumValues": null,
-          "description": null
+          "description": "The BitcoinTransaction objects implements Transaction interface for Bitcoin chain."
         },
         {
           "possibleTypes": null,
@@ -687,7 +686,7 @@
                 "name": null,
                 "kind": "NON_NULL"
               },
-              "name": "endCursor",
+              "name": "cursor",
               "isDeprecated": false,
               "description": null,
               "deprecationReason": null,
@@ -703,7 +702,7 @@
                 "name": null,
                 "kind": "NON_NULL"
               },
-              "name": "hasNext",
+              "name": "next",
               "isDeprecated": false,
               "description": null,
               "deprecationReason": null,
@@ -715,7 +714,7 @@
                 "name": "Int",
                 "kind": "SCALAR"
               },
-              "name": "totalCount",
+              "name": "total",
               "isDeprecated": false,
               "description": null,
               "deprecationReason": null,
@@ -723,7 +722,85 @@
             }
           ],
           "enumValues": null,
-          "description": null
+          "description": "The pagination information."
+        },
+        {
+          "possibleTypes": null,
+          "name": "PagedBitcoinAccounts",
+          "kind": "OBJECT",
+          "interfaces": [],
+          "inputFields": null,
+          "fields": [
+            {
+              "type": {
+                "ofType": {
+                  "ofType": null,
+                  "name": "BitcoinAccount",
+                  "kind": "OBJECT"
+                },
+                "name": null,
+                "kind": "LIST"
+              },
+              "name": "data",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "PageInfo",
+                "kind": "OBJECT"
+              },
+              "name": "page",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            }
+          ],
+          "enumValues": null,
+          "description": "Represents paginated BitcoinAccounts."
+        },
+        {
+          "possibleTypes": null,
+          "name": "PagedBitcoinBlocks",
+          "kind": "OBJECT",
+          "interfaces": [],
+          "inputFields": null,
+          "fields": [
+            {
+              "type": {
+                "ofType": {
+                  "ofType": null,
+                  "name": "BitcoinBlock",
+                  "kind": "OBJECT"
+                },
+                "name": null,
+                "kind": "LIST"
+              },
+              "name": "data",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "PageInfo",
+                "kind": "OBJECT"
+              },
+              "name": "page",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            }
+          ],
+          "enumValues": null,
+          "description": "Represents paginated BitcoinBlocks."
         },
         {
           "possibleTypes": null,
@@ -754,7 +831,7 @@
                 "name": "PageInfo",
                 "kind": "OBJECT"
               },
-              "name": "pageInfo",
+              "name": "page",
               "isDeprecated": false,
               "description": null,
               "deprecationReason": null,
@@ -762,7 +839,7 @@
             }
           ],
           "enumValues": null,
-          "description": null
+          "description": "Represents paginated BitcoinTransactions."
         },
         {
           "possibleTypes": null,
@@ -793,7 +870,7 @@
                 "name": "PageInfo",
                 "kind": "OBJECT"
               },
-              "name": "pageInfo",
+              "name": "page",
               "isDeprecated": false,
               "description": null,
               "deprecationReason": null,
@@ -801,7 +878,7 @@
             }
           ],
           "enumValues": null,
-          "description": null
+          "description": "Represents paginated TransactionInputs."
         },
         {
           "possibleTypes": null,
@@ -832,7 +909,7 @@
                 "name": "PageInfo",
                 "kind": "OBJECT"
               },
-              "name": "pageInfo",
+              "name": "page",
               "isDeprecated": false,
               "description": null,
               "deprecationReason": null,
@@ -840,7 +917,42 @@
             }
           ],
           "enumValues": null,
-          "description": null
+          "description": "Represents paginated TransactionOutputs."
+        },
+        {
+          "possibleTypes": null,
+          "name": "PagingInput",
+          "kind": "INPUT_OBJECT",
+          "interfaces": null,
+          "inputFields": [
+            {
+              "type": {
+                "ofType": null,
+                "name": "String",
+                "kind": "SCALAR"
+              },
+              "name": "cursor",
+              "description": null,
+              "defaultValue": null
+            },
+            {
+              "type": {
+                "ofType": {
+                  "ofType": null,
+                  "name": "Int",
+                  "kind": "SCALAR"
+                },
+                "name": null,
+                "kind": "NON_NULL"
+              },
+              "name": "size",
+              "description": null,
+              "defaultValue": null
+            }
+          ],
+          "fields": null,
+          "enumValues": null,
+          "description": "The common arguments for quering data with pagination."
         },
         {
           "possibleTypes": null,
@@ -851,35 +963,440 @@
           "fields": [
             {
               "type": {
-                "ofType": {
-                  "ofType": null,
-                  "name": "BitcoinBlock",
-                  "kind": "OBJECT"
-                },
-                "name": null,
-                "kind": "LIST"
+                "ofType": null,
+                "name": "BitcoinAccount",
+                "kind": "OBJECT"
               },
-              "name": "blocks",
+              "name": "account",
               "isDeprecated": false,
-              "description": "Get all blocks",
+              "description": "Returns information of an account.",
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": {
+                      "ofType": null,
+                      "name": "String",
+                      "kind": "SCALAR"
+                    },
+                    "name": null,
+                    "kind": "NON_NULL"
+                  },
+                  "name": "address",
+                  "description": "The address generated based on the public key of the account.",
+                  "defaultValue": null
+                }
+              ]
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "BitcoinBlock",
+                "kind": "OBJECT"
+              },
+              "name": "blockByHash",
+              "isDeprecated": false,
+              "description": "Returns a block by it's hash.",
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": {
+                      "ofType": null,
+                      "name": "String",
+                      "kind": "SCALAR"
+                    },
+                    "name": null,
+                    "kind": "NON_NULL"
+                  },
+                  "name": "hash",
+                  "description": "The hash of the block.",
+                  "defaultValue": null
+                }
+              ]
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "BitcoinBlock",
+                "kind": "OBJECT"
+              },
+              "name": "blockByHeight",
+              "isDeprecated": false,
+              "description": "Returns a block by it's height.",
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": {
+                      "ofType": null,
+                      "name": "Int",
+                      "kind": "SCALAR"
+                    },
+                    "name": null,
+                    "kind": "NON_NULL"
+                  },
+                  "name": "height",
+                  "description": "The number of blocks ahead of this block.",
+                  "defaultValue": null
+                }
+              ]
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "PagedBitcoinBlocks",
+                "kind": "OBJECT"
+              },
+              "name": "blocksByHeight",
+              "isDeprecated": false,
+              "description": "Returns blockks with paginations based on their height.",
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": {
+                      "ofType": null,
+                      "name": "Int",
+                      "kind": "SCALAR"
+                    },
+                    "name": null,
+                    "kind": "NON_NULL"
+                  },
+                  "name": "fromHeight",
+                  "description": "The height of block from which to return.",
+                  "defaultValue": null
+                },
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "PagingInput",
+                    "kind": "INPUT_OBJECT"
+                  },
+                  "name": "paging",
+                  "description": "Describes which page of data to return.",
+                  "defaultValue": null
+                },
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "Int",
+                    "kind": "SCALAR"
+                  },
+                  "name": "toHeight",
+                  "description": "The height of block to which to return.",
+                  "defaultValue": null
+                }
+              ]
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "PagedBitcoinBlocks",
+                "kind": "OBJECT"
+              },
+              "name": "emptyBlocks",
+              "isDeprecated": false,
+              "description": "Returns blocks containing only coinbase transaction.",
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": {
+                      "ofType": null,
+                      "name": "Int",
+                      "kind": "SCALAR"
+                    },
+                    "name": null,
+                    "kind": "NON_NULL"
+                  },
+                  "name": "fromHeight",
+                  "description": "The height of block from which to return.",
+                  "defaultValue": null
+                },
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "PagingInput",
+                    "kind": "INPUT_OBJECT"
+                  },
+                  "name": "paging",
+                  "description": "Describes which page of data to return.",
+                  "defaultValue": null
+                },
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "Int",
+                    "kind": "SCALAR"
+                  },
+                  "name": "toHeight",
+                  "description": "The height of block to which to return.",
+                  "defaultValue": null
+                }
+              ]
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "BitcoinBlock",
+                "kind": "OBJECT"
+              },
+              "name": "genesisBlock",
+              "isDeprecated": false,
+              "description": "Returns the genesis block.",
               "deprecationReason": null,
               "args": []
             },
             {
               "type": {
-                "ofType": {
-                  "ofType": null,
-                  "name": "BitcoinTransaction",
-                  "kind": "OBJECT"
-                },
-                "name": null,
-                "kind": "LIST"
+                "ofType": null,
+                "name": "PagedBitcoinAccounts",
+                "kind": "OBJECT"
               },
-              "name": "transactions",
+              "name": "richestAccounts",
               "isDeprecated": false,
-              "description": "Get all transactions",
+              "description": "Returns richest accounts, order by balance.",
               "deprecationReason": null,
-              "args": []
+              "args": [
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "PagingInput",
+                    "kind": "INPUT_OBJECT"
+                  },
+                  "name": "paging",
+                  "description": "Describes which page of data to return.",
+                  "defaultValue": null
+                }
+              ]
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "BitcoinTransaction",
+                "kind": "OBJECT"
+              },
+              "name": "transactionByHash",
+              "isDeprecated": false,
+              "description": "Returns a transaction by it's hash.",
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": {
+                      "ofType": null,
+                      "name": "String",
+                      "kind": "SCALAR"
+                    },
+                    "name": null,
+                    "kind": "NON_NULL"
+                  },
+                  "name": "hash",
+                  "description": "The hash of the transaction to return.",
+                  "defaultValue": null
+                }
+              ]
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "BitcoinTransaction",
+                "kind": "OBJECT"
+              },
+              "name": "transactionByIndex",
+              "isDeprecated": false,
+              "description": "Returns a transaction within a block by given the block hash or height and the transaction's index.",
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "String",
+                    "kind": "SCALAR"
+                  },
+                  "name": "blockHash",
+                  "description": "The hash of the block containing the target transaction.",
+                  "defaultValue": null
+                },
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "Int",
+                    "kind": "SCALAR"
+                  },
+                  "name": "blockHeight",
+                  "description": "The height of the block containing the target transaction.",
+                  "defaultValue": null
+                },
+                {
+                  "type": {
+                    "ofType": {
+                      "ofType": null,
+                      "name": "Int",
+                      "kind": "SCALAR"
+                    },
+                    "name": null,
+                    "kind": "NON_NULL"
+                  },
+                  "name": "index",
+                  "description": "The index of the transaction insdie the block.",
+                  "defaultValue": null
+                }
+              ]
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "PagedBitcoinTransactions",
+                "kind": "OBJECT"
+              },
+              "name": "transactionsByAddress",
+              "isDeprecated": false,
+              "description": "Returns transactions with paginations.",
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "PagingInput",
+                    "kind": "INPUT_OBJECT"
+                  },
+                  "name": "paging",
+                  "description": "Describes which page of data to return.",
+                  "defaultValue": null
+                },
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "String",
+                    "kind": "SCALAR"
+                  },
+                  "name": "receiver",
+                  "description": "Specifies the receiver's address.",
+                  "defaultValue": null
+                },
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "String",
+                    "kind": "SCALAR"
+                  },
+                  "name": "sender",
+                  "description": "Specifies the sender's address.",
+                  "defaultValue": null
+                }
+              ]
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "PagedBitcoinTransactions",
+                "kind": "OBJECT"
+              },
+              "name": "transactionsByIndex",
+              "isDeprecated": false,
+              "description": "Returns transactions within a block by given the block hash or height and the range of the transaction index.",
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "String",
+                    "kind": "SCALAR"
+                  },
+                  "name": "blockHash",
+                  "description": "The hash of the block containing the target transactions.",
+                  "defaultValue": null
+                },
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "Int",
+                    "kind": "SCALAR"
+                  },
+                  "name": "blockHeight",
+                  "description": "The height of the block containing the target transactions.",
+                  "defaultValue": null
+                },
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "Int",
+                    "kind": "SCALAR"
+                  },
+                  "name": "fromIndex",
+                  "description": "The index of the transaction from which to return.",
+                  "defaultValue": null
+                },
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "PagingInput",
+                    "kind": "INPUT_OBJECT"
+                  },
+                  "name": "paging",
+                  "description": "Describes which page of data to return.",
+                  "defaultValue": null
+                },
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "Int",
+                    "kind": "SCALAR"
+                  },
+                  "name": "toIndex",
+                  "description": "The index of the transaction to which to return.",
+                  "defaultValue": null
+                }
+              ]
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "PagedBitcoinBlocks",
+                "kind": "OBJECT"
+              },
+              "name": "zeroFeesBlocks",
+              "isDeprecated": false,
+              "description": "Returns blocks having no fees collected.",
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": {
+                      "ofType": null,
+                      "name": "Int",
+                      "kind": "SCALAR"
+                    },
+                    "name": null,
+                    "kind": "NON_NULL"
+                  },
+                  "name": "fromHeight",
+                  "description": "The height of block from which to return.",
+                  "defaultValue": null
+                },
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "PagingInput",
+                    "kind": "INPUT_OBJECT"
+                  },
+                  "name": "paging",
+                  "description": "Describes which page of data to return.",
+                  "defaultValue": null
+                },
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "Int",
+                    "kind": "SCALAR"
+                  },
+                  "name": "toHeight",
+                  "description": "The height of block to which to return.",
+                  "defaultValue": null
+                }
+              ]
             }
           ],
           "enumValues": null,
@@ -941,38 +1458,6 @@
                 "kind": "NON_NULL"
               },
               "name": "blockHeight",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": {
-                  "ofType": null,
-                  "name": "String",
-                  "kind": "SCALAR"
-                },
-                "name": null,
-                "kind": "NON_NULL"
-              },
-              "name": "chainInstance",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": {
-                  "ofType": null,
-                  "name": "String",
-                  "kind": "SCALAR"
-                },
-                "name": null,
-                "kind": "NON_NULL"
-              },
-              "name": "chainName",
               "isDeprecated": false,
               "description": null,
               "deprecationReason": null,
@@ -1116,7 +1601,7 @@
             }
           ],
           "enumValues": null,
-          "description": null
+          "description": "The TransactionInput object represents the transaction inputs in a Bitcoin transaction."
         },
         {
           "possibleTypes": null,
@@ -1173,38 +1658,6 @@
               "type": {
                 "ofType": {
                   "ofType": null,
-                  "name": "String",
-                  "kind": "SCALAR"
-                },
-                "name": null,
-                "kind": "NON_NULL"
-              },
-              "name": "chainInstance",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": {
-                  "ofType": null,
-                  "name": "String",
-                  "kind": "SCALAR"
-                },
-                "name": null,
-                "kind": "NON_NULL"
-              },
-              "name": "chainName",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": {
-                  "ofType": null,
                   "name": "Int",
                   "kind": "SCALAR"
                 },
@@ -1236,30 +1689,6 @@
                 "kind": "SCALAR"
               },
               "name": "scriptType",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": null,
-                "name": "Int",
-                "kind": "SCALAR"
-              },
-              "name": "spentBy",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": null,
-                "name": "String",
-                "kind": "SCALAR"
-              },
-              "name": "spentIn",
               "isDeprecated": false,
               "description": null,
               "deprecationReason": null,
@@ -1315,7 +1744,7 @@
             }
           ],
           "enumValues": null,
-          "description": null
+          "description": "The TransactionInput object represents the transaction outputs in a Bitcoin transaction."
         },
         {
           "possibleTypes": null,

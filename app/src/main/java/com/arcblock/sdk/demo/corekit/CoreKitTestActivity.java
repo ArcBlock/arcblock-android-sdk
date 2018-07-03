@@ -51,8 +51,8 @@ public class CoreKitTestActivity extends AppCompatActivity {
         findViewById(R.id.query_transactions_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(CoreKitTestActivity.this, QueryTransactionsActivity.class);
-                startActivity(intent);
+                //Intent intent = new Intent(CoreKitTestActivity.this, QueryTransactionsActivity.class);
+                //startActivity(intent);
             }
         });
     }

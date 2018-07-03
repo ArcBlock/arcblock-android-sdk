@@ -1,0 +1,11 @@
+query blocksByHeight ($fromHeight: Int!){
+  blocksByHeight(fromHeight: $fromHeight) {
+    data {
+      height
+      fees
+      total
+      hash
+      numberTxs
+    }
+  }
+}

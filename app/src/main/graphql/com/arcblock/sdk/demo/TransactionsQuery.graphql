@@ -1,8 +1,0 @@
-query Transactions {
-  transactions {
-    hash
-    total
-    blockHeight
-    fees
-  }
-}

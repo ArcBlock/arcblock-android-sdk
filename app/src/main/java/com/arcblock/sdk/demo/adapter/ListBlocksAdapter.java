@@ -23,20 +23,20 @@ package com.arcblock.sdk.demo.adapter;
 
 import android.support.annotation.Nullable;
 
-import com.arcblock.sdk.demo.ListBlocksQuery;
+import com.arcblock.sdk.demo.BlocksByHeightQuery;
 import com.arcblock.sdk.demo.R;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 
 import java.util.List;
 
-public class ListBlocksAdapter extends BaseQuickAdapter<ListBlocksQuery.Block, BaseViewHolder> {
-	public ListBlocksAdapter(int layoutResId, @Nullable List<ListBlocksQuery.Block> data) {
+public class ListBlocksAdapter extends BaseQuickAdapter<BlocksByHeightQuery.Datum, BaseViewHolder> {
+	public ListBlocksAdapter(int layoutResId, @Nullable List<BlocksByHeightQuery.Datum> data) {
 		super(layoutResId, data);
 	}
 
 	@Override
-	protected void convert(BaseViewHolder helper, ListBlocksQuery.Block item) {
+	protected void convert(BaseViewHolder helper, BlocksByHeightQuery.Datum item) {
 		helper.setText(R.id.hash_tv, item.getHash());
 		helper.setText(R.id.txs_tv, "numberTxs:" + item.getNumberTxs());
 		helper.setText(R.id.height_tv, "height:" + item.getHeight());
