@@ -52,9 +52,9 @@ run: clean
 deploy: release
 	@echo "Deploy software into local machine..."
 
-upload-library: clean
+upload-library:
 	@echo "Deploy library to s3..."
-	./gradlew absdkcorekit:publish
+	./gradlew clean absdkcorekit:publish
 
 include .makefiles/release.mk
 .PHONY: clean build init lint test doc precommit travis-init travis travis-deploy run deploy
