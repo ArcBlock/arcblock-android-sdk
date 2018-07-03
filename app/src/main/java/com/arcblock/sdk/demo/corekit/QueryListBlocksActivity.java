@@ -40,7 +40,7 @@ import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.arcblock.corekit.ABCoreKit;
-import com.arcblock.sdk.demo.ListBlocksQuery;
+import com.arcblock.sdk.demo.BlocksByHeightQuery;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.ListBlocksAdapter;
 
@@ -57,8 +57,8 @@ public class QueryListBlocksActivity extends AppCompatActivity {
 	ViewGroup content;
 	ProgressBar progressBar;
 	Handler uiHandler = new Handler(Looper.getMainLooper());
-	ApolloCall<ListBlocksQuery.Data> listBlocksCall;
-	List<ListBlocksQuery.Block> mBlocks = new ArrayList<>();
+	ApolloCall<BlocksByHeightQuery.Data> listBlocksCall;
+	List<BlocksByHeightQuery.Datum> mBlocks = new ArrayList<>();
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,15 +79,18 @@ public class QueryListBlocksActivity extends AppCompatActivity {
 		fetchListBlocks();
 	}
 
-	private ApolloCall.Callback<ListBlocksQuery.Data> dataCallback
-			= new ApolloCallback<>(new ApolloCall.Callback<ListBlocksQuery.Data>() {
+	private ApolloCall.Callback<BlocksByHeightQuery.Data> dataCallback
+			= new ApolloCallback<>(new ApolloCall.Callback<BlocksByHeightQuery.Data>() {
 		@Override
-		public void onResponse(@NotNull Response<ListBlocksQuery.Data> response) {
-			mBlocks.clear();
-			mBlocks.addAll(response.data().getBlocks());
-			mListBlocksAdapter.notifyDataSetChanged();
+		public void onResponse(@NotNull Response<BlocksByHeightQuery.Data> response) {
 			progressBar.setVisibility(View.GONE);
 			content.setVisibility(View.VISIBLE);
+			if(response.data()!=null && response.data().getBlocksByHeight()!=null
+					&& response.data().getBlocksByHeight().getData() !=null){
+				mBlocks.clear();
+				mBlocks.addAll(response.data().getBlocksByHeight().getData());
+				mListBlocksAdapter.notifyDataSetChanged();
+			}
 		}
 
 		@Override
@@ -97,9 +100,10 @@ public class QueryListBlocksActivity extends AppCompatActivity {
 	}, uiHandler);
 
 	private void fetchListBlocks() {
-		ListBlocksQuery listBlocksQuery = ListBlocksQuery.builder()
+		BlocksByHeightQuery listBlocksQuery = BlocksByHeightQuery.builder()
+				.fromHeight(10010)
 				.build();
-		listBlocksCall = ABCoreKit.getInstance().apolloClient()
+		listBlocksCall = ABCoreKit.getInstance().abCoreKitClient()
 				.query(listBlocksQuery)
 				.responseFetcher(ApolloResponseFetchers.NETWORK_FIRST);
 		listBlocksCall.enqueue(dataCallback);
