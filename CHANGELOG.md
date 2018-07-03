@@ -1,3 +1,8 @@
+## 0.0.9 (July 03, 2018)
+  - modify makefile
+  - Merge branch 'master' into feature/ch401/upload-library-to-s3
+  - add upload library to s3 settings.
+
 ## 0.0.8 (July 03, 2018)
   - Revert "bump version"
   - bump version
