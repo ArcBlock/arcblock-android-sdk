@@ -1,6 +1,8 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.apollographql.android'
 
+version = new File('version').text.replace("\n","")
+
 apollo {
 	// this tells the apollo compiler to generate actual static classes instead of just interfaces (more on that later)
 	useJavaBeansSemanticNaming = true
@@ -13,7 +15,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 27
         versionCode 1
-        versionName "1.0"
+        versionName version
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 	}
 
@@ -60,6 +62,10 @@ dependencies {
 	androidTestImplementation 'com.android.support.test:runner:1.0.2'
 	androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 	implementation project(':absdkcorekit')
+	//	def absdkcorekitversion = "0.0.9"
+	//	implementation ("com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"){
+	//		transitive = true
+	//	}
 	// https://github.com/mapbox/mapbox-navigation-android/issues/864
 	// we'd need to explicitly include android.arch.lifecycle:extensions:1.1.1
 	// in the app's build.gradle file to force use android.arch.lifecycle:runtime:1.1.1
