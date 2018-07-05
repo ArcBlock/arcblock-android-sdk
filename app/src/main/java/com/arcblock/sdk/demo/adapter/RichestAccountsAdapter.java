@@ -19,53 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.corekit;
+package com.arcblock.sdk.demo.adapter;
 
-import android.content.Context;
+import android.support.annotation.Nullable;
 
-import com.arcblock.corekit.data.db.DatabaseManager;
-import com.facebook.stetho.Stetho;
+import com.arcblock.sdk.demo.R;
+import com.arcblock.sdk.demo.RichestAccountsQuery;
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.BaseViewHolder;
 
-import org.jetbrains.annotations.NotNull;
+import java.util.List;
 
-public class ABCoreKit {
-
-	private static ABCoreKit INSTANCE = null;
-	private ABCoreKitClient mABCoreClient;
-
-	private ABCoreKit() {
+public class RichestAccountsAdapter extends BaseQuickAdapter<RichestAccountsQuery.Datum, BaseViewHolder> {
+	public RichestAccountsAdapter(int layoutResId, @Nullable List<RichestAccountsQuery.Datum> data) {
+		super(layoutResId, data);
 	}
 
-	public static ABCoreKit getInstance() {
-		if (INSTANCE == null) {
-			synchronized (ABCoreKit.class) {
-				if (INSTANCE == null) {
-					INSTANCE = new ABCoreKit();
-				}
-			}
-		}
-		return INSTANCE;
+	@Override
+	protected void convert(BaseViewHolder helper, RichestAccountsQuery.Datum item) {
+		helper.setText(R.id.address_tv, (helper.getAdapterPosition() + 1) + ". " + item.getAddress());
+		helper.setText(R.id.balance_tv, item.getBalance() + "BTC");
 	}
-
-	/**
-	 * @param context
-	 * @param isDebug
-	 */
-	public void init(Context context, final boolean isDebug) {
-		DatabaseManager.getInstance().createDB(context);
-		if (isDebug) {
-			Stetho.initializeWithDefaults(context);
-		}
-		mABCoreClient = ABCoreKitClient.builder(context)
-				.build();
-	}
-
-	@NotNull
-	public ABCoreKitClient abCoreKitClient() {
-		if (mABCoreClient == null) {
-			throw new RuntimeException("Please init corekit first.");
-		}
-		return mABCoreClient;
-	}
-
 }

@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.arcblock.sdk.demo.corekit.QueryListBlocksActivity;
+import com.arcblock.sdk.demo.corekit.QueryRichestAccountsActivity;
 
 public class CoreKitFragment extends Fragment {
 
@@ -53,6 +54,14 @@ public class CoreKitFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(getActivity(), QueryListBlocksActivity.class);
+				startActivity(intent);
+			}
+		});
+
+		view.findViewById(R.id.query_richest_accounts_btn).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(getActivity(), QueryRichestAccountsActivity.class);
 				startActivity(intent);
 			}
 		});

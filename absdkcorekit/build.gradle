@@ -61,7 +61,7 @@ dependencies {
 	api "com.apollographql.apollo:apollo-android-support:$apolloReleaseVersion"
 	api "com.apollographql.apollo:apollo-rx2-support:$apolloReleaseVersion"
 
-	implementation 'com.squareup.okhttp3:logging-interceptor:3.5.0'
+	implementation 'com.squareup.okhttp3:logging-interceptor:3.8.1'
 	implementation 'com.jakewharton.timber:timber:4.7.0'
 }
 
