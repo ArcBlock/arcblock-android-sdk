@@ -21,11 +21,7 @@
 			</intent-filter>
 		</activity>
 
-		<activity
-			android:name=".corekit.CoreKitTestActivity"
-			android:screenOrientation="portrait"
-			android:windowSoftInputMode="adjustNothing|stateAlwaysHidden"/>
-		<activity
+        <activity
 			android:name=".corekit.QueryListBlocksActivity"
 			android:screenOrientation="portrait"
 			android:windowSoftInputMode="adjustNothing|stateAlwaysHidden"/>

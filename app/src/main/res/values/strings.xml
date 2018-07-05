@@ -7,4 +7,7 @@
 	<string name="query_list_blocks_data">Query List Blocks</string>
 	<string name="query_transactions_data">Query Transactions(ToDo)</string>
 	<string name="test_add_new_data_to_db">Test add a new data to db</string>
+	<string name="core_kit_tab">CoreKit</string>
+	<string name="account_tab">Account</string>
+	<string name="message_tab">Message</string>
 </resources>
