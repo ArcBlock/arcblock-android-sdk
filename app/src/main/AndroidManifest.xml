@@ -26,7 +26,7 @@
 			android:screenOrientation="portrait"
 			android:windowSoftInputMode="adjustNothing|stateAlwaysHidden"/>
 		<activity
-			android:name=".corekit.QueryTransactionsActivity"
+			android:name=".corekit.PizzaTransactionActivity"
 			android:screenOrientation="portrait"
 			android:windowSoftInputMode="adjustNothing|stateAlwaysHidden"/>
 		<activity
