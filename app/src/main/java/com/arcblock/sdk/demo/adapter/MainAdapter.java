@@ -19,53 +19,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.corekit;
+package com.arcblock.sdk.demo.adapter;
 
-import android.content.Context;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.arcblock.corekit.data.db.DatabaseManager;
-import com.facebook.stetho.Stetho;
+import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
+public class MainAdapter extends FragmentStatePagerAdapter {
+	private List<Fragment> mFragments;
+	private List<String> mTitles;
 
-public class ABCoreKit {
-
-	private static ABCoreKit INSTANCE = null;
-	private ABCoreKitClient mABCoreClient;
-
-	private ABCoreKit() {
+	public MainAdapter(FragmentManager fm, List<Fragment> fragments, List<String> titles) {
+		super(fm);
+		mFragments = fragments;
+		mTitles = titles;
 	}
 
-	public static ABCoreKit getInstance() {
-		if (INSTANCE == null) {
-			synchronized (ABCoreKit.class) {
-				if (INSTANCE == null) {
-					INSTANCE = new ABCoreKit();
-				}
-			}
-		}
-		return INSTANCE;
+	@Override
+	public Fragment getItem(int position) {
+		return mFragments.get(position);
 	}
 
-	/**
-	 * @param context
-	 * @param isDebug
-	 */
-	public void init(Context context, final boolean isDebug) {
-		DatabaseManager.getInstance().createDB(context);
-		if (isDebug) {
-			Stetho.initializeWithDefaults(context);
-		}
-		mABCoreClient = ABCoreKitClient.builder(context)
-				.build();
+	@Override
+	public int getCount() {
+		return mFragments == null ? 0 : mFragments.size();
 	}
 
-	@NotNull
-	public ABCoreKitClient abCoreKitClient() {
-		if (mABCoreClient == null) {
-			throw new RuntimeException("Please init corekit first.");
-		}
-		return mABCoreClient;
+	@Override
+	public CharSequence getPageTitle(int position) {
+		return mTitles.get(position);
 	}
-
 }

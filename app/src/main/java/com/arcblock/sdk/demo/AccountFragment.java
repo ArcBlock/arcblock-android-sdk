@@ -19,53 +19,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.corekit;
+package com.arcblock.sdk.demo;
 
-import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
-import com.arcblock.corekit.data.db.DatabaseManager;
-import com.facebook.stetho.Stetho;
+public class AccountFragment extends Fragment {
 
-import org.jetbrains.annotations.NotNull;
-
-public class ABCoreKit {
-
-	private static ABCoreKit INSTANCE = null;
-	private ABCoreKitClient mABCoreClient;
-
-	private ABCoreKit() {
+	public static AccountFragment newInstance() {
+		AccountFragment fragment = new AccountFragment();
+		return fragment;
 	}
 
-	public static ABCoreKit getInstance() {
-		if (INSTANCE == null) {
-			synchronized (ABCoreKit.class) {
-				if (INSTANCE == null) {
-					INSTANCE = new ABCoreKit();
-				}
-			}
-		}
-		return INSTANCE;
+	@Nullable
+	@Override
+	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.frag_account, null);
+		return view;
 	}
 
-	/**
-	 * @param context
-	 * @param isDebug
-	 */
-	public void init(Context context, final boolean isDebug) {
-		DatabaseManager.getInstance().createDB(context);
-		if (isDebug) {
-			Stetho.initializeWithDefaults(context);
-		}
-		mABCoreClient = ABCoreKitClient.builder(context)
-				.build();
+	@Override
+	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
 	}
 
-	@NotNull
-	public ABCoreKitClient abCoreKitClient() {
-		if (mABCoreClient == null) {
-			throw new RuntimeException("Please init corekit first.");
-		}
-		return mABCoreClient;
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
 	}
 
 }

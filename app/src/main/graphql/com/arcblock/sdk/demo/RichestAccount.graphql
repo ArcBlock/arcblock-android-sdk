@@ -1,0 +1,8 @@
+query richestAccounts {
+  richestAccounts {
+    data {
+      address
+      balance
+    }
+  }
+}

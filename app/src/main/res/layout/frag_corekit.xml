@@ -19,15 +19,31 @@
                 android:id="@+id/query_list_blocks_data_btn"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/btn_height"
+                android:background="@drawable/btn_bg"
                 android:text="@string/query_list_blocks_data"
-                android:textAllCaps="false"/>
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
 
             <Button
-                android:id="@+id/query_transactions_btn"
+                android:id="@+id/query_richest_accounts_btn"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/btn_height"
-                android:text="@string/query_transactions_data"
-                android:textAllCaps="false"/>
+                android:layout_marginTop="@dimen/top_margin"
+                android:background="@drawable/btn_bg"
+                android:text="@string/query_richest_account_data"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <Button
+                android:id="@+id/query_pizza_transaction_btn"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_height"
+                android:layout_marginBottom="@dimen/bottom_margin"
+                android:layout_marginTop="@dimen/top_margin"
+                android:background="@drawable/btn_bg"
+                android:text="@string/query_pizza_transaction"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
 
         </LinearLayout>
 

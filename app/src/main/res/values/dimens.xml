@@ -4,4 +4,5 @@
     <dimen name="page_padding">15dp</dimen>
     <dimen name="txt_padding">8dp</dimen>
     <dimen name="top_margin">10dp</dimen>
+    <dimen name="bottom_margin">10dp</dimen>
 </resources>

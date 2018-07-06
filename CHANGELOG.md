@@ -1,3 +1,8 @@
+## 0.0.11 (July 06, 2018)
+  - add pizza transaction
+  - add richest accounts query.
+  - change activity to fragment for reuse and manage.
+
 ## 0.0.10 (July 03, 2018)
   - make sdk demo implementation s3 maven repo
 
