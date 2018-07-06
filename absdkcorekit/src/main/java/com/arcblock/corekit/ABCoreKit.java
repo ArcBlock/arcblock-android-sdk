@@ -28,6 +28,10 @@ import com.facebook.stetho.Stetho;
 
 import org.jetbrains.annotations.NotNull;
 
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import timber.log.Timber;
+
 public class ABCoreKit {
 
 	private static ABCoreKit INSTANCE = null;
@@ -55,8 +59,24 @@ public class ABCoreKit {
 		DatabaseManager.getInstance().createDB(context);
 		if (isDebug) {
 			Stetho.initializeWithDefaults(context);
+			Timber.plant(new Timber.DebugTree());
 		}
+
+		HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
+			@Override
+			public void log(String message) {
+				Timber.tag("ABCorekit-Okhttp").d(message);
+			}
+		});
+
+		OkHttpClient okHttpClient = new OkHttpClient.Builder()
+				.addInterceptor(loggingInterceptor)
+				.build();
+
+		loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+
 		mABCoreClient = ABCoreKitClient.builder(context)
+				.setOkHttpClient(okHttpClient)
 				.build();
 	}
 

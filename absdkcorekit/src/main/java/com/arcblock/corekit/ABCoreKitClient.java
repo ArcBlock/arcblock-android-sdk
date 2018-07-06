@@ -40,7 +40,6 @@ import com.apollographql.apollo.cache.normalized.sql.ApolloSqlHelper;
 import com.apollographql.apollo.cache.normalized.sql.SqlNormalizedCacheFactory;
 import com.apollographql.apollo.fetcher.ResponseFetcher;
 import com.apollographql.apollo.response.CustomTypeAdapter;
-import com.arcblock.corekit.util.SSLSocketClient;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -49,8 +48,6 @@ import java.util.concurrent.Executor;
 import javax.annotation.Nonnull;
 
 import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
-import timber.log.Timber;
 
 import static com.apollographql.apollo.fetcher.ApolloResponseFetchers.CACHE_FIRST;
 
@@ -69,20 +66,7 @@ public class ABCoreKitClient {
 			okHttpClientBuilder = builder.mOkHttpClient.newBuilder();
 		}
 
-		HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
-			@Override
-			public void log(String message) {
-				Timber.tag("ABCorekit-Okhttp").d(message);
-			}
-		});
-
-		okHttpClientBuilder
-				.addInterceptor(loggingInterceptor)
-				.sslSocketFactory(SSLSocketClient.getSSLSocketFactory())//配置
-				.hostnameVerifier(SSLSocketClient.getHostnameVerifier());//配置
 		OkHttpClient okHttpClient = okHttpClientBuilder.build();
-
-		loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
 		ApolloClient.Builder apolloClientBuilder = ApolloClient.builder()
 				.serverUrl(BASE_URL)
