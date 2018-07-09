@@ -1,3 +1,6 @@
+## 0.0.12 (July 06, 2018)
+  - enable ssl for android https request
+
 ## 0.0.11 (July 06, 2018)
   - add pizza transaction
   - add richest accounts query.
