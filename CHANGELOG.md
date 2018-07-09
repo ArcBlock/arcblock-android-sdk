@@ -1,3 +1,6 @@
+## 0.0.13 (July 09, 2018)
+  - add ui test for android
+
 ## 0.0.12 (July 06, 2018)
   - enable ssl for android https request
 
