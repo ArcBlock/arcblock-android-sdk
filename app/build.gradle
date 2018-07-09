@@ -1,5 +1,10 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.apollographql.android'
+apply plugin: 'jacoco'
+
+jacoco {
+	toolVersion = "0.7.1.201405082137"
+}
 
 version = new File('version').text.replace("\n","")
 
@@ -38,6 +43,7 @@ android {
 		}
 		debug {
 			signingConfig signingConfigs.signingConfig
+			testCoverageEnabled = true
 		}
 	}
 

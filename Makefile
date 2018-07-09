@@ -22,6 +22,9 @@ doc:
 	@echo "Building the documenation..."
 	javadoc @docargfile -header '<b>ArcBlock Android Sdk Documents</b><br><font size="-1">$(VERSION)</font>'
 
+coveragereport: clean
+	@echo "Generate CoverageReport..."
+	./gradlew :app:createDebugCoverageReport
 
 precommit: lint test build clean
 
@@ -57,4 +60,4 @@ upload-library:
 	./gradlew clean absdkcorekit:publish
 
 include .makefiles/release.mk
-.PHONY: clean build init lint test doc precommit travis-init travis travis-deploy run deploy
+.PHONY: clean build init lint test doc precommit travis-init travis travis-deploy run deploy coveragereport
