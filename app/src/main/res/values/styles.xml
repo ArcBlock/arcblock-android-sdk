@@ -8,9 +8,76 @@
 		<item name="colorAccent">@color/colorAccent</item>
 	</style>
 
-
 	<style name="TabLayoutTextStyle" parent="TextAppearance.Design.Tab">
 		<item name="textAllCaps">false</item>
+	</style>
+
+	<style name="TextViewBase">
+		<item name="android:layout_width">wrap_content</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:singleLine">true</item>
+		<!--<item name="android:textCursorDrawable">@drawable/black_cursor</item>-->
+		<item name="android:ellipsize">end</item>
+	</style>
+
+	<style name="TextView12" parent="TextViewBase">
+		<item name="android:textSize">@dimen/text_font_size_12sp</item>
+	</style>
+
+	<style name="TextView14" parent="TextViewBase">
+		<item name="android:textSize">@dimen/text_font_size_14sp</item>
+	</style>
+
+	<style name="TextView16" parent="TextViewBase">
+		<item name="android:textSize">@dimen/text_font_size_16sp</item>
+	</style>
+
+	<style name="TextView18" parent="TextViewBase">
+		<item name="android:textSize">@dimen/text_font_size_18sp</item>
+	</style>
+
+	<style name="TextView22" parent="TextViewBase">
+		<item name="android:textSize">@dimen/text_font_size_22sp</item>
+	</style>
+
+	<style name="TextView12_black" parent="TextView12">
+		<item name="android:textColor">@color/txt_black</item>
+	</style>
+
+	<style name="TextView12_gray" parent="TextView12">
+		<item name="android:textColor">@color/txt_gray</item>
+	</style>
+
+	<style name="TextView14_black" parent="TextView14">
+		<item name="android:textColor">@color/txt_black</item>
+	</style>
+
+	<style name="TextView14_gray" parent="TextView14">
+		<item name="android:textColor">@color/txt_gray</item>
+	</style>
+
+	<style name="TextView16_black" parent="TextView16">
+		<item name="android:textColor">@color/txt_black</item>
+	</style>
+
+	<style name="TextView16_gray" parent="TextView16">
+		<item name="android:textColor">@color/txt_gray</item>
+	</style>
+
+	<style name="TextView18_black" parent="TextView18">
+		<item name="android:textColor">@color/txt_black</item>
+	</style>
+
+	<style name="TextView18_gray" parent="TextView18">
+		<item name="android:textColor">@color/txt_gray</item>
+	</style>
+
+	<style name="TextView22_black" parent="TextView22">
+		<item name="android:textColor">@color/txt_black</item>
+	</style>
+
+	<style name="TextView22_gray" parent="TextView22">
+		<item name="android:textColor">@color/txt_gray</item>
 	</style>
 
 </resources>
