@@ -39,7 +39,7 @@ import com.apollographql.apollo.ApolloCallback;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
-import com.arcblock.corekit.ABCoreKit;
+import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.RichestAccountsQuery;
 import com.arcblock.sdk.demo.adapter.RichestAccountsAdapter;
@@ -102,7 +102,7 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
 	private void fetchRichestAccounts() {
 		RichestAccountsQuery richestAccountsQuery = RichestAccountsQuery.builder()
 				.build();
-		richestAccountsCall = ABCoreKit.getInstance().abCoreKitClient()
+		richestAccountsCall = DemoApplication.getInstance().abCoreKitClient()
 				.query(richestAccountsQuery)
 				.responseFetcher(ApolloResponseFetchers.NETWORK_FIRST);
 		richestAccountsCall.enqueue(dataCallback);

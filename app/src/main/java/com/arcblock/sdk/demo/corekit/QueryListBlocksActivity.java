@@ -40,8 +40,8 @@ import com.apollographql.apollo.ApolloCallback;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
-import com.arcblock.corekit.ABCoreKit;
 import com.arcblock.sdk.demo.BlocksByHeightQuery;
+import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.ListBlocksAdapter;
 import com.chad.library.adapter.base.BaseQuickAdapter;
@@ -113,9 +113,9 @@ public class QueryListBlocksActivity extends AppCompatActivity {
 
 	private void fetchListBlocks() {
 		BlocksByHeightQuery listBlocksQuery = BlocksByHeightQuery.builder()
-				.fromHeight(10010)
+				.fromHeight(482244)
 				.build();
-		listBlocksCall = ABCoreKit.getInstance().abCoreKitClient()
+		listBlocksCall = DemoApplication.getInstance().abCoreKitClient()
 				.query(listBlocksQuery)
 				.responseFetcher(ApolloResponseFetchers.NETWORK_FIRST);
 		listBlocksCall.enqueue(dataCallback);

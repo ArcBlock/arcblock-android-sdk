@@ -36,7 +36,7 @@ import com.apollographql.apollo.ApolloCallback;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
-import com.arcblock.corekit.ABCoreKit;
+import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.PizzaTransactionQuery;
 import com.arcblock.sdk.demo.R;
 
@@ -124,7 +124,7 @@ public class PizzaTransactionActivity extends AppCompatActivity {
 				.sender("17SkEw2md5avVNyYgj6RiXuQKNwkXaxFyQ")
 				.receiver("13TETb2WMr58mexBaNq1jmXV1J7Abk2tE2")
 				.build();
-		pizzaTransactionCall = ABCoreKit.getInstance().abCoreKitClient()
+		pizzaTransactionCall = DemoApplication.getInstance().abCoreKitClient()
 				.query(pizzaTransactionQuery)
 				.responseFetcher(ApolloResponseFetchers.NETWORK_FIRST);
 		pizzaTransactionCall.enqueue(dataCallback);

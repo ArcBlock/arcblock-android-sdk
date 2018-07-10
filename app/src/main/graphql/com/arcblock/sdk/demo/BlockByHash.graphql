@@ -1,0 +1,19 @@
+query blockByHash ($hash: String!) {
+  blockByHash (hash:$hash) {
+    height
+    size
+    strippedSize
+    weight
+    numberTxs
+    version
+    bits
+    nonce
+    time
+    preHash
+    transactions{
+      data{
+        hash
+      }
+    }
+  }
+}
