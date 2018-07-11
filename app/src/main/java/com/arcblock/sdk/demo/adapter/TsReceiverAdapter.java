@@ -24,20 +24,20 @@ package com.arcblock.sdk.demo.adapter;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.arcblock.sdk.demo.AccountByAddressQuery;
 import com.arcblock.sdk.demo.R;
-import com.arcblock.sdk.demo.TransactionByHashQuery;
 import com.arcblock.sdk.demo.adapter.base.BaseViewHolder;
 import com.arcblock.sdk.demo.adapter.base.CustomBaseAdapter;
 
 import java.util.List;
 
-public class TsOutputsAdapter extends CustomBaseAdapter<TransactionByHashQuery.Datum> {
-	public TsOutputsAdapter(Context context, int resource, List<TransactionByHashQuery.Datum> list) {
+public class TsReceiverAdapter extends CustomBaseAdapter<AccountByAddressQuery.Datum> {
+	public TsReceiverAdapter(Context context, int resource, List<AccountByAddressQuery.Datum> list) {
 		super(context, resource, list);
 	}
 
 	@Override
-	public void setConvert(BaseViewHolder viewHolder, TransactionByHashQuery.Datum datum) {
-		viewHolder.setTextView(R.id.item_tv, TextUtils.isEmpty(datum.getAccount()) ? "Account is empty" : datum.getAccount());
+	public void setConvert(BaseViewHolder viewHolder, AccountByAddressQuery.Datum datum) {
+		viewHolder.setTextView(R.id.item_tv, TextUtils.isEmpty(datum.getHash()) ? "txsHash is empty!" : datum.getHash());
 	}
 }

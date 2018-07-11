@@ -21,6 +21,7 @@
  */
 package com.arcblock.sdk.demo.corekit;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -29,6 +30,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -70,7 +72,7 @@ public class TransactionDetailActivity extends AppCompatActivity {
 	private ListView output_lv;
 
 	private boolean isInputLvShow = true;
-	private boolean isOutputLvShow = false;
+	private boolean isOutputLvShow = true;
 
 	private TsInputsAdapter mTsInputsAdapter;
 	private TsOutputsAdapter mTsOutputsAdapter;
@@ -108,9 +110,33 @@ public class TransactionDetailActivity extends AppCompatActivity {
 
 		mTsInputsAdapter = new TsInputsAdapter(this, R.layout.item_transaction_detail_accounts, inputs);
 		input_lv.setAdapter(mTsInputsAdapter);
+		input_lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				if (position < inputs.size()) {
+					Intent intent = new Intent(TransactionDetailActivity.this, AccountDetailActivity.class);
+					Bundle bundle = new Bundle();
+					bundle.putString(AccountDetailActivity.ADDRESS_KEY, inputs.get(position).getAccount());
+					intent.putExtras(bundle);
+					startActivity(intent);
+				}
+			}
+		});
 
 		mTsOutputsAdapter = new TsOutputsAdapter(this, R.layout.item_transaction_detail_accounts, outputs);
 		output_lv.setAdapter(mTsOutputsAdapter);
+		output_lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				if (position < outputs.size()) {
+					Intent intent = new Intent(TransactionDetailActivity.this, AccountDetailActivity.class);
+					Bundle bundle = new Bundle();
+					bundle.putString(AccountDetailActivity.ADDRESS_KEY, outputs.get(position).getAccount());
+					intent.putExtras(bundle);
+					startActivity(intent);
+				}
+			}
+		});
 
 		refreshLvState();
 

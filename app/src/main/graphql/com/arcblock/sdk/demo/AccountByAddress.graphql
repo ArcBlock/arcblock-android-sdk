@@ -1,0 +1,18 @@
+query accountByAddress($address: String!) {
+  accountByAddress(address: $address) {
+    address
+    balance
+    pubKey
+    scriptType
+    txsReceived {
+      data {
+        hash
+      }
+    }
+    txsSent{
+      data{
+        hash
+      }
+    }
+  }
+}
