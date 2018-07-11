@@ -71,12 +71,12 @@ public class MainActivity extends AppCompatActivity {
 		mTabLayout.setupWithViewPager(mViewPager);
 		List<Fragment> fragments = new ArrayList<>();
 		fragments.add(CoreKitFragment.newInstance());
-		fragments.add(AccountFragment.newInstance());
-		fragments.add(MessageFragment.newInstance());
+		//fragments.add(AccountFragment.newInstance());
+		//fragments.add(MessageFragment.newInstance());
 
 		titles.add(getString(R.string.core_kit_tab));
-		titles.add(getString(R.string.account_tab));
-		titles.add(getString(R.string.message_tab));
+		//titles.add(getString(R.string.account_tab));
+		//titles.add(getString(R.string.message_tab));
 
 		mMainAdapter = new MainAdapter(getSupportFragmentManager(),fragments, titles);
 		mViewPager.setAdapter(mMainAdapter);
