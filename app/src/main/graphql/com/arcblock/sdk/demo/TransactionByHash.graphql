@@ -1,0 +1,23 @@
+query transactionByHash($hash: String!) {
+  transactionByHash(hash: $hash) {
+    blockHash
+    blockHeight
+    size
+    virtualSize
+    weight
+    total
+    fees
+    numberInputs
+    numberOutputs
+    outputs{
+      data{
+        account
+      }
+    }
+    inputs{
+      data{
+        account
+      }
+    }
+  }
+}

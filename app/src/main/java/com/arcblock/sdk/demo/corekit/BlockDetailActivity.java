@@ -31,6 +31,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -100,6 +101,18 @@ public class BlockDetailActivity extends AppCompatActivity {
 
 		mBlockDetailTransactionsAdapter = new BlockDetailTransactionsAdapter(this, R.layout.item_block_detail_transactions, mDatumList);
 		transactions_lv.setAdapter(mBlockDetailTransactionsAdapter);
+		transactions_lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				if (position < mDatumList.size()) {
+					Intent intent = new Intent(BlockDetailActivity.this, TransactionDetailActivity.class);
+					Bundle bundle = new Bundle();
+					bundle.putString(TransactionDetailActivity.TRANSACTION_HASH_KEY, mDatumList.get(position).getHash());
+					intent.putExtras(bundle);
+					startActivity(intent);
+				}
+			}
+		});
 
 		pre_hash_tv.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -122,8 +135,8 @@ public class BlockDetailActivity extends AppCompatActivity {
 			if (response != null && response.data() != null && response.data().getBlockByHash() != null) {
 				BlockByHashQuery.BlockByHash blockByHash = response.data().getBlockByHash();
 				block_height_tv.setText(blockByHash.getHeight() + "");
-				size_tv.setText(blockByHash.getSize() + "Bytes");
-				striped_size_tv.setText(blockByHash.getStrippedSize() + "Bytes");
+				size_tv.setText(blockByHash.getSize() + " Bytes");
+				striped_size_tv.setText(blockByHash.getStrippedSize() + " Bytes");
 				weight_tv.setText(blockByHash.getWeight() + "");
 				version_tv.setText(blockByHash.getVersion() + "");
 				bits_tv.setText(blockByHash.getBits() + "");
