@@ -29,9 +29,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.arcblock.sdk.demo.corekit.PizzaTransactionActivity;
 import com.arcblock.sdk.demo.corekit.QueryListBlocksActivity;
 import com.arcblock.sdk.demo.corekit.QueryRichestAccountsActivity;
+import com.arcblock.sdk.demo.corekit.TransactionDetailActivity;
 
 public class CoreKitFragment extends Fragment {
 
@@ -70,7 +70,10 @@ public class CoreKitFragment extends Fragment {
 		view.findViewById(R.id.query_pizza_transaction_btn).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(getActivity(), PizzaTransactionActivity.class);
+				Intent intent = new Intent(getActivity(), TransactionDetailActivity.class);
+				Bundle bundle = new Bundle();
+				bundle.putString(TransactionDetailActivity.TRANSACTION_HASH_KEY, "cca7507897abc89628f450e8b1e0c6fca4ec3f7b34cccf55f3f531c659ff4d79");
+				intent.putExtras(bundle);
 				startActivity(intent);
 			}
 		});

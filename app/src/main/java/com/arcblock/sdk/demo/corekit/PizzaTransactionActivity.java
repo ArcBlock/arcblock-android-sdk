@@ -130,7 +130,6 @@ public class PizzaTransactionActivity extends AppCompatActivity {
 		pizzaTransactionCall.enqueue(dataCallback);
 	}
 
-
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {

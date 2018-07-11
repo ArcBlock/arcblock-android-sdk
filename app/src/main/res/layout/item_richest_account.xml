@@ -1,39 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="48dp"
+    android:background="@drawable/recycler_item_selector"
     android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:paddingLeft="@dimen/txt_padding"
         android:paddingRight="@dimen/txt_padding">
 
         <TextView
-            android:id="@+id/address_tv"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:gravity="center_vertical"
-            android:maxLines="1"
-            android:text="1.1111111"
-            android:textColor="@android:color/black"
-            android:textSize="14sp"/>
+            android:id="@+id/order_tv"
+            style="@style/TextView16_black"
+            android:layout_width="30dp"
+            android:gravity="center"
+            tools:text="1"/>
 
-        <TextView
-            android:id="@+id/balance_tv"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/left_margin"
+            android:layout_weight="1"
             android:gravity="center_vertical"
-            android:maxLines="1"
-            android:text="1.1111111"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="12sp"/>
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/address_tv"
+                style="@style/TextView14_black"
+                android:layout_width="match_parent"
+                android:gravity="center_vertical"
+                tools:text="1111111"/>
+
+            <TextView
+                android:id="@+id/balance_tv"
+                style="@style/TextView14_gray"
+                android:layout_width="match_parent"
+                android:gravity="center_vertical"
+                tools:text="1111111"/>
+        </LinearLayout>
+
 
     </LinearLayout>
 
@@ -41,6 +52,6 @@
         android:layout_width="match_parent"
         android:layout_height="1px"
         android:layout_alignParentBottom="true"
-        android:background="@android:color/darker_gray"/>
+        android:background="@color/light_gray"/>
 
 </RelativeLayout>
