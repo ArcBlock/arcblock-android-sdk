@@ -1,3 +1,6 @@
+## 0.0.17 (July 12, 2018)
+  - query support page
+
 ## 0.0.16 (July 12, 2018)
 
 
