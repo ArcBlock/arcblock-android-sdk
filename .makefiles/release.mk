@@ -5,7 +5,6 @@ release: build
 	@git config --local user.name "NateRobinson"
 	@git config --local user.email "840501291@qq.com"
 	@git tag $(RELEASE_VERSION)
-	@git push origin $(RELEASE_VERSION) | true
 
 delete-release:
 	@echo "Delete a release on $(RELEASE_VERSION)"
