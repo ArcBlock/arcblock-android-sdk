@@ -39,6 +39,7 @@ import com.apollographql.apollo.ApolloCallback;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
+import com.arcblock.corekit.data.CoreKitDataSource;
 import com.arcblock.sdk.demo.AccountByAddressQuery;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
@@ -55,7 +56,6 @@ public class AccountDetailActivity extends AppCompatActivity {
 	private static final String TAG = BlockDetailActivity.class.getSimpleName();
 	public static final String ADDRESS_KEY = "address_key";
 	private String address = "";
-	private ApolloCall<AccountByAddressQuery.Data> accountByAddressCall;
 	private Handler uiHandler = new Handler(Looper.getMainLooper());
 
 	private TextView address_tv;
@@ -87,7 +87,10 @@ public class AccountDetailActivity extends AppCompatActivity {
 
 		address_tv.setText(address);
 
-		fetchAccountByAddress();
+		CoreKitDataSource.getInstance().query(DemoApplication.getInstance().abCoreKitClient(),
+				AccountByAddressQuery.builder().address(address).build(),
+				ApolloResponseFetchers.NETWORK_FIRST,
+				dataCallback);
 	}
 
 	private void initView() {
@@ -185,16 +188,6 @@ public class AccountDetailActivity extends AppCompatActivity {
 		}
 	}, uiHandler);
 
-	private void fetchAccountByAddress() {
-		AccountByAddressQuery transactionByHashQuery = AccountByAddressQuery.builder()
-				.address(address)
-				.build();
-		accountByAddressCall = DemoApplication.getInstance().abCoreKitClient()
-				.query(transactionByHashQuery)
-				.responseFetcher(ApolloResponseFetchers.NETWORK_FIRST);
-		accountByAddressCall.enqueue(dataCallback);
-	}
-
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -205,13 +198,4 @@ public class AccountDetailActivity extends AppCompatActivity {
 				return super.onOptionsItemSelected(item);
 		}
 	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		if (accountByAddressCall != null) {
-			accountByAddressCall.cancel();
-		}
-	}
-
 }
