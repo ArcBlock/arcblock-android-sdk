@@ -26,7 +26,7 @@ coveragereport: clean
 	@echo "Generate CoverageReport..."
 	./gradlew :app:createDebugCoverageReport
 
-precommit: lint test build clean
+precommit: lint test build clean doc
 
 travis-init:
 	@echo "Initialize software required for travis (normally ubuntu software)"
