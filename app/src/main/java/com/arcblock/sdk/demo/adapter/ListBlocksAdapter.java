@@ -38,9 +38,7 @@ public class ListBlocksAdapter extends BaseQuickAdapter<BlocksByHeightQuery.Datu
 	@Override
 	protected void convert(BaseViewHolder helper, BlocksByHeightQuery.Datum item) {
 		helper.setText(R.id.hash_tv, item.getHash());
-		helper.setText(R.id.txs_tv, "numberTxs:" + item.getNumberTxs());
-		helper.setText(R.id.height_tv, "height:" + item.getHeight());
-		helper.setText(R.id.feeds_tv, "fees:" + item.getFees());
-		helper.setText(R.id.total_tv, "total:" + item.getTotal());
+		helper.setText(R.id.txs_tv, "" + item.getNumberTxs());
+		helper.setText(R.id.height_tv, "" + item.getHeight());
 	}
 }
