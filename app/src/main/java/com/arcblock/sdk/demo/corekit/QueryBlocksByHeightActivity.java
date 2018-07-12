@@ -44,6 +44,7 @@ import com.arcblock.sdk.demo.BlocksByHeightQuery;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.ListBlocksAdapter;
+import com.arcblock.sdk.demo.type.PageInput;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 
 import org.jetbrains.annotations.NotNull;
@@ -51,9 +52,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class QueryListBlocksActivity extends AppCompatActivity {
+public class QueryBlocksByHeightActivity extends AppCompatActivity {
 
-	private static final String TAG = QueryListBlocksActivity.class.getSimpleName();
+	private static final String TAG = QueryBlocksByHeightActivity.class.getSimpleName();
 	private ListBlocksAdapter mListBlocksAdapter;
 
 	ViewGroup content;
@@ -61,6 +62,9 @@ public class QueryListBlocksActivity extends AppCompatActivity {
 	Handler uiHandler = new Handler(Looper.getMainLooper());
 	ApolloCall<BlocksByHeightQuery.Data> listBlocksCall;
 	List<BlocksByHeightQuery.Datum> mBlocks = new ArrayList<>();
+
+	private PageInput mPageInput;
+	private BlocksByHeightQuery.Page mPage;
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,17 +80,31 @@ public class QueryListBlocksActivity extends AppCompatActivity {
 		RecyclerView feedRecyclerView = (RecyclerView) findViewById(R.id.rv_feed_list);
 		feedRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 		mListBlocksAdapter = new ListBlocksAdapter(R.layout.item_list_blocks, mBlocks);
-		feedRecyclerView.setAdapter(mListBlocksAdapter);
+		mListBlocksAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
+			@Override
+			public void onLoadMoreRequested() {
+				if (mPage != null) {
+					if (!mPage.isNext()) {
+						mListBlocksAdapter.loadMoreEnd();
+						return;
+					}
+				}
+				fetchListBlocks();
+			}
+		}, feedRecyclerView);
+
 		mListBlocksAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
 			@Override
 			public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-				Intent intent = new Intent(QueryListBlocksActivity.this,BlockDetailActivity.class);
+				Intent intent = new Intent(QueryBlocksByHeightActivity.this, BlockDetailActivity.class);
 				Bundle bundle = new Bundle();
-				bundle.putString(BlockDetailActivity.BLOCK_HASH_KEY,mBlocks.get(position).getHash());
+				bundle.putString(BlockDetailActivity.BLOCK_HASH_KEY, mBlocks.get(position).getHash());
 				intent.putExtras(bundle);
 				startActivity(intent);
 			}
 		});
+
+		feedRecyclerView.setAdapter(mListBlocksAdapter);
 
 		fetchListBlocks();
 	}
@@ -97,23 +115,31 @@ public class QueryListBlocksActivity extends AppCompatActivity {
 		public void onResponse(@NotNull Response<BlocksByHeightQuery.Data> response) {
 			progressBar.setVisibility(View.GONE);
 			content.setVisibility(View.VISIBLE);
-			if(response.data()!=null && response.data().getBlocksByHeight()!=null
-					&& response.data().getBlocksByHeight().getData() !=null){
-				mBlocks.clear();
-				mBlocks.addAll(response.data().getBlocksByHeight().getData());
-				mListBlocksAdapter.notifyDataSetChanged();
+			mListBlocksAdapter.loadMoreComplete();
+			if (response.data() != null && response.data().getBlocksByHeight() != null
+					&& response.data().getBlocksByHeight().getData() != null) {
+				mListBlocksAdapter.addData(response.data().getBlocksByHeight().getData());
+				mPage = response.data().getBlocksByHeight().getPage();
 			}
 		}
 
 		@Override
 		public void onFailure(@NotNull ApolloException e) {
 			Log.e(TAG, e.getMessage(), e);
+			mListBlocksAdapter.loadMoreFail();
 		}
 	}, uiHandler);
 
 	private void fetchListBlocks() {
+
+		if(mPage!=null){
+			mPageInput = PageInput.builder().cursor(mPage.getCursor()).build();
+		}
+
 		BlocksByHeightQuery listBlocksQuery = BlocksByHeightQuery.builder()
 				.fromHeight(482244)
+				.toHeight(482264)
+				.paging(mPageInput)
 				.build();
 		listBlocksCall = DemoApplication.getInstance().abCoreKitClient()
 				.query(listBlocksQuery)

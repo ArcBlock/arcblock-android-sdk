@@ -29,7 +29,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.arcblock.sdk.demo.corekit.QueryListBlocksActivity;
+import com.arcblock.sdk.demo.corekit.QueryBlocksByHeightActivity;
 import com.arcblock.sdk.demo.corekit.QueryRichestAccountsActivity;
 import com.arcblock.sdk.demo.corekit.TransactionDetailActivity;
 
@@ -54,7 +54,7 @@ public class CoreKitFragment extends Fragment {
 		view.findViewById(R.id.query_list_blocks_data_btn).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(getActivity(), QueryListBlocksActivity.class);
+				Intent intent = new Intent(getActivity(), QueryBlocksByHeightActivity.class);
 				startActivity(intent);
 			}
 		});
