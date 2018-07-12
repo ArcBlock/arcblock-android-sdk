@@ -21,6 +21,7 @@
  */
 package com.arcblock.sdk.demo.corekit;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -39,10 +40,11 @@ import com.apollographql.apollo.ApolloCallback;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
-import com.arcblock.corekit.ABCoreKit;
 import com.arcblock.sdk.demo.BlocksByHeightQuery;
+import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.ListBlocksAdapter;
+import com.chad.library.adapter.base.BaseQuickAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -75,6 +77,16 @@ public class QueryListBlocksActivity extends AppCompatActivity {
 		feedRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 		mListBlocksAdapter = new ListBlocksAdapter(R.layout.item_list_blocks, mBlocks);
 		feedRecyclerView.setAdapter(mListBlocksAdapter);
+		mListBlocksAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
+			@Override
+			public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+				Intent intent = new Intent(QueryListBlocksActivity.this,BlockDetailActivity.class);
+				Bundle bundle = new Bundle();
+				bundle.putString(BlockDetailActivity.BLOCK_HASH_KEY,mBlocks.get(position).getHash());
+				intent.putExtras(bundle);
+				startActivity(intent);
+			}
+		});
 
 		fetchListBlocks();
 	}
@@ -101,9 +113,9 @@ public class QueryListBlocksActivity extends AppCompatActivity {
 
 	private void fetchListBlocks() {
 		BlocksByHeightQuery listBlocksQuery = BlocksByHeightQuery.builder()
-				.fromHeight(10010)
+				.fromHeight(482244)
 				.build();
-		listBlocksCall = ABCoreKit.getInstance().abCoreKitClient()
+		listBlocksCall = DemoApplication.getInstance().abCoreKitClient()
 				.query(listBlocksQuery)
 				.responseFetcher(ApolloResponseFetchers.NETWORK_FIRST);
 		listBlocksCall.enqueue(dataCallback);

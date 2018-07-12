@@ -21,6 +21,7 @@
  */
 package com.arcblock.sdk.demo.corekit;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -39,10 +40,11 @@ import com.apollographql.apollo.ApolloCallback;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
-import com.arcblock.corekit.ABCoreKit;
+import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.RichestAccountsQuery;
 import com.arcblock.sdk.demo.adapter.RichestAccountsAdapter;
+import com.chad.library.adapter.base.BaseQuickAdapter;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -75,6 +77,16 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
 		feedRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 		mRichestAccountsAdapter = new RichestAccountsAdapter(R.layout.item_richest_account, mAccounts);
 		feedRecyclerView.setAdapter(mRichestAccountsAdapter);
+		mRichestAccountsAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
+			@Override
+			public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+				Intent intent = new Intent(QueryRichestAccountsActivity.this, AccountDetailActivity.class);
+				Bundle bundle = new Bundle();
+				bundle.putString(AccountDetailActivity.ADDRESS_KEY, mAccounts.get(position).getAddress());
+				intent.putExtras(bundle);
+				startActivity(intent);
+			}
+		});
 
 		fetchRichestAccounts();
 	}
@@ -102,7 +114,7 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
 	private void fetchRichestAccounts() {
 		RichestAccountsQuery richestAccountsQuery = RichestAccountsQuery.builder()
 				.build();
-		richestAccountsCall = ABCoreKit.getInstance().abCoreKitClient()
+		richestAccountsCall = DemoApplication.getInstance().abCoreKitClient()
 				.query(richestAccountsQuery)
 				.responseFetcher(ApolloResponseFetchers.NETWORK_FIRST);
 		richestAccountsCall.enqueue(dataCallback);

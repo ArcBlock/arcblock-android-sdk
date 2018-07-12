@@ -26,11 +26,19 @@
 			android:screenOrientation="portrait"
 			android:windowSoftInputMode="adjustNothing|stateAlwaysHidden"/>
 		<activity
-			android:name=".corekit.PizzaTransactionActivity"
+			android:name=".corekit.QueryRichestAccountsActivity"
 			android:screenOrientation="portrait"
 			android:windowSoftInputMode="adjustNothing|stateAlwaysHidden"/>
 		<activity
-			android:name=".corekit.QueryRichestAccountsActivity"
+			android:name=".corekit.BlockDetailActivity"
+			android:screenOrientation="portrait"
+			android:windowSoftInputMode="adjustNothing|stateAlwaysHidden"/>
+		<activity
+			android:name=".corekit.TransactionDetailActivity"
+			android:screenOrientation="portrait"
+			android:windowSoftInputMode="adjustNothing|stateAlwaysHidden"/>
+		<activity
+			android:name=".corekit.AccountDetailActivity"
 			android:screenOrientation="portrait"
 			android:windowSoftInputMode="adjustNothing|stateAlwaysHidden"/>
 	</application>

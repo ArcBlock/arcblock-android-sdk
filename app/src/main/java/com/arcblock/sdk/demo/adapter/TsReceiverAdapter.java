@@ -21,24 +21,23 @@
  */
 package com.arcblock.sdk.demo.adapter;
 
-import android.support.annotation.Nullable;
+import android.content.Context;
+import android.text.TextUtils;
 
+import com.arcblock.sdk.demo.AccountByAddressQuery;
 import com.arcblock.sdk.demo.R;
-import com.arcblock.sdk.demo.RichestAccountsQuery;
-import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.chad.library.adapter.base.BaseViewHolder;
+import com.arcblock.sdk.demo.adapter.base.BaseViewHolder;
+import com.arcblock.sdk.demo.adapter.base.CustomBaseAdapter;
 
 import java.util.List;
 
-public class RichestAccountsAdapter extends BaseQuickAdapter<RichestAccountsQuery.Datum, BaseViewHolder> {
-	public RichestAccountsAdapter(int layoutResId, @Nullable List<RichestAccountsQuery.Datum> data) {
-		super(layoutResId, data);
+public class TsReceiverAdapter extends CustomBaseAdapter<AccountByAddressQuery.Datum> {
+	public TsReceiverAdapter(Context context, int resource, List<AccountByAddressQuery.Datum> list) {
+		super(context, resource, list);
 	}
 
 	@Override
-	protected void convert(BaseViewHolder helper, RichestAccountsQuery.Datum item) {
-		helper.setText(R.id.address_tv, item.getAddress());
-		helper.setText(R.id.balance_tv, item.getBalance() + " BTC");
-		helper.setText(R.id.order_tv, helper.getAdapterPosition() + 1 + "");
+	public void setConvert(BaseViewHolder viewHolder, AccountByAddressQuery.Datum datum) {
+		viewHolder.setTextView(R.id.item_tv, TextUtils.isEmpty(datum.getHash()) ? "txsHash is empty!" : datum.getHash());
 	}
 }

@@ -41,6 +41,8 @@ import com.apollographql.apollo.cache.normalized.sql.SqlNormalizedCacheFactory;
 import com.apollographql.apollo.fetcher.ResponseFetcher;
 import com.apollographql.apollo.response.CustomTypeAdapter;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -125,6 +127,12 @@ public class ABCoreKitClient {
 
 		public Builder setDefaultResponseFetcher(ResponseFetcher defaultResponseFetcher) {
 			mDefaultResponseFetcher = defaultResponseFetcher;
+			return this;
+		}
+
+		public <T> Builder addCustomTypeAdapter(@NotNull ScalarType scalarType,
+															 @NotNull final CustomTypeAdapter<T> customTypeAdapter) {
+			customTypeAdapters.put(scalarType, customTypeAdapter);
 			return this;
 		}
 
