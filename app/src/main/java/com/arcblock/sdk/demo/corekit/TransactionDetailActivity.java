@@ -21,42 +21,35 @@
  */
 package com.arcblock.sdk.demo.corekit;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.ApolloCallback;
 import com.apollographql.apollo.api.Response;
-import com.apollographql.apollo.exception.ApolloException;
-import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
+import com.arcblock.corekit.bean.CoreKitBean;
+import com.arcblock.corekit.data.CoreKitRemote;
+import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.TransactionByHashQuery;
 import com.arcblock.sdk.demo.adapter.TsInputsAdapter;
 import com.arcblock.sdk.demo.adapter.TsOutputsAdapter;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class TransactionDetailActivity extends AppCompatActivity {
 
-	private static final String TAG = BlockDetailActivity.class.getSimpleName();
 	public static final String TRANSACTION_HASH_KEY = "transaction_hash_key";
 	private String transactionHash = "";
-	private ApolloCall<TransactionByHashQuery.Data> transactionByHashCall;
-	private Handler uiHandler = new Handler(Looper.getMainLooper());
 
 	private TextView block_hash_tv;
 	private TextView block_height_tv;
@@ -79,6 +72,8 @@ public class TransactionDetailActivity extends AppCompatActivity {
 	private List<TransactionByHashQuery.Datum1> inputs = new ArrayList<>();
 	private List<TransactionByHashQuery.Datum> outputs = new ArrayList<>();
 
+	private CoreKitViewModel<Response<TransactionByHashQuery.Data>> mTransactionByHashQueryViewModel;
+
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -91,7 +86,49 @@ public class TransactionDetailActivity extends AppCompatActivity {
 
 		initView();
 
-		fetchTransactionByHash();
+		TransactionByHashQuery query = TransactionByHashQuery.builder()
+				.hash(transactionHash)
+				.build();
+		CoreKitRemote coreKitRemote = new CoreKitRemote(DemoApplication.getInstance().abCoreKitClient());
+		CoreKitViewModel.Factory factory = new CoreKitViewModel.Factory(coreKitRemote);
+		mTransactionByHashQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
+		mTransactionByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<Response<TransactionByHashQuery.Data>>>() {
+			@Override
+			public void onChanged(@Nullable CoreKitBean<Response<TransactionByHashQuery.Data>> coreKitBean) {
+
+				if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+					Response<TransactionByHashQuery.Data> response = coreKitBean.getData();
+					if (response != null && response.data() != null && response.data().getTransactionByHash() != null) {
+						TransactionByHashQuery.TransactionByHash transactionByHash = response.data().getTransactionByHash();
+						block_hash_tv.setText(transactionByHash.getBlockHash());
+						block_height_tv.setText(transactionByHash.getBlockHeight()+"");
+						size_tv.setText(transactionByHash.getSize()+" Bytes");
+						virtual_size_tv.setText(transactionByHash.getVirtualSize()+" Bytes");
+						weight_tv.setText(transactionByHash.getWeight()+"");
+						input_total_tv.setText(transactionByHash.getTotal()+" BTC");
+						output_total_tv.setText(transactionByHash.getTotal()+" BTC");
+						fees_tv.setText(transactionByHash.getFees()+" BTC");
+
+						input_title_tv.setText(String.format("Input(%s)",transactionByHash.getNumberInputs()+""));
+						output_title_tv.setText(String.format("Output(%s)",transactionByHash.getNumberOutputs()+""));
+
+						if(transactionByHash.getInputs()!=null&&transactionByHash.getInputs().getData()!=null){
+							inputs.clear();
+							inputs.addAll(transactionByHash.getInputs().getData());
+							mTsInputsAdapter.notifyDataSetChanged();
+						}
+
+						if(transactionByHash.getOutputs()!=null&&transactionByHash.getOutputs().getData()!=null){
+							outputs.clear();
+							outputs.addAll(transactionByHash.getOutputs().getData());
+							mTsOutputsAdapter.notifyDataSetChanged();
+						}
+					}
+				} else {
+					// todo show error msg
+				}
+			}
+		});
 	}
 
 	private void initView() {
@@ -171,54 +208,6 @@ public class TransactionDetailActivity extends AppCompatActivity {
 		}
 	}
 
-	private ApolloCall.Callback<TransactionByHashQuery.Data> dataCallback
-			= new ApolloCallback<>(new ApolloCall.Callback<TransactionByHashQuery.Data>() {
-		@Override
-		public void onResponse(@NotNull Response<TransactionByHashQuery.Data> response) {
-			if (response != null && response.data() != null && response.data().getTransactionByHash() != null) {
-				TransactionByHashQuery.TransactionByHash transactionByHash = response.data().getTransactionByHash();
-				block_hash_tv.setText(transactionByHash.getBlockHash());
-				block_height_tv.setText(transactionByHash.getBlockHeight()+"");
-				size_tv.setText(transactionByHash.getSize()+" Bytes");
-				virtual_size_tv.setText(transactionByHash.getVirtualSize()+" Bytes");
-				weight_tv.setText(transactionByHash.getWeight()+"");
-				input_total_tv.setText(transactionByHash.getTotal()+" BTC");
-				output_total_tv.setText(transactionByHash.getTotal()+" BTC");
-				fees_tv.setText(transactionByHash.getFees()+" BTC");
-
-				input_title_tv.setText(String.format("Input(%s)",transactionByHash.getNumberInputs()+""));
-				output_title_tv.setText(String.format("Output(%s)",transactionByHash.getNumberOutputs()+""));
-
-				if(transactionByHash.getInputs()!=null&&transactionByHash.getInputs().getData()!=null){
-					inputs.clear();
-					inputs.addAll(transactionByHash.getInputs().getData());
-					mTsInputsAdapter.notifyDataSetChanged();
-				}
-
-				if(transactionByHash.getOutputs()!=null&&transactionByHash.getOutputs().getData()!=null){
-					outputs.clear();
-					outputs.addAll(transactionByHash.getOutputs().getData());
-					mTsOutputsAdapter.notifyDataSetChanged();
-				}
-			}
-		}
-
-		@Override
-		public void onFailure(@NotNull ApolloException e) {
-			Log.e(TAG, e.getMessage(), e);
-		}
-	}, uiHandler);
-
-	private void fetchTransactionByHash() {
-		TransactionByHashQuery transactionByHashQuery = TransactionByHashQuery.builder()
-				.hash(transactionHash)
-				.build();
-		transactionByHashCall = DemoApplication.getInstance().abCoreKitClient()
-				.query(transactionByHashQuery)
-				.responseFetcher(ApolloResponseFetchers.NETWORK_FIRST);
-		transactionByHashCall.enqueue(dataCallback);
-	}
-
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -227,14 +216,6 @@ public class TransactionDetailActivity extends AppCompatActivity {
 				return false;
 			default:
 				return super.onOptionsItemSelected(item);
-		}
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		if (transactionByHashCall != null) {
-			transactionByHashCall.cancel();
 		}
 	}
 

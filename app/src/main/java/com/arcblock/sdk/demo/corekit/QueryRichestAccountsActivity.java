@@ -21,46 +21,41 @@
  */
 package com.arcblock.sdk.demo.corekit;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
-import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.ApolloCallback;
 import com.apollographql.apollo.api.Response;
-import com.apollographql.apollo.exception.ApolloException;
-import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
+import com.arcblock.corekit.bean.CoreKitBean;
+import com.arcblock.corekit.data.CoreKitRemote;
+import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.RichestAccountsQuery;
 import com.arcblock.sdk.demo.adapter.RichestAccountsAdapter;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class QueryRichestAccountsActivity extends AppCompatActivity {
 
-	private static final String TAG = QueryRichestAccountsActivity.class.getSimpleName();
 	private RichestAccountsAdapter mRichestAccountsAdapter;
 
 	ViewGroup content;
 	ProgressBar progressBar;
-	Handler uiHandler = new Handler(Looper.getMainLooper());
-	ApolloCall<RichestAccountsQuery.Data> richestAccountsCall;
 	List<RichestAccountsQuery.Datum> mAccounts = new ArrayList<>();
+
+	private CoreKitViewModel<Response<RichestAccountsQuery.Data>> mRichestAccountsQueryViewModel;
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -88,36 +83,29 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
 			}
 		});
 
-		fetchRichestAccounts();
-	}
-
-	private ApolloCall.Callback<RichestAccountsQuery.Data> dataCallback
-			= new ApolloCallback<>(new ApolloCall.Callback<RichestAccountsQuery.Data>() {
-		@Override
-		public void onResponse(@NotNull Response<RichestAccountsQuery.Data> response) {
-			progressBar.setVisibility(View.GONE);
-			content.setVisibility(View.VISIBLE);
-			if(response.data()!=null && response.data().getRichestAccounts()!=null
-					&& response.data().getRichestAccounts().getData() !=null){
-				mAccounts.clear();
-				mAccounts.addAll(response.data().getRichestAccounts().getData());
-				mRichestAccountsAdapter.notifyDataSetChanged();
-			}
-		}
-
-		@Override
-		public void onFailure(@NotNull ApolloException e) {
-			Log.e(TAG, e.getMessage(), e);
-		}
-	}, uiHandler);
-
-	private void fetchRichestAccounts() {
-		RichestAccountsQuery richestAccountsQuery = RichestAccountsQuery.builder()
+		RichestAccountsQuery query = RichestAccountsQuery.builder()
 				.build();
-		richestAccountsCall = DemoApplication.getInstance().abCoreKitClient()
-				.query(richestAccountsQuery)
-				.responseFetcher(ApolloResponseFetchers.NETWORK_FIRST);
-		richestAccountsCall.enqueue(dataCallback);
+		CoreKitRemote coreKitRemote = new CoreKitRemote(DemoApplication.getInstance().abCoreKitClient());
+		CoreKitViewModel.Factory factory = new CoreKitViewModel.Factory(coreKitRemote);
+		mRichestAccountsQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
+		mRichestAccountsQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<Response<RichestAccountsQuery.Data>>>() {
+			@Override
+			public void onChanged(@Nullable CoreKitBean<Response<RichestAccountsQuery.Data>> coreKitBean) {
+				progressBar.setVisibility(View.GONE);
+				content.setVisibility(View.VISIBLE);
+				if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+					Response<RichestAccountsQuery.Data> response = coreKitBean.getData();
+					if (response.data() != null && response.data().getRichestAccounts() != null
+							&& response.data().getRichestAccounts().getData() != null) {
+						mAccounts.clear();
+						mAccounts.addAll(response.data().getRichestAccounts().getData());
+						mRichestAccountsAdapter.notifyDataSetChanged();
+					}
+				} else {
+					// todo show error msg
+				}
+			}
+		});
 	}
 
 	@Override
@@ -128,14 +116,6 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
 				return false;
 			default:
 				return super.onOptionsItemSelected(item);
-		}
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		if (richestAccountsCall != null) {
-			richestAccountsCall.cancel();
 		}
 	}
 }

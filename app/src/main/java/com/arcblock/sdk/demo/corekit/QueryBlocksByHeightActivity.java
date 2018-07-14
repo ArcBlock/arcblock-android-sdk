@@ -21,25 +21,24 @@
  */
 package com.arcblock.sdk.demo.corekit;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.ApolloCallback;
 import com.apollographql.apollo.api.Response;
-import com.apollographql.apollo.exception.ApolloException;
-import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
+import com.arcblock.corekit.bean.CoreKitBean;
+import com.arcblock.corekit.data.CoreKitRemote;
+import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.BlocksByHeightQuery;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
@@ -47,24 +46,22 @@ import com.arcblock.sdk.demo.adapter.ListBlocksAdapter;
 import com.arcblock.sdk.demo.type.PageInput;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class QueryBlocksByHeightActivity extends AppCompatActivity {
 
-	private static final String TAG = QueryBlocksByHeightActivity.class.getSimpleName();
 	private ListBlocksAdapter mListBlocksAdapter;
 
 	ViewGroup content;
 	ProgressBar progressBar;
-	Handler uiHandler = new Handler(Looper.getMainLooper());
 	ApolloCall<BlocksByHeightQuery.Data> listBlocksCall;
 	List<BlocksByHeightQuery.Datum> mBlocks = new ArrayList<>();
 
 	private PageInput mPageInput;
 	private BlocksByHeightQuery.Page mPage;
+
+	private CoreKitViewModel<Response<BlocksByHeightQuery.Data>> mBlocksByHeightQueryViewModel;
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -89,7 +86,7 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 						return;
 					}
 				}
-				fetchListBlocks();
+				mBlocksByHeightQueryViewModel.setQuery(getQuery());
 			}
 		}, feedRecyclerView);
 
@@ -106,46 +103,40 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 
 		feedRecyclerView.setAdapter(mListBlocksAdapter);
 
-		fetchListBlocks();
+		CoreKitRemote coreKitRemote = new CoreKitRemote(DemoApplication.getInstance().abCoreKitClient());
+		CoreKitViewModel.Factory factory = new CoreKitViewModel.Factory(coreKitRemote);
+		mBlocksByHeightQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
+		mBlocksByHeightQueryViewModel.getQueryData(getQuery()).observe(this, new Observer<CoreKitBean<Response<BlocksByHeightQuery.Data>>>() {
+			@Override
+			public void onChanged(@Nullable CoreKitBean<Response<BlocksByHeightQuery.Data>> coreKitBean) {
+				progressBar.setVisibility(View.GONE);
+				content.setVisibility(View.VISIBLE);
+				mListBlocksAdapter.loadMoreComplete();
+				if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+					Response<BlocksByHeightQuery.Data> response = coreKitBean.getData();
+					if (response.data() != null && response.data().getBlocksByHeight() != null
+							&& response.data().getBlocksByHeight().getData() != null) {
+						mListBlocksAdapter.addData(response.data().getBlocksByHeight().getData());
+						mPage = response.data().getBlocksByHeight().getPage();
+					}
+				} else {
+					// todo show error msg
+				}
+			}
+		});
 	}
 
-	private ApolloCall.Callback<BlocksByHeightQuery.Data> dataCallback
-			= new ApolloCallback<>(new ApolloCall.Callback<BlocksByHeightQuery.Data>() {
-		@Override
-		public void onResponse(@NotNull Response<BlocksByHeightQuery.Data> response) {
-			progressBar.setVisibility(View.GONE);
-			content.setVisibility(View.VISIBLE);
-			mListBlocksAdapter.loadMoreComplete();
-			if (response.data() != null && response.data().getBlocksByHeight() != null
-					&& response.data().getBlocksByHeight().getData() != null) {
-				mListBlocksAdapter.addData(response.data().getBlocksByHeight().getData());
-				mPage = response.data().getBlocksByHeight().getPage();
-			}
-		}
-
-		@Override
-		public void onFailure(@NotNull ApolloException e) {
-			Log.e(TAG, e.getMessage(), e);
-			mListBlocksAdapter.loadMoreFail();
-		}
-	}, uiHandler);
-
-	private void fetchListBlocks() {
-
+	private BlocksByHeightQuery getQuery(){
 		if(mPage!=null){
 			mPageInput = PageInput.builder().cursor(mPage.getCursor()).build();
 		}
-
-		BlocksByHeightQuery listBlocksQuery = BlocksByHeightQuery.builder()
+		return BlocksByHeightQuery.builder()
 				.fromHeight(482244)
 				.toHeight(482264)
 				.paging(mPageInput)
 				.build();
-		listBlocksCall = DemoApplication.getInstance().abCoreKitClient()
-				.query(listBlocksQuery)
-				.responseFetcher(ApolloResponseFetchers.NETWORK_FIRST);
-		listBlocksCall.enqueue(dataCallback);
 	}
+
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {

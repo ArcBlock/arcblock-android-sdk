@@ -19,16 +19,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.corekit.data;
+package com.arcblock.corekit.bean;
 
-import android.app.Application;
+public class CoreKitBean<T> {
 
-import com.arcblock.corekit.data.db.LocalDataSource;
+	public static final int SUCCESS_CODE = 0;
+	public static final int FAIL_CODE = 1;
 
-public class DataRepositoryFactory {
+	private T data;
+	private int status;
+	private String errorMessage;
 
-    public static DataRepository getDataRepository(Application application) {
-        return DataRepository.getInstance(LocalDataSource.getInstance(), application);
-    }
+	public CoreKitBean() {
 
+	}
+
+	public CoreKitBean(T data, int status, String errorMessage) {
+		this.data = data;
+		this.status = status;
+		this.errorMessage = errorMessage;
+	}
+
+	public T getData() {
+		return data;
+	}
+
+	public void setData(T data) {
+		this.data = data;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
 }
