@@ -19,40 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.corekit.data.db;
+package com.arcblock.corekit.data;
 
-import android.arch.lifecycle.LiveData;
+import com.apollographql.apollo.api.Query;
+import com.apollographql.apollo.rx2.Rx2Apollo;
+import com.arcblock.corekit.ABCoreKitClient;
 
-import com.arcblock.corekit.bean.ArcBlockBean;
+import io.reactivex.Observable;
 
-import java.util.List;
+public class CoreKitRemote {
 
-public class LocalDataSource implements DataSource {
+	private ABCoreKitClient mABCoreKitClient;
 
-    private static LocalDataSource INSTANCE = null;
+	public CoreKitRemote(ABCoreKitClient aBCoreKitClient) {
+		this.mABCoreKitClient = aBCoreKitClient;
+	}
 
-    private LocalDataSource(){
+	public Observable query(Query query) {
+		return Rx2Apollo.from(mABCoreKitClient.query(query));
+	}
 
-    }
-
-    public static LocalDataSource getInstance(){
-        if (INSTANCE == null) {
-            synchronized (LocalDataSource.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = new LocalDataSource();
-                }
-            }
-        }
-        return INSTANCE;
-    }
-
-    @Override
-    public LiveData<List<ArcBlockBean>> getAllArcBlockBeans() {
-        return DatabaseManager.getInstance().getAllItems();
-    }
-
-    @Override
-    public LiveData<ArcBlockBean> getArcBlockBeanById(String id) {
-        return null;
-    }
 }

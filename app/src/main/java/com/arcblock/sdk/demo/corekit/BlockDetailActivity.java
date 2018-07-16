@@ -21,42 +21,35 @@
  */
 package com.arcblock.sdk.demo.corekit;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.ApolloCallback;
 import com.apollographql.apollo.api.Response;
-import com.apollographql.apollo.exception.ApolloException;
-import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
+import com.arcblock.corekit.bean.CoreKitBean;
+import com.arcblock.corekit.data.CoreKitRemote;
+import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.BlockByHashQuery;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.BlockDetailTransactionsAdapter;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class BlockDetailActivity extends AppCompatActivity {
 
-	private static final String TAG = BlockDetailActivity.class.getSimpleName();
 	public static final String BLOCK_HASH_KEY = "block_hash_key";
 	private String blockHash = "";
-	private ApolloCall<BlockByHashQuery.Data> blockByHashCall;
-	private Handler uiHandler = new Handler(Looper.getMainLooper());
 
 	private TextView block_height_tv;
 	private TextView size_tv;
@@ -72,6 +65,8 @@ public class BlockDetailActivity extends AppCompatActivity {
 	private BlockDetailTransactionsAdapter mBlockDetailTransactionsAdapter;
 	private List<BlockByHashQuery.Datum> mDatumList = new ArrayList<>();
 
+	private CoreKitViewModel<Response<BlockByHashQuery.Data>> mBlockByHashQueryViewModel;
+
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -84,7 +79,40 @@ public class BlockDetailActivity extends AppCompatActivity {
 
 		initView();
 
-		fetchBlockByHash();
+		BlockByHashQuery query = BlockByHashQuery.builder()
+				.hash(blockHash)
+				.build();
+		CoreKitRemote coreKitRemote = new CoreKitRemote(DemoApplication.getInstance().abCoreKitClient());
+		CoreKitViewModel.Factory factory = new CoreKitViewModel.Factory(coreKitRemote);
+
+		mBlockByHashQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
+		mBlockByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<Response<BlockByHashQuery.Data>>>() {
+			@Override
+			public void onChanged(@Nullable CoreKitBean<Response<BlockByHashQuery.Data>> coreKitBean) {
+				if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+					Response<BlockByHashQuery.Data> response = coreKitBean.getData();
+					if (response != null && response.data() != null && response.data().getBlockByHash() != null) {
+						BlockByHashQuery.BlockByHash blockByHash = response.data().getBlockByHash();
+						block_height_tv.setText(blockByHash.getHeight() + "");
+						size_tv.setText(blockByHash.getSize() + " Bytes");
+						striped_size_tv.setText(blockByHash.getStrippedSize() + " Bytes");
+						weight_tv.setText(blockByHash.getWeight() + "");
+						version_tv.setText(blockByHash.getVersion() + "");
+						bits_tv.setText(blockByHash.getBits() + "");
+						nonce_tv.setText(blockByHash.getNonce() + "");
+						time_tv.setText(blockByHash.getTime() + "");
+						pre_hash_tv.setText(blockByHash.getPreHash() + "");
+						if (blockByHash.getTransactions().getData() != null) {
+							mDatumList.clear();
+							mDatumList.addAll(blockByHash.getTransactions().getData());
+							mBlockDetailTransactionsAdapter.notifyDataSetChanged();
+						}
+					}
+				} else {
+					// todo show error msg
+				}
+			}
+		});
 	}
 
 	private void initView() {
@@ -128,45 +156,6 @@ public class BlockDetailActivity extends AppCompatActivity {
 		});
 	}
 
-	private ApolloCall.Callback<BlockByHashQuery.Data> dataCallback
-			= new ApolloCallback<>(new ApolloCall.Callback<BlockByHashQuery.Data>() {
-		@Override
-		public void onResponse(@NotNull Response<BlockByHashQuery.Data> response) {
-			if (response != null && response.data() != null && response.data().getBlockByHash() != null) {
-				BlockByHashQuery.BlockByHash blockByHash = response.data().getBlockByHash();
-				block_height_tv.setText(blockByHash.getHeight() + "");
-				size_tv.setText(blockByHash.getSize() + " Bytes");
-				striped_size_tv.setText(blockByHash.getStrippedSize() + " Bytes");
-				weight_tv.setText(blockByHash.getWeight() + "");
-				version_tv.setText(blockByHash.getVersion() + "");
-				bits_tv.setText(blockByHash.getBits() + "");
-				nonce_tv.setText(blockByHash.getNonce() + "");
-				time_tv.setText(blockByHash.getTime() + "");
-				pre_hash_tv.setText(blockByHash.getPreHash() + "");
-				if (blockByHash.getTransactions().getData() != null) {
-					mDatumList.clear();
-					mDatumList.addAll(blockByHash.getTransactions().getData());
-					mBlockDetailTransactionsAdapter.notifyDataSetChanged();
-				}
-			}
-		}
-
-		@Override
-		public void onFailure(@NotNull ApolloException e) {
-			Log.e(TAG, e.getMessage(), e);
-		}
-	}, uiHandler);
-
-	private void fetchBlockByHash() {
-		BlockByHashQuery blockByHashQuery = BlockByHashQuery.builder()
-				.hash(blockHash)
-				.build();
-		blockByHashCall = DemoApplication.getInstance().abCoreKitClient()
-				.query(blockByHashQuery)
-				.responseFetcher(ApolloResponseFetchers.NETWORK_FIRST);
-		blockByHashCall.enqueue(dataCallback);
-	}
-
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -177,13 +166,4 @@ public class BlockDetailActivity extends AppCompatActivity {
 				return super.onOptionsItemSelected(item);
 		}
 	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		if (blockByHashCall != null) {
-			blockByHashCall.cancel();
-		}
-	}
-
 }
