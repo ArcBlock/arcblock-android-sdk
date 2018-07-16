@@ -1,4 +1,4 @@
-package com.arcblock.sdk.demo.type;
+package com.arcblock.corekit.bean;
 
 import com.apollographql.apollo.api.Input;
 import com.apollographql.apollo.api.InputFieldMarshaller;

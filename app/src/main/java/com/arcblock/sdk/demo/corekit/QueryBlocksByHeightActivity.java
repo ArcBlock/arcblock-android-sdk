@@ -21,6 +21,8 @@
  */
 package com.arcblock.sdk.demo.corekit;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -33,10 +35,15 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.apollographql.apollo.ApolloCall;
+import com.apollographql.apollo.api.Response;
+import com.arcblock.corekit.bean.CoreKitBean;
+import com.arcblock.corekit.bean.CoreKitBeanMapper;
+import com.arcblock.corekit.bean.CoreKitPagedBean;
+import com.arcblock.corekit.viewmodel.CoreKitPagedViewModel;
 import com.arcblock.sdk.demo.BlocksByHeightQuery;
+import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.ListBlocksAdapter;
-import com.arcblock.sdk.demo.type.PageInput;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 
 import java.util.ArrayList;
@@ -51,10 +58,7 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 	ApolloCall<BlocksByHeightQuery.Data> listBlocksCall;
 	List<BlocksByHeightQuery.Datum> mBlocks = new ArrayList<>();
 
-	private PageInput mPageInput;
-	private BlocksByHeightQuery.Page mPage;
-
-	//private CoreKitViewModel<Response<BlocksByHeightQuery.Data>> mBlocksByHeightQueryViewModel;
+	private CoreKitPagedViewModel<BlocksByHeightQuery.Data, BlocksByHeightQuery.BlocksByHeight> mBlocksByHeightQueryViewModel;
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,13 +77,13 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 		mListBlocksAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
 			@Override
 			public void onLoadMoreRequested() {
-				if (mPage != null) {
-					if (!mPage.isNext()) {
+				if (mBlocksByHeightQueryViewModel != null) {
+					if (!mBlocksByHeightQueryViewModel.isNext()) {
 						mListBlocksAdapter.loadMoreEnd();
 						return;
 					}
 				}
-				//mBlocksByHeightQueryViewModel.setQuery(getQuery());
+				mBlocksByHeightQueryViewModel.loadMore();
 			}
 		}, feedRecyclerView);
 
@@ -95,41 +99,43 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 		});
 		feedRecyclerView.setAdapter(mListBlocksAdapter);
 
+		// init data mapper
+		CoreKitBeanMapper<Response<BlocksByHeightQuery.Data>, BlocksByHeightQuery.BlocksByHeight> blocksMapper = new CoreKitBeanMapper<Response<BlocksByHeightQuery.Data>, BlocksByHeightQuery.BlocksByHeight>() {
 
+			@Override
+			public BlocksByHeightQuery.BlocksByHeight map(Response<BlocksByHeightQuery.Data> dataResponse) {
+				if (dataResponse != null) {
+					return dataResponse.data().getBlocksByHeight();
+				}
+				return null;
+			}
+		};
+		// init a query
+		BlocksByHeightQuery query = BlocksByHeightQuery.builder().fromHeight(448244).toHeight(448254).build();
 		// init the ViewModel with CustomClientFactory
-//		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(DemoApplication.getInstance().abCoreKitClient());
-//		mBlocksByHeightQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
-//		mBlocksByHeightQueryViewModel.getQueryData(getQuery()).observe(this, new Observer<CoreKitBean<Response<BlocksByHeightQuery.Data>>>() {
-//			@Override
-//			public void onChanged(@Nullable CoreKitBean<Response<BlocksByHeightQuery.Data>> coreKitBean) {
-//				progressBar.setVisibility(View.GONE);
-//				content.setVisibility(View.VISIBLE);
-//				mListBlocksAdapter.loadMoreComplete();
-//				if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-//					Response<BlocksByHeightQuery.Data> response = coreKitBean.getData();
-//					if (response.data() != null && response.data().getBlocksByHeight() != null
-//							&& response.data().getBlocksByHeight().getData() != null) {
-//						mListBlocksAdapter.addData(response.data().getBlocksByHeight().getData());
-//						mPage = response.data().getBlocksByHeight().getPage();
-//					}
-//				} else {
-//					// todo show error msg
-//				}
-//			}
-//		});
+		CoreKitPagedViewModel.CustomClientFactory factory = new CoreKitPagedViewModel.CustomClientFactory(blocksMapper, DemoApplication.getInstance().abCoreKitClient());
+		mBlocksByHeightQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitPagedViewModel.class);
+		mBlocksByHeightQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitPagedBean<BlocksByHeightQuery.BlocksByHeight>>() {
+			@Override
+			public void onChanged(@Nullable CoreKitPagedBean<BlocksByHeightQuery.BlocksByHeight> coreKitPagedBean) {
+				content.setVisibility(View.VISIBLE);
+				progressBar.setVisibility(View.GONE);
+				mListBlocksAdapter.loadMoreComplete();
+				if (coreKitPagedBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+					BlocksByHeightQuery.BlocksByHeight blocksByHeight = coreKitPagedBean.getData();
+					if (blocksByHeight != null && blocksByHeight.getData() != null) {
+						if(coreKitPagedBean.getDataType() == CoreKitPagedBean.DATA_TYPE_LOAD_MORE){
+							mListBlocksAdapter.addData(blocksByHeight.getData());
+						} else {
+							mListBlocksAdapter.addData(blocksByHeight.getData());
+						}
+					}
+				} else {
+					// todo show error msg.
+				}
+			}
+		});
 	}
-
-	private BlocksByHeightQuery getQuery(){
-		if(mPage!=null){
-			mPageInput = PageInput.builder().cursor(mPage.getCursor()).build();
-		}
-		return BlocksByHeightQuery.builder()
-				.fromHeight(482244)
-				.toHeight(482264)
-				.paging(mPageInput)
-				.build();
-	}
-
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
