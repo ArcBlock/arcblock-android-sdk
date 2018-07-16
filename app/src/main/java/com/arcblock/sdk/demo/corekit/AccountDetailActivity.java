@@ -35,7 +35,6 @@ import android.widget.TextView;
 
 import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.data.CoreKitRemote;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.AccountByAddressQuery;
 import com.arcblock.sdk.demo.DemoApplication;
@@ -82,9 +81,10 @@ public class AccountDetailActivity extends AppCompatActivity {
 
 		address_tv.setText(address);
 
+		// init a query
 		AccountByAddressQuery query = AccountByAddressQuery.builder().address(address).build();
-		CoreKitRemote coreKitRemote = new CoreKitRemote(DemoApplication.getInstance().abCoreKitClient());
-		CoreKitViewModel.Factory factory = new CoreKitViewModel.Factory(coreKitRemote);
+		// init the ViewModel with DefaultFactory
+		CoreKitViewModel.DefaultFactory factory = new CoreKitViewModel.DefaultFactory(DemoApplication.getInstance());
 		mAccountByAddressViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
 		mAccountByAddressViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<Response<AccountByAddressQuery.Data>>>() {
 			@Override

@@ -38,6 +38,7 @@ import com.apollographql.apollo.cache.normalized.CacheKeyResolver;
 import com.apollographql.apollo.cache.normalized.NormalizedCacheFactory;
 import com.apollographql.apollo.cache.normalized.sql.ApolloSqlHelper;
 import com.apollographql.apollo.cache.normalized.sql.SqlNormalizedCacheFactory;
+import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.apollographql.apollo.fetcher.ResponseFetcher;
 import com.apollographql.apollo.response.CustomTypeAdapter;
 
@@ -188,5 +189,9 @@ public class ABCoreKitClient {
 
 	public <D extends Subscription.Data, T, V extends Subscription.Variables> ApolloSubscriptionCall<T> subscribe(@Nonnull Subscription<D, T, V> subscription) {
 		return mApolloClient.subscribe(subscription);
+	}
+
+	public static ABCoreKitClient defaultInstance(Context context){
+		return ABCoreKitClient.builder(context).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();
 	}
 }
