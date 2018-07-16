@@ -36,7 +36,6 @@ import android.widget.TextView;
 
 import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.data.CoreKitRemote;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.BlockByHashQuery;
 import com.arcblock.sdk.demo.DemoApplication;
@@ -79,12 +78,10 @@ public class BlockDetailActivity extends AppCompatActivity {
 
 		initView();
 
-		BlockByHashQuery query = BlockByHashQuery.builder()
-				.hash(blockHash)
-				.build();
-		CoreKitRemote coreKitRemote = new CoreKitRemote(DemoApplication.getInstance().abCoreKitClient());
-		CoreKitViewModel.Factory factory = new CoreKitViewModel.Factory(coreKitRemote);
-
+		// init a query
+		BlockByHashQuery query = BlockByHashQuery.builder().hash(blockHash).build();
+		// init the ViewModel with CustomClientFactory
+		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(DemoApplication.getInstance().abCoreKitClient());
 		mBlockByHashQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
 		mBlockByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<Response<BlockByHashQuery.Data>>>() {
 			@Override

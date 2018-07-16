@@ -36,7 +36,6 @@ import android.widget.ProgressBar;
 
 import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.data.CoreKitRemote;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
@@ -83,10 +82,10 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
 			}
 		});
 
-		RichestAccountsQuery query = RichestAccountsQuery.builder()
-				.build();
-		CoreKitRemote coreKitRemote = new CoreKitRemote(DemoApplication.getInstance().abCoreKitClient());
-		CoreKitViewModel.Factory factory = new CoreKitViewModel.Factory(coreKitRemote);
+		// init a query
+		RichestAccountsQuery query = RichestAccountsQuery.builder().build();
+		// init the ViewModel with CustomClientFactory
+		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(DemoApplication.getInstance().abCoreKitClient());
 		mRichestAccountsQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
 		mRichestAccountsQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<Response<RichestAccountsQuery.Data>>>() {
 			@Override

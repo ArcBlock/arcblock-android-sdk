@@ -63,4 +63,5 @@ public class CoreKitBean<T> {
 	public void setErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
 	}
+
 }

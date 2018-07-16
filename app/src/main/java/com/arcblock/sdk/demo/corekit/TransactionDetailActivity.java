@@ -35,7 +35,6 @@ import android.widget.TextView;
 
 import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.data.CoreKitRemote;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
@@ -86,11 +85,10 @@ public class TransactionDetailActivity extends AppCompatActivity {
 
 		initView();
 
-		TransactionByHashQuery query = TransactionByHashQuery.builder()
-				.hash(transactionHash)
-				.build();
-		CoreKitRemote coreKitRemote = new CoreKitRemote(DemoApplication.getInstance().abCoreKitClient());
-		CoreKitViewModel.Factory factory = new CoreKitViewModel.Factory(coreKitRemote);
+		// init a query
+		TransactionByHashQuery query = TransactionByHashQuery.builder().hash(transactionHash).build();
+		// init the ViewModel with CustomClientFactory
+		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(DemoApplication.getInstance().abCoreKitClient());
 		mTransactionByHashQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
 		mTransactionByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<Response<TransactionByHashQuery.Data>>>() {
 			@Override

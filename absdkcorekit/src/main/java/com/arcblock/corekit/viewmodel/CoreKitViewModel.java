@@ -24,11 +24,13 @@ package com.arcblock.corekit.viewmodel;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
+import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.apollographql.apollo.api.Query;
+import com.apollographql.apollo.rx2.Rx2Apollo;
+import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.data.CoreKitRemote;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -37,11 +39,15 @@ import io.reactivex.schedulers.Schedulers;
 
 public class CoreKitViewModel<T> extends ViewModel {
 
-	private CoreKitRemote mCoreKitRemote;
+	private ABCoreKitClient mABCoreKitClient;
 	private MutableLiveData<CoreKitBean<T>> mCoreKitBeanMutableLiveData = new MutableLiveData<>();
 
-	public CoreKitViewModel(CoreKitRemote coreKitRemote) {
-		this.mCoreKitRemote = coreKitRemote;
+	public CoreKitViewModel(Context context) {
+		this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context);
+	}
+
+	public CoreKitViewModel(ABCoreKitClient aBCoreKitClient) {
+		this.mABCoreKitClient = aBCoreKitClient;
 	}
 
 	public MutableLiveData<CoreKitBean<T>> getQueryData(Query query) {
@@ -54,7 +60,7 @@ public class CoreKitViewModel<T> extends ViewModel {
 	}
 
 	public void doQuery(Query query) {
-		mCoreKitRemote.query(query)
+		Rx2Apollo.from(mABCoreKitClient.query(query))
 				.subscribeOn(Schedulers.io())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(new Observer<T>() {
@@ -65,7 +71,12 @@ public class CoreKitViewModel<T> extends ViewModel {
 
 					@Override
 					public void onNext(T t) {
-						mCoreKitBeanMutableLiveData.postValue(new CoreKitBean(t, CoreKitBean.SUCCESS_CODE, ""));
+						if (t != null) {
+							mCoreKitBeanMutableLiveData.postValue(new CoreKitBean(t, CoreKitBean.SUCCESS_CODE, ""));
+						} else {
+							mCoreKitBeanMutableLiveData.postValue(new CoreKitBean(null, CoreKitBean.FAIL_CODE, "The result is empty."));
+						}
+
 					}
 
 					@Override
@@ -81,19 +92,36 @@ public class CoreKitViewModel<T> extends ViewModel {
 		;
 	}
 
-	public static class Factory extends ViewModelProvider.NewInstanceFactory {
+	public static class CustomClientFactory extends ViewModelProvider.NewInstanceFactory {
 
-		private CoreKitRemote mCoreKitRemote;
+		private ABCoreKitClient mABCoreKitClient;
 
-		public Factory(CoreKitRemote coreKitRemote) {
-			this.mCoreKitRemote = coreKitRemote;
+
+		public CustomClientFactory(ABCoreKitClient aBCoreKitClient) {
+			this.mABCoreKitClient = aBCoreKitClient;
 		}
 
 		@NonNull
 		@Override
 		public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-			return (T) new CoreKitViewModel(mCoreKitRemote);
+			return (T) new CoreKitViewModel(mABCoreKitClient);
 		}
 	}
+
+	public static class DefaultFactory extends ViewModelProvider.NewInstanceFactory {
+
+		private Context mContext;
+
+		public DefaultFactory(Context context) {
+			this.mContext = context;
+		}
+
+		@NonNull
+		@Override
+		public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+			return (T) new CoreKitViewModel(mContext);
+		}
+	}
+
 
 }

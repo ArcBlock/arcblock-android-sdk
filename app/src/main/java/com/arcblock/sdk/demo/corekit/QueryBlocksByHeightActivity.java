@@ -37,7 +37,6 @@ import android.widget.ProgressBar;
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.data.CoreKitRemote;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.BlocksByHeightQuery;
 import com.arcblock.sdk.demo.DemoApplication;
@@ -102,9 +101,8 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 		});
 
 		feedRecyclerView.setAdapter(mListBlocksAdapter);
-
-		CoreKitRemote coreKitRemote = new CoreKitRemote(DemoApplication.getInstance().abCoreKitClient());
-		CoreKitViewModel.Factory factory = new CoreKitViewModel.Factory(coreKitRemote);
+		// init the ViewModel with CustomClientFactory
+		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(DemoApplication.getInstance().abCoreKitClient());
 		mBlocksByHeightQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
 		mBlocksByHeightQueryViewModel.getQueryData(getQuery()).observe(this, new Observer<CoreKitBean<Response<BlocksByHeightQuery.Data>>>() {
 			@Override

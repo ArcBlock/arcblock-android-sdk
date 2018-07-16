@@ -2,6 +2,7 @@ package com.arcblock.sdk.demo;
 
 import android.app.Application;
 
+import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.apollographql.apollo.response.CustomTypeAdapter;
 import com.apollographql.apollo.response.CustomTypeValue;
 import com.arcblock.corekit.ABCoreKitClient;
@@ -72,6 +73,7 @@ public class DemoApplication extends Application {
 		mABCoreClient = ABCoreKitClient.builder(this)
 				.addCustomTypeAdapter(CustomType.DATETIME, dateCustomTypeAdapter)
 				.setOkHttpClient(okHttpClient)
+				.setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK)
 				.build();
 	}
 
