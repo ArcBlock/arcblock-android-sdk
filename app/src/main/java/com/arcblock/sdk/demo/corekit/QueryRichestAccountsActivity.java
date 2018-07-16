@@ -36,6 +36,7 @@ import android.widget.ProgressBar;
 
 import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitBean;
+import com.arcblock.corekit.bean.CoreKitBeanMapper;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
@@ -54,7 +55,7 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
 	ProgressBar progressBar;
 	List<RichestAccountsQuery.Datum> mAccounts = new ArrayList<>();
 
-	private CoreKitViewModel<Response<RichestAccountsQuery.Data>> mRichestAccountsQueryViewModel;
+	private CoreKitViewModel<Response<RichestAccountsQuery.Data>, RichestAccountsQuery.RichestAccounts> mRichestAccountsQueryViewModel;
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,22 +83,31 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
 			}
 		});
 
+		// init data mapper
+		CoreKitBeanMapper<Response<RichestAccountsQuery.Data>, RichestAccountsQuery.RichestAccounts> richestAccountsMapper = new CoreKitBeanMapper<Response<RichestAccountsQuery.Data>, RichestAccountsQuery.RichestAccounts>() {
+
+			@Override
+			public RichestAccountsQuery.RichestAccounts map(Response<RichestAccountsQuery.Data> dataResponse) {
+				if (dataResponse != null) {
+					return dataResponse.data().getRichestAccounts();
+				}
+				return null;
+			}
+		};
 		// init a query
 		RichestAccountsQuery query = RichestAccountsQuery.builder().build();
 		// init the ViewModel with CustomClientFactory
-		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(DemoApplication.getInstance().abCoreKitClient());
+		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(richestAccountsMapper, DemoApplication.getInstance().abCoreKitClient());
 		mRichestAccountsQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
-		mRichestAccountsQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<Response<RichestAccountsQuery.Data>>>() {
+		mRichestAccountsQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<RichestAccountsQuery.RichestAccounts>>() {
 			@Override
-			public void onChanged(@Nullable CoreKitBean<Response<RichestAccountsQuery.Data>> coreKitBean) {
+			public void onChanged(@Nullable CoreKitBean<RichestAccountsQuery.RichestAccounts> coreKitBean) {
 				progressBar.setVisibility(View.GONE);
 				content.setVisibility(View.VISIBLE);
 				if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-					Response<RichestAccountsQuery.Data> response = coreKitBean.getData();
-					if (response.data() != null && response.data().getRichestAccounts() != null
-							&& response.data().getRichestAccounts().getData() != null) {
+					if (coreKitBean.getData() != null) {
 						mAccounts.clear();
-						mAccounts.addAll(response.data().getRichestAccounts().getData());
+						mAccounts.addAll(coreKitBean.getData().getData());
 						mRichestAccountsAdapter.notifyDataSetChanged();
 					}
 				} else {

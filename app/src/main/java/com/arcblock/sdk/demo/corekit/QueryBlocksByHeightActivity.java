@@ -21,8 +21,6 @@
  */
 package com.arcblock.sdk.demo.corekit;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -35,11 +33,7 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
 import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.api.Response;
-import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.BlocksByHeightQuery;
-import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.ListBlocksAdapter;
 import com.arcblock.sdk.demo.type.PageInput;
@@ -60,7 +54,7 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 	private PageInput mPageInput;
 	private BlocksByHeightQuery.Page mPage;
 
-	private CoreKitViewModel<Response<BlocksByHeightQuery.Data>> mBlocksByHeightQueryViewModel;
+	//private CoreKitViewModel<Response<BlocksByHeightQuery.Data>> mBlocksByHeightQueryViewModel;
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,7 +79,7 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 						return;
 					}
 				}
-				mBlocksByHeightQueryViewModel.setQuery(getQuery());
+				//mBlocksByHeightQueryViewModel.setQuery(getQuery());
 			}
 		}, feedRecyclerView);
 
@@ -99,29 +93,30 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 				startActivity(intent);
 			}
 		});
-
 		feedRecyclerView.setAdapter(mListBlocksAdapter);
+
+
 		// init the ViewModel with CustomClientFactory
-		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(DemoApplication.getInstance().abCoreKitClient());
-		mBlocksByHeightQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
-		mBlocksByHeightQueryViewModel.getQueryData(getQuery()).observe(this, new Observer<CoreKitBean<Response<BlocksByHeightQuery.Data>>>() {
-			@Override
-			public void onChanged(@Nullable CoreKitBean<Response<BlocksByHeightQuery.Data>> coreKitBean) {
-				progressBar.setVisibility(View.GONE);
-				content.setVisibility(View.VISIBLE);
-				mListBlocksAdapter.loadMoreComplete();
-				if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-					Response<BlocksByHeightQuery.Data> response = coreKitBean.getData();
-					if (response.data() != null && response.data().getBlocksByHeight() != null
-							&& response.data().getBlocksByHeight().getData() != null) {
-						mListBlocksAdapter.addData(response.data().getBlocksByHeight().getData());
-						mPage = response.data().getBlocksByHeight().getPage();
-					}
-				} else {
-					// todo show error msg
-				}
-			}
-		});
+//		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(DemoApplication.getInstance().abCoreKitClient());
+//		mBlocksByHeightQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
+//		mBlocksByHeightQueryViewModel.getQueryData(getQuery()).observe(this, new Observer<CoreKitBean<Response<BlocksByHeightQuery.Data>>>() {
+//			@Override
+//			public void onChanged(@Nullable CoreKitBean<Response<BlocksByHeightQuery.Data>> coreKitBean) {
+//				progressBar.setVisibility(View.GONE);
+//				content.setVisibility(View.VISIBLE);
+//				mListBlocksAdapter.loadMoreComplete();
+//				if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+//					Response<BlocksByHeightQuery.Data> response = coreKitBean.getData();
+//					if (response.data() != null && response.data().getBlocksByHeight() != null
+//							&& response.data().getBlocksByHeight().getData() != null) {
+//						mListBlocksAdapter.addData(response.data().getBlocksByHeight().getData());
+//						mPage = response.data().getBlocksByHeight().getPage();
+//					}
+//				} else {
+//					// todo show error msg
+//				}
+//			}
+//		});
 	}
 
 	private BlocksByHeightQuery getQuery(){

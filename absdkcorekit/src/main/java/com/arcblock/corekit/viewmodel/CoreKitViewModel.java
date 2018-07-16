@@ -31,29 +31,34 @@ import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.rx2.Rx2Apollo;
 import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.bean.CoreKitBean;
+import com.arcblock.corekit.bean.CoreKitBeanMapper;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class CoreKitViewModel<T> extends ViewModel {
+public class CoreKitViewModel<T, D> extends ViewModel {
 
 	private ABCoreKitClient mABCoreKitClient;
-	private MutableLiveData<CoreKitBean<T>> mCoreKitBeanMutableLiveData = new MutableLiveData<>();
+	private MutableLiveData<CoreKitBean<D>> mCoreKitBeanMutableLiveData = new MutableLiveData<>();
+	private CoreKitBeanMapper<T, D> mCoreKitBeanMapper;
 
-	public CoreKitViewModel(Context context) {
+	public CoreKitViewModel(CoreKitBeanMapper<T, D> mapper, Context context) {
+		this.mCoreKitBeanMapper = mapper;
 		this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context);
 	}
 
-	public CoreKitViewModel(ABCoreKitClient aBCoreKitClient) {
+	public CoreKitViewModel(CoreKitBeanMapper<T, D> mapper, ABCoreKitClient aBCoreKitClient) {
+		this.mCoreKitBeanMapper = mapper;
 		this.mABCoreKitClient = aBCoreKitClient;
 	}
 
-	public MutableLiveData<CoreKitBean<T>> getQueryData(Query query) {
+	public MutableLiveData<CoreKitBean<D>> getQueryData(Query query) {
 		doQuery(query);
 		return mCoreKitBeanMutableLiveData;
 	}
+
 
 	public void setQuery(Query query) {
 		doQuery(query);
@@ -72,7 +77,7 @@ public class CoreKitViewModel<T> extends ViewModel {
 					@Override
 					public void onNext(T t) {
 						if (t != null) {
-							mCoreKitBeanMutableLiveData.postValue(new CoreKitBean(t, CoreKitBean.SUCCESS_CODE, ""));
+							mCoreKitBeanMutableLiveData.postValue(new CoreKitBean(mCoreKitBeanMapper.map(t), CoreKitBean.SUCCESS_CODE, ""));
 						} else {
 							mCoreKitBeanMutableLiveData.postValue(new CoreKitBean(null, CoreKitBean.FAIL_CODE, "The result is empty."));
 						}
@@ -94,32 +99,36 @@ public class CoreKitViewModel<T> extends ViewModel {
 
 	public static class CustomClientFactory extends ViewModelProvider.NewInstanceFactory {
 
+		private CoreKitBeanMapper mCoreKitBeanMapper;
 		private ABCoreKitClient mABCoreKitClient;
 
 
-		public CustomClientFactory(ABCoreKitClient aBCoreKitClient) {
+		public CustomClientFactory(CoreKitBeanMapper coreKitBeanMapper, ABCoreKitClient aBCoreKitClient) {
 			this.mABCoreKitClient = aBCoreKitClient;
+			this.mCoreKitBeanMapper = coreKitBeanMapper;
 		}
 
 		@NonNull
 		@Override
 		public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-			return (T) new CoreKitViewModel(mABCoreKitClient);
+			return (T) new CoreKitViewModel(mCoreKitBeanMapper, mABCoreKitClient);
 		}
 	}
 
 	public static class DefaultFactory extends ViewModelProvider.NewInstanceFactory {
 
+		private CoreKitBeanMapper mCoreKitBeanMapper;
 		private Context mContext;
 
-		public DefaultFactory(Context context) {
+		public DefaultFactory(CoreKitBeanMapper coreKitBeanMapper, Context context) {
+			this.mCoreKitBeanMapper = coreKitBeanMapper;
 			this.mContext = context;
 		}
 
 		@NonNull
 		@Override
 		public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-			return (T) new CoreKitViewModel(mContext);
+			return (T) new CoreKitViewModel(mCoreKitBeanMapper, mContext);
 		}
 	}
 

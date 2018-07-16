@@ -35,6 +35,7 @@ import android.widget.TextView;
 
 import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitBean;
+import com.arcblock.corekit.bean.CoreKitBeanMapper;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.AccountByAddressQuery;
 import com.arcblock.sdk.demo.DemoApplication;
@@ -65,7 +66,7 @@ public class AccountDetailActivity extends AppCompatActivity {
 	private List<AccountByAddressQuery.Datum1> sents = new ArrayList<>();
 	private List<AccountByAddressQuery.Datum> receives = new ArrayList<>();
 
-	private CoreKitViewModel<Response<AccountByAddressQuery.Data>> mAccountByAddressViewModel;
+	private CoreKitViewModel<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress> mAccountByAddressViewModel;
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -81,18 +82,29 @@ public class AccountDetailActivity extends AppCompatActivity {
 
 		address_tv.setText(address);
 
+
+		// init data mapper
+		CoreKitBeanMapper<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress> accountMapper = new CoreKitBeanMapper<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress>() {
+
+			@Override
+			public AccountByAddressQuery.AccountByAddress map(Response<AccountByAddressQuery.Data> dataResponse) {
+				if (dataResponse != null) {
+					return dataResponse.data().getAccountByAddress();
+				}
+				return null;
+			}
+		};
 		// init a query
 		AccountByAddressQuery query = AccountByAddressQuery.builder().address(address).build();
 		// init the ViewModel with DefaultFactory
-		CoreKitViewModel.DefaultFactory factory = new CoreKitViewModel.DefaultFactory(DemoApplication.getInstance());
+		CoreKitViewModel.DefaultFactory factory = new CoreKitViewModel.DefaultFactory(accountMapper, DemoApplication.getInstance());
 		mAccountByAddressViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
-		mAccountByAddressViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<Response<AccountByAddressQuery.Data>>>() {
+		mAccountByAddressViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<AccountByAddressQuery.AccountByAddress>>() {
 			@Override
-			public void onChanged(@Nullable CoreKitBean<Response<AccountByAddressQuery.Data>> coreKitBean) {
+			public void onChanged(@Nullable CoreKitBean<AccountByAddressQuery.AccountByAddress> coreKitBean) {
 				if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-					Response<AccountByAddressQuery.Data> response = coreKitBean.getData();
-					if (response != null && response.data() != null && response.data().getAccountByAddress() != null) {
-						AccountByAddressQuery.AccountByAddress accountByAddress = response.data().getAccountByAddress();
+					AccountByAddressQuery.AccountByAddress accountByAddress = coreKitBean.getData();
+					if (accountByAddress != null) {
 						balance_tv.setText(accountByAddress.getBalance() == null ? "0 BTC" : accountByAddress.getBalance() + " BTC");
 						if (accountByAddress.getTxsSent() != null && accountByAddress.getTxsSent().getData() != null) {
 							sents.clear();
