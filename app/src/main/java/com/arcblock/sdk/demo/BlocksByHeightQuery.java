@@ -287,7 +287,7 @@ public final class BlocksByHeightQuery implements PageQuery<BlocksByHeightQuery.
     }
   }
 
-  public static class BlocksByHeight extends PageData{
+  public static class BlocksByHeight extends PageData<Datum>{
     static final ResponseField[] $responseFields = {
       ResponseField.forString("__typename", "__typename", null, false, Collections.<ResponseField.Condition>emptyList()),
       ResponseField.forList("data", "data", null, true, Collections.<ResponseField.Condition>emptyList()),
@@ -295,8 +295,6 @@ public final class BlocksByHeightQuery implements PageQuery<BlocksByHeightQuery.
     };
 
     final @NotNull String __typename;
-
-    final @Nullable List<Datum> data;
 
     private volatile String $toString;
 
@@ -313,10 +311,6 @@ public final class BlocksByHeightQuery implements PageQuery<BlocksByHeightQuery.
 
     public @NotNull String get__typename() {
       return this.__typename;
-    }
-
-    public @Nullable List<Datum> getData() {
-      return this.data;
     }
 
     public ResponseFieldMarshaller marshaller() {

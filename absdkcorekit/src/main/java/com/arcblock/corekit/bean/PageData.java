@@ -11,13 +11,20 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
+import java.util.List;
 
-public class PageData{
+public class PageData<T>{
 
 	public Page page;
 
+	public List<T> data;
+
 	public @Nullable Page getPage() {
 		return this.page;
+	}
+
+	public @Nullable List<T> getData() {
+		return this.data;
 	}
 
 	public static class Page {
