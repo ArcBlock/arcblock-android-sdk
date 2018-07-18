@@ -23,12 +23,11 @@ package com.arcblock.sdk.demo.corekit;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Intent;
+import android.arch.paging.PagedList;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
@@ -37,30 +36,22 @@ import android.widget.ProgressBar;
 
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Response;
-import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.corekit.bean.CoreKitBeanMapper;
-import com.arcblock.corekit.bean.CoreKitPagedBean;
-import com.arcblock.corekit.utils.CoreKitDiffUtil;
-import com.arcblock.corekit.viewmodel.CoreKitPagedViewModel;
+import com.arcblock.corekit.viewmodel.NewCoreKitPagedViewModel;
 import com.arcblock.sdk.demo.BlocksByHeightQuery;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
-import com.arcblock.sdk.demo.adapter.ListBlocksAdapter;
-import com.chad.library.adapter.base.BaseQuickAdapter;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.arcblock.sdk.demo.adapter.NewListBlocksAdapter;
 
 public class QueryBlocksByHeightActivity extends AppCompatActivity {
 
-	private ListBlocksAdapter mListBlocksAdapter;
+	private NewListBlocksAdapter mListBlocksAdapter;
 
 	SwipeRefreshLayout content;
 	ProgressBar progressBar;
 	ApolloCall<BlocksByHeightQuery.Data> listBlocksCall;
-	List<BlocksByHeightQuery.Datum> mBlocks = new ArrayList<>();
 
-	private CoreKitPagedViewModel<BlocksByHeightQuery.Data, BlocksByHeightQuery.BlocksByHeight, BlocksByHeightQuery.Datum> mBlocksByHeightQueryViewModel;
+	private NewCoreKitPagedViewModel<BlocksByHeightQuery.Data, BlocksByHeightQuery.BlocksByHeight, BlocksByHeightQuery.Datum> mBlocksByHeightQueryViewModel;
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,37 +64,38 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 		content = (SwipeRefreshLayout) findViewById(R.id.content_holder);
 		progressBar = (ProgressBar) findViewById(R.id.loading_bar);
 
+		content.setEnabled(false);
 		content.setProgressBackgroundColorSchemeResource(android.R.color.white);
 		content.setColorSchemeResources(R.color.colorAccent, R.color.colorPrimary, R.color.colorPrimaryDark);
 
 		content.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			@Override
 			public void onRefresh() {
-				mBlocksByHeightQueryViewModel.refresh();
-				mListBlocksAdapter.setEnableLoadMore(false);
+				//mBlocksByHeightQueryViewModel.refresh();
+				//mListBlocksAdapter.setEnableLoadMore(false);
 			}
 		});
 
 		RecyclerView feedRecyclerView = (RecyclerView) findViewById(R.id.rv_feed_list);
 		feedRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-		mListBlocksAdapter = new ListBlocksAdapter(R.layout.item_list_blocks, mBlocks);
-		mListBlocksAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
-			@Override
-			public void onLoadMoreRequested() {
-				mBlocksByHeightQueryViewModel.loadMore();
-			}
-		}, feedRecyclerView);
+		mListBlocksAdapter = new NewListBlocksAdapter();
+//		mListBlocksAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
+//			@Override
+//			public void onLoadMoreRequested() {
+//				mBlocksByHeightQueryViewModel.loadMore();
+//			}
+//		}, feedRecyclerView);
 
-		mListBlocksAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
-			@Override
-			public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-				Intent intent = new Intent(QueryBlocksByHeightActivity.this, BlockDetailActivity.class);
-				Bundle bundle = new Bundle();
-				bundle.putString(BlockDetailActivity.BLOCK_HASH_KEY, mBlocks.get(position).getHash());
-				intent.putExtras(bundle);
-				startActivity(intent);
-			}
-		});
+//		mListBlocksAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
+//			@Override
+//			public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+//				Intent intent = new Intent(QueryBlocksByHeightActivity.this, BlockDetailActivity.class);
+//				Bundle bundle = new Bundle();
+//				bundle.putString(BlockDetailActivity.BLOCK_HASH_KEY, mBlocks.get(position).getHash());
+//				intent.putExtras(bundle);
+//				startActivity(intent);
+//			}
+//		});
 		feedRecyclerView.setAdapter(mListBlocksAdapter);
 
 		// init data mapper
@@ -120,32 +112,14 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 		// init a query
 		BlocksByHeightQuery query = BlocksByHeightQuery.builder().fromHeight(448244).toHeight(448293).build();
 		// init the ViewModel with CustomClientFactory
-		CoreKitPagedViewModel.CustomClientFactory factory = new CoreKitPagedViewModel.CustomClientFactory(blocksMapper, DemoApplication.getInstance().abCoreKitClient());
-		mBlocksByHeightQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitPagedViewModel.class);
-		mBlocksByHeightQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitPagedBean<List<BlocksByHeightQuery.Datum>>>() {
+		NewCoreKitPagedViewModel.CustomClientFactory factory = new NewCoreKitPagedViewModel.CustomClientFactory(getApplication(), DemoApplication.getInstance().abCoreKitClient(),query,blocksMapper);
+		mBlocksByHeightQueryViewModel = ViewModelProviders.of(this, factory).get(NewCoreKitPagedViewModel.class);
+		mBlocksByHeightQueryViewModel.getProducts().observe(this, new Observer<PagedList<BlocksByHeightQuery.Datum>>() {
 			@Override
-			public void onChanged(@Nullable CoreKitPagedBean<List<BlocksByHeightQuery.Datum>> coreKitPagedBean) {
+			public void onChanged(@Nullable PagedList<BlocksByHeightQuery.Datum> data) {
+				mListBlocksAdapter.submitList(data);
 				content.setVisibility(View.VISIBLE);
 				progressBar.setVisibility(View.GONE);
-
-				mListBlocksAdapter.setEnableLoadMore(true);
-				content.setRefreshing(false);
-				mListBlocksAdapter.loadMoreComplete();
-				if (!mBlocksByHeightQueryViewModel.isNext()) {
-					mListBlocksAdapter.loadMoreEnd();
-				}
-
-				if (coreKitPagedBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-					if (coreKitPagedBean.getData() != null) {
-						List<BlocksByHeightQuery.Datum> oldList = mBlocks;
-						List<BlocksByHeightQuery.Datum> newList = coreKitPagedBean.getData();
-						DiffUtil.DiffResult result = DiffUtil.calculateDiff(new CoreKitDiffUtil<>(oldList, newList), true);
-						mListBlocksAdapter.setNewListData(newList);
-						result.dispatchUpdatesTo(mListBlocksAdapter);
-					}
-				} else {
-					// todo show error msg.
-				}
 			}
 		});
 	}
@@ -168,4 +142,35 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 			listBlocksCall.cancel();
 		}
 	}
+
+	/**
+
+	 new Observer<CoreKitPagedBean<List<BlocksByHeightQuery.Datum>>>() {
+	@Override
+	public void onChanged(@Nullable CoreKitPagedBean<List<BlocksByHeightQuery.Datum>> coreKitPagedBean) {
+	content.setVisibility(View.VISIBLE);
+	progressBar.setVisibility(View.GONE);
+
+	mListBlocksAdapter.setEnableLoadMore(true);
+	content.setRefreshing(false);
+	mListBlocksAdapter.loadMoreComplete();
+	if (!mBlocksByHeightQueryViewModel.isNext()) {
+	mListBlocksAdapter.loadMoreEnd();
+	}
+
+	if (coreKitPagedBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+	if (coreKitPagedBean.getData() != null) {
+	List<BlocksByHeightQuery.Datum> oldList = mBlocks;
+	List<BlocksByHeightQuery.Datum> newList = coreKitPagedBean.getData();
+	DiffUtil.DiffResult result = DiffUtil.calculateDiff(new CoreKitDiffUtil<>(oldList, newList), true);
+	mListBlocksAdapter.setNewListData(newList);
+	result.dispatchUpdatesTo(mListBlocksAdapter);
+	}
+	} else {
+	// todo show error msg.
+	}
+	}
+	}
+
+	 */
 }

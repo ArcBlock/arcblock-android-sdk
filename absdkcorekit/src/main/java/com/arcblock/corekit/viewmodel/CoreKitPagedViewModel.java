@@ -90,7 +90,7 @@ public class CoreKitPagedViewModel<T, D extends PageData<K>, K> extends ViewMode
 			return;
 		}
 		isLoading = true;
-		Rx2Apollo.from(mABCoreKitClient.query(mQuery))
+		Rx2Apollo.from(mABCoreKitClient.query(mQuery).watcher())
 				.subscribeOn(Schedulers.io())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(new Observer<Response<T>>() {
@@ -101,7 +101,10 @@ public class CoreKitPagedViewModel<T, D extends PageData<K>, K> extends ViewMode
 
 					@Override
 					public void onNext(Response<T> t) {
-						makeData(t);
+						Log.e("onNext=>", "onNext=>" + t.fromCache());
+						if(t.fromCache()){
+							makeData(t);
+						}
 					}
 
 					@Override

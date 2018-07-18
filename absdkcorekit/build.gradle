@@ -35,6 +35,8 @@ dependencies {
 
 	// ViewModel and LiveData
 	implementation "android.arch.lifecycle:extensions:$lifecycle_version"
+	// alternatively - just LiveData
+	// implementation "android.arch.lifecycle:livedata:$lifecycle_version"
 
 	// alternatively - Lifecycles only (no ViewModel or LiveData).
 
@@ -57,6 +59,9 @@ dependencies {
 
 	// optional - RxJava support for Room
 	implementation "android.arch.persistence.room:rxjava2:$room_version"
+
+	// page library
+	api "android.arch.paging:runtime:1.0.0"
 
 	// Test helpers
 	testImplementation "android.arch.persistence.room:testing:$room_version"
