@@ -18,20 +18,20 @@ Absdkcorekit Library 是在 [apollo-android](https://github.com/apollographql/ap
 ``` groovy
 buildscript {
   repositories {
-  	// ...
+    // ...
     maven { url "http://android-docs.arcblock.io/release" }
   }
   dependencies {
-  	//...
+    //...
     classpath 'com.apollographql.apollo:apollo-gradle-plugin:1.0.0-alpha'
   }
 }
 
 allprojects {
-	repositories {
-		//...
-		maven { url "http://android-docs.arcblock.io/release" }
-	}
+   repositories {
+	//...
+	maven { url "http://android-docs.arcblock.io/release" }
+   }
 }
 ```
 
@@ -81,7 +81,7 @@ dependencies {
 	
 	第二种方式传入的是一个自定义的 `ABCoreKitClient` 对象，而 `DefaultFactory` 只需传入一个 `Application` 对象即可，我们会在 `ABCoreKitClient` 中实例一个默认的 `ABCoreKitClient` 对象供 `CoreKitViewModel` 使用。
 
-3. 第三步，构建 CoreKitViewModel 获得 LiveData 对象并设置 observe 监听事件，如：
+3. 第三步，构建 `CoreKitViewModel` 获得 `LiveData` 对象并设置 `observe` 监听事件，如：
 
 	```java
 	mBlockByHashQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
