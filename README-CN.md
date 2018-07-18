@@ -62,7 +62,7 @@ dependencies {
 
 	```java
 	// init a query
-AccountByAddressQuery query = AccountByAddressQuery.builder().address(address).build();
+	AccountByAddressQuery query = 	AccountByAddressQuery.builder().address(address).build();
 	```
 	
 2. 第二步，你需要创建一个 `CoreKitViewModel Factory` 对象，用来给下一步构建 `CoreKitViewModel`，如：
