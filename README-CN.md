@@ -2,10 +2,7 @@
 
 [![license](https://img.shields.io/badge/API-14+-green.svg?longCache=true&style=flat)](https://android-arsenal.com/api?level=14)  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/ArcBlock/arcblock-android-sdk/blob/master/LICENSE)
 
-> 在接入 ArcBlock Android SDK 前我们需要开发者具备 [GraphQL](https://graphql.org/) 的基础使用能力 。
-
-> 我们也提供了一个功能完善的 [ArcBlock OCAP Playground](https://ocap.arcblock.io/) ，开发者可以使用它编写和测试自己想要的 GraphQL 语句 。
-
+> 在接入 ArcBlock Android SDK 前我们需要开发者具备 [GraphQL](https://graphql.org/) 的基础使用能力 。 我们也提供了一个功能完善的 [ArcBlock OCAP Playground](https://ocap.arcblock.io/) ，开发者可以使用它编写和测试自己想要的 GraphQL 语句 。
 
 ArcBlock Android SDK 目前提供了 `Absdkcorekit Library` ，未来还将提供
 `AbsdkAccountKit Library` , `AbsdkMessagingKit Library` 。使用这些库可以让 Android 开发者快速的开发出区块链应用 。
@@ -17,6 +14,7 @@ Absdkcorekit Library 是在 [apollo-android](https://github.com/apollographql/ap
 #### 1. 引入 Absdkcorekit Library
 
 添加下面代码到项目根目录的 `build.gradle` 文件中：
+
 ``` groovy
 buildscript {
   repositories {
@@ -38,6 +36,7 @@ allprojects {
 ```
 
 添加下面代码到 app module 的 `build.gradle` 文件中：
+
 ``` groovy
 dependencies {
 	def absdkcorekitversion = "0.0.9"
@@ -65,6 +64,7 @@ dependencies {
 	// init a query
 AccountByAddressQuery query = AccountByAddressQuery.builder().address(address).build();
 	```
+	
 2. 第二步，你需要创建一个 `CoreKitViewModel Factory` 对象，用来给下一步构建 `CoreKitViewModel`，如：
 
 	```java
@@ -78,6 +78,7 @@ AccountByAddressQuery query = AccountByAddressQuery.builder().address(address).b
 	// init the ViewModel with CustomClientFactory
 	CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(DemoApplication.getInstance().abCoreKitClient());
 	```
+	
 	第二种方式传入的是一个自定义的 `ABCoreKitClient` 对象，而 `DefaultFactory` 只需传入一个 `Application` 对象即可，我们会在 `ABCoreKitClient` 中实例一个默认的 `ABCoreKitClient` 对象供 `CoreKitViewModel` 使用。
 
 3. 第三步，构建 CoreKitViewModel 获得 LiveData 对象并设置 observe 监听事件，如：
