@@ -1,3 +1,9 @@
+## 0.1.2 (July 19, 2018)
+  - Update README-CN.md
+  - update readme_cn
+  - update readme_cn
+  - add readme_cn
+
 ## 0.1.1 (July 16, 2018)
 
 
