@@ -117,7 +117,7 @@ public class BlockDetailActivity extends AppCompatActivity {
 						}
 					}
 				} else {
-					// todo show error msg
+					// show error msg
 				}
 			}
 		});

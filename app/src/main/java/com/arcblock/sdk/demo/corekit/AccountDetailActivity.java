@@ -118,7 +118,7 @@ public class AccountDetailActivity extends AppCompatActivity {
 						}
 					}
 				} else {
-					// todo show error msg.
+					// show error msg.
 				}
 			}
 		});

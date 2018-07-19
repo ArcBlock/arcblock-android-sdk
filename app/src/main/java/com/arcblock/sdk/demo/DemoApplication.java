@@ -73,7 +73,7 @@ public class DemoApplication extends Application {
 		mABCoreClient = ABCoreKitClient.builder(this)
 				.addCustomTypeAdapter(CustomType.DATETIME, dateCustomTypeAdapter)
 				.setOkHttpClient(okHttpClient)
-				.setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_ONLY)
+				.setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK)
 				.build();
 	}
 

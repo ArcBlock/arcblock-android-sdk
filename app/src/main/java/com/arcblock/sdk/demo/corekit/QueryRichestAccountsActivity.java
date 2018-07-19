@@ -111,7 +111,7 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
 						mRichestAccountsAdapter.notifyDataSetChanged();
 					}
 				} else {
-					// todo show error msg
+					// show error msg
 				}
 			}
 		});

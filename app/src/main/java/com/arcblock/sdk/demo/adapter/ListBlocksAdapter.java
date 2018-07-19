@@ -36,9 +36,7 @@ public class ListBlocksAdapter extends BaseQuickAdapter<BlocksByHeightQuery.Datu
 	}
 
 	public void setNewListData(List<BlocksByHeightQuery.Datum> newList){
-		this.mData.clear();
-		this.mData.addAll(newList);
-		//this.mData = new ArrayList<>(newList);
+		this.mData = newList;
 	}
 
 	@Override
