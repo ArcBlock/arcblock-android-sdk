@@ -1,3 +1,14 @@
+## 0.1.3 (July 20, 2018)
+  - support handle repeat list data with diffutil.
+  - change gen code to getXXXX()
+  - Merge branch 'master' into feature/ch548/add-data-mapper-for-corekit
+  - back to apollo gen code mode
+  - remove page library
+  - add google page component
+  - add diffutil for paged query
+  - add data mapper and add pagequery
+  - disable code gen plugin. add corekitbeanmapper
+
 ## 0.1.2 (July 19, 2018)
   - Update README-CN.md
   - update readme_cn
