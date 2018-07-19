@@ -85,7 +85,7 @@ public class BlockDetailActivity extends AppCompatActivity {
 			@Override
 			public BlockByHashQuery.BlockByHash map(Response<BlockByHashQuery.Data> dataResponse) {
 				if (dataResponse != null) {
-					return dataResponse.data().getBlockByHash();
+					return dataResponse.data().blockByHash();
 				}
 				return null;
 			}
@@ -101,18 +101,18 @@ public class BlockDetailActivity extends AppCompatActivity {
 				if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
 					BlockByHashQuery.BlockByHash blockByHash = coreKitBean.getData();
 					if (blockByHash != null) {
-						block_height_tv.setText(blockByHash.getHeight() + "");
-						size_tv.setText(blockByHash.getSize() + " Bytes");
-						striped_size_tv.setText(blockByHash.getStrippedSize() + " Bytes");
-						weight_tv.setText(blockByHash.getWeight() + "");
-						version_tv.setText(blockByHash.getVersion() + "");
-						bits_tv.setText(blockByHash.getBits() + "");
-						nonce_tv.setText(blockByHash.getNonce() + "");
-						time_tv.setText(blockByHash.getTime() + "");
-						pre_hash_tv.setText(blockByHash.getPreHash() + "");
-						if (blockByHash.getTransactions().getData() != null) {
+						block_height_tv.setText(blockByHash.height() + "");
+						size_tv.setText(blockByHash.size() + " Bytes");
+						striped_size_tv.setText(blockByHash.strippedSize() + " Bytes");
+						weight_tv.setText(blockByHash.weight() + "");
+						version_tv.setText(blockByHash.version() + "");
+						bits_tv.setText(blockByHash.bits() + "");
+						nonce_tv.setText(blockByHash.nonce() + "");
+						time_tv.setText(blockByHash.time() + "");
+						pre_hash_tv.setText(blockByHash.preHash() + "");
+						if (blockByHash.transactions().data() != null) {
 							mDatumList.clear();
-							mDatumList.addAll(blockByHash.getTransactions().getData());
+							mDatumList.addAll(blockByHash.transactions().data());
 							mBlockDetailTransactionsAdapter.notifyDataSetChanged();
 						}
 					}
@@ -143,7 +143,7 @@ public class BlockDetailActivity extends AppCompatActivity {
 				if (position < mDatumList.size()) {
 					Intent intent = new Intent(BlockDetailActivity.this, TransactionDetailActivity.class);
 					Bundle bundle = new Bundle();
-					bundle.putString(TransactionDetailActivity.TRANSACTION_HASH_KEY, mDatumList.get(position).getHash());
+					bundle.putString(TransactionDetailActivity.TRANSACTION_HASH_KEY, mDatumList.get(position).hash());
 					intent.putExtras(bundle);
 					startActivity(intent);
 				}

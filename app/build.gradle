@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-// apply plugin: 'com.apollographql.android'
+apply plugin: 'com.apollographql.android'
 apply plugin: 'jacoco'
 
 jacoco {

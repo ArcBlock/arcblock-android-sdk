@@ -92,7 +92,7 @@ public class TransactionDetailActivity extends AppCompatActivity {
 			@Override
 			public TransactionByHashQuery.TransactionByHash map(Response<TransactionByHashQuery.Data> dataResponse) {
 				if (dataResponse != null) {
-					return dataResponse.data().getTransactionByHash();
+					return dataResponse.data().transactionByHash();
 				}
 				return null;
 			}
@@ -108,27 +108,27 @@ public class TransactionDetailActivity extends AppCompatActivity {
 				if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
 					TransactionByHashQuery.TransactionByHash transactionByHash = coreKitBean.getData();
 					if (transactionByHash != null) {
-						block_hash_tv.setText(transactionByHash.getBlockHash());
-						block_height_tv.setText(transactionByHash.getBlockHeight() + "");
-						size_tv.setText(transactionByHash.getSize() + " Bytes");
-						virtual_size_tv.setText(transactionByHash.getVirtualSize() + " Bytes");
-						weight_tv.setText(transactionByHash.getWeight() + "");
-						input_total_tv.setText(transactionByHash.getTotal() + " BTC");
-						output_total_tv.setText(transactionByHash.getTotal() + " BTC");
-						fees_tv.setText(transactionByHash.getFees() + " BTC");
+						block_hash_tv.setText(transactionByHash.blockHash());
+						block_height_tv.setText(transactionByHash.blockHeight() + "");
+						size_tv.setText(transactionByHash.size() + " Bytes");
+						virtual_size_tv.setText(transactionByHash.virtualSize() + " Bytes");
+						weight_tv.setText(transactionByHash.weight() + "");
+						input_total_tv.setText(transactionByHash.total() + " BTC");
+						output_total_tv.setText(transactionByHash.total() + " BTC");
+						fees_tv.setText(transactionByHash.fees() + " BTC");
 
-						input_title_tv.setText(String.format("Input(%s)", transactionByHash.getNumberInputs() + ""));
-						output_title_tv.setText(String.format("Output(%s)", transactionByHash.getNumberOutputs() + ""));
+						input_title_tv.setText(String.format("Input(%s)", transactionByHash.numberInputs() + ""));
+						output_title_tv.setText(String.format("Output(%s)", transactionByHash.numberOutputs() + ""));
 
-						if (transactionByHash.getInputs() != null && transactionByHash.getInputs().getData() != null) {
+						if (transactionByHash.inputs() != null && transactionByHash.inputs().data() != null) {
 							inputs.clear();
-							inputs.addAll(transactionByHash.getInputs().getData());
+							inputs.addAll(transactionByHash.inputs().data());
 							mTsInputsAdapter.notifyDataSetChanged();
 						}
 
-						if (transactionByHash.getOutputs() != null && transactionByHash.getOutputs().getData() != null) {
+						if (transactionByHash.outputs() != null && transactionByHash.outputs().data() != null) {
 							outputs.clear();
-							outputs.addAll(transactionByHash.getOutputs().getData());
+							outputs.addAll(transactionByHash.outputs().data());
 							mTsOutputsAdapter.notifyDataSetChanged();
 						}
 					}
@@ -161,7 +161,7 @@ public class TransactionDetailActivity extends AppCompatActivity {
 				if (position < inputs.size()) {
 					Intent intent = new Intent(TransactionDetailActivity.this, AccountDetailActivity.class);
 					Bundle bundle = new Bundle();
-					bundle.putString(AccountDetailActivity.ADDRESS_KEY, inputs.get(position).getAccount());
+					bundle.putString(AccountDetailActivity.ADDRESS_KEY, inputs.get(position).account());
 					intent.putExtras(bundle);
 					startActivity(intent);
 				}
@@ -176,7 +176,7 @@ public class TransactionDetailActivity extends AppCompatActivity {
 				if (position < outputs.size()) {
 					Intent intent = new Intent(TransactionDetailActivity.this, AccountDetailActivity.class);
 					Bundle bundle = new Bundle();
-					bundle.putString(AccountDetailActivity.ADDRESS_KEY, outputs.get(position).getAccount());
+					bundle.putString(AccountDetailActivity.ADDRESS_KEY, outputs.get(position).account());
 					intent.putExtras(bundle);
 					startActivity(intent);
 				}

@@ -28,19 +28,14 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.apollographql.apollo.api.Input;
+import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.rx2.Rx2Apollo;
 import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.corekit.bean.CoreKitBeanMapper;
 import com.arcblock.corekit.bean.CoreKitPagedBean;
-import com.arcblock.corekit.bean.PageData;
-import com.arcblock.corekit.bean.PageInput;
-import com.arcblock.corekit.bean.PageQuery;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import io.reactivex.Observer;
@@ -48,26 +43,21 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class CoreKitPagedViewModel<T, D extends PageData<K>, K> extends ViewModel {
+public class CoreKitPagedViewModel<T, D, K> extends ViewModel {
 
 	private ABCoreKitClient mABCoreKitClient;
 	private MutableLiveData<CoreKitPagedBean<List<K>>> mCoreKitBeanMutableLiveData = new MutableLiveData<>();
-	private CoreKitBeanMapper<Response<T>, D> mCoreKitBeanMapper;
-	private PageData.Page mPage;
-	private PageInput mPageInput;
-	private PageQuery mQuery;
+	private CoreKitBeanMapper<Response<T>, List<D>> mCoreKitBeanMapper;
 	private boolean isRefresh;
 	private boolean isLoadMore;
 	private boolean isLoading;
-	private boolean haveMore = true;
-	private LinkedHashMap<String, List<K>> mHashMap = new LinkedHashMap<>();
 
-	public CoreKitPagedViewModel(CoreKitBeanMapper<Response<T>, D> mapper, Context context) {
+	public CoreKitPagedViewModel(CoreKitBeanMapper<Response<T>, List<D>> mapper, Context context) {
 		this.mCoreKitBeanMapper = mapper;
 		this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context);
 	}
 
-	public CoreKitPagedViewModel(CoreKitBeanMapper<Response<T>, D> mapper, ABCoreKitClient aBCoreKitClient) {
+	public CoreKitPagedViewModel(CoreKitBeanMapper<Response<T>, List<D>> mapper, ABCoreKitClient aBCoreKitClient) {
 		this.mCoreKitBeanMapper = mapper;
 		this.mABCoreKitClient = aBCoreKitClient;
 	}
@@ -76,21 +66,20 @@ public class CoreKitPagedViewModel<T, D extends PageData<K>, K> extends ViewMode
 	 * @param query
 	 * @return a livedata object with D
 	 */
-	public MutableLiveData<CoreKitPagedBean<List<K>>> getQueryData(PageQuery query) {
-		this.mQuery = query;
-		doQuery();
+	public MutableLiveData<CoreKitPagedBean<List<K>>> getQueryData(Query query) {
+		doQuery(query);
 		return mCoreKitBeanMutableLiveData;
 	}
 
 	/**
 	 * fetch data by this method
 	 */
-	public void doQuery() {
-		if(isLoading){
+	public void doQuery(Query pageQuery) {
+		if (isLoading) {
 			return;
 		}
 		isLoading = true;
-		Rx2Apollo.from(mABCoreKitClient.query(mQuery).watcher())
+		Rx2Apollo.from(mABCoreKitClient.query(pageQuery).watcher())
 				.subscribeOn(Schedulers.io())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(new Observer<Response<T>>() {
@@ -119,39 +108,14 @@ public class CoreKitPagedViewModel<T, D extends PageData<K>, K> extends ViewMode
 
 	private synchronized void makeData(Response<T> t) {
 		if (t != null) {
-			D temp = mCoreKitBeanMapper.map(t);
-
+			List<D> temp = mCoreKitBeanMapper.map(t);
 			if (!t.fromCache()) {
 				isLoadMore = false;
 				isRefresh = false;
 				isLoading = false;
 			}
-
-			String currentCursor = "empty_key";
-			if (mPage != null) {
-				currentCursor = mPage.getCursor();
-			}
-
-			if (temp.getData() != null && !temp.getData().isEmpty() && temp.getPage() != null && !t.fromCache()) {
-				if (temp.getPage().isNext()) {
-					mPage = temp.getPage();
-				}
-				haveMore = temp.getPage().isNext();
-			}
-
-			mHashMap.put(currentCursor, temp.data);
-			List<T> tempArray = new ArrayList<>();
-
-			List<String> keys = new ArrayList<>();
-			for (String key : mHashMap.keySet()) {
-				keys.add(key);
-			}
 			//Collections.reverse(keys);
-			for (String key : keys) {
-				Log.e("key=>", "key=>" + key);
-				tempArray.addAll((List<T>) mHashMap.get(key));
-			}
-			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(tempArray, CoreKitBean.SUCCESS_CODE, "", isLoadMore ? CoreKitPagedBean.DATA_TYPE_LOAD_MORE : CoreKitPagedBean.DATA_TYPE_REFRESH));
+			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(temp, CoreKitBean.SUCCESS_CODE, "", isLoadMore ? CoreKitPagedBean.DATA_TYPE_LOAD_MORE : CoreKitPagedBean.DATA_TYPE_REFRESH));
 		} else {
 			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty.", CoreKitPagedBean.DATA_TYPE_NONE));
 		}
@@ -160,7 +124,7 @@ public class CoreKitPagedViewModel<T, D extends PageData<K>, K> extends ViewMode
 	/**
 	 * load next page data
 	 */
-	public void loadMore() {
+	public void loadMore(Query pageQuery) {
 		if (isLoading) {
 			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do loadMore when loading.", CoreKitPagedBean.DATA_TYPE_NONE));
 			return;
@@ -169,34 +133,13 @@ public class CoreKitPagedViewModel<T, D extends PageData<K>, K> extends ViewMode
 			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do loadMore when refreshing.", CoreKitPagedBean.DATA_TYPE_NONE));
 			return;
 		}
-		if (!haveMore) {
-			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "do not have more data.", CoreKitPagedBean.DATA_TYPE_NONE));
-			return;
-		}
-		if (mPage != null) {
-			mPageInput = PageInput.builder().cursor(mPage.getCursor()).build();
-			Log.e("Cursor=>", "Cursor=>" + mPage.getCursor());
-		}
-		if (mQuery != null) {
-			isLoadMore = true;
-			mQuery.setPageInput(Input.optional(mPageInput));
-			doQuery();
-		} else {
-			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The query is null.", CoreKitPagedBean.DATA_TYPE_NONE));
-		}
-	}
-
-	/**
-	 * @return is have next page
-	 */
-	public boolean isNext() {
-		return haveMore;
+		doQuery(pageQuery);
 	}
 
 	/**
 	 * @return is loading data
 	 */
-	public boolean isLoading(){
+	public boolean isLoading() {
 		return isLoading;
 	}
 
@@ -205,20 +148,13 @@ public class CoreKitPagedViewModel<T, D extends PageData<K>, K> extends ViewMode
 	 * reset query pageInput
 	 * reset page
 	 */
-	public void refresh() {
+	public void refresh(Query pageQuery) {
 		if (isLoadMore) {
 			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do refresh when loadMore.", CoreKitPagedBean.DATA_TYPE_NONE));
 			return;
 		}
-		if (mQuery != null) {
-			isRefresh = true;
-			mQuery.setPageInput(Input.optional(null));
-			mPage = null;
-			mHashMap.clear();
-			doQuery();
-		} else {
-			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The query is null.", CoreKitPagedBean.DATA_TYPE_NONE));
-		}
+		isRefresh = true;
+		doQuery(pageQuery);
 	}
 
 	/**

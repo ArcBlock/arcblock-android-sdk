@@ -38,6 +38,6 @@ public class TsReceiverAdapter extends CustomBaseAdapter<AccountByAddressQuery.D
 
 	@Override
 	public void setConvert(BaseViewHolder viewHolder, AccountByAddressQuery.Datum datum) {
-		viewHolder.setTextView(R.id.item_tv, TextUtils.isEmpty(datum.getHash()) ? "txsHash is empty!" : datum.getHash());
+		viewHolder.setTextView(R.id.item_tv, TextUtils.isEmpty(datum.hash()) ? "txsHash is empty!" : datum.hash());
 	}
 }

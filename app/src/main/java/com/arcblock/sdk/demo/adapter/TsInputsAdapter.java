@@ -38,6 +38,6 @@ public class TsInputsAdapter extends CustomBaseAdapter<TransactionByHashQuery.Da
 
 	@Override
 	public void setConvert(BaseViewHolder viewHolder, TransactionByHashQuery.Datum1 datum1) {
-		viewHolder.setTextView(R.id.item_tv, TextUtils.isEmpty(datum1.getAccount()) ? "CoinBase" : datum1.getAccount());
+		viewHolder.setTextView(R.id.item_tv, TextUtils.isEmpty(datum1.account()) ? "CoinBase" : datum1.account());
 	}
 }
