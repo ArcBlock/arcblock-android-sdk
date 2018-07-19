@@ -38,6 +38,6 @@ public class BlockDetailTransactionsAdapter extends CustomBaseAdapter<BlockByHas
 
 	@Override
 	public void setConvert(BaseViewHolder viewHolder, BlockByHashQuery.Datum item) {
-		viewHolder.setTextView(R.id.item_tv, item.hash());
+		viewHolder.setTextView(R.id.item_tv, item.getHash());
 	}
 }

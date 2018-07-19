@@ -77,7 +77,7 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
 			public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
 				Intent intent = new Intent(QueryRichestAccountsActivity.this, AccountDetailActivity.class);
 				Bundle bundle = new Bundle();
-				bundle.putString(AccountDetailActivity.ADDRESS_KEY, mAccounts.get(position).address());
+				bundle.putString(AccountDetailActivity.ADDRESS_KEY, mAccounts.get(position).getAddress());
 				intent.putExtras(bundle);
 				startActivity(intent);
 			}
@@ -89,7 +89,7 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
 			@Override
 			public RichestAccountsQuery.RichestAccounts map(Response<RichestAccountsQuery.Data> dataResponse) {
 				if (dataResponse != null) {
-					return dataResponse.data().richestAccounts();
+					return dataResponse.data().getRichestAccounts();
 				}
 				return null;
 			}
@@ -107,7 +107,7 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
 				if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
 					if (coreKitBean.getData() != null) {
 						mAccounts.clear();
-						mAccounts.addAll(coreKitBean.getData().data());
+						mAccounts.addAll(coreKitBean.getData().getData());
 						mRichestAccountsAdapter.notifyDataSetChanged();
 					}
 				} else {

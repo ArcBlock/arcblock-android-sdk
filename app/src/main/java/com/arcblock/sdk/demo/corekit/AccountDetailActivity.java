@@ -89,7 +89,7 @@ public class AccountDetailActivity extends AppCompatActivity {
 			@Override
 			public AccountByAddressQuery.AccountByAddress map(Response<AccountByAddressQuery.Data> dataResponse) {
 				if (dataResponse != null) {
-					return dataResponse.data().accountByAddress();
+					return dataResponse.data().getAccountByAddress();
 				}
 				return null;
 			}
@@ -105,15 +105,15 @@ public class AccountDetailActivity extends AppCompatActivity {
 				if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
 					AccountByAddressQuery.AccountByAddress accountByAddress = coreKitBean.getData();
 					if (accountByAddress != null) {
-						balance_tv.setText(accountByAddress.balance() == null ? "0 BTC" : accountByAddress.balance() + " BTC");
-						if (accountByAddress.txsSent() != null && accountByAddress.txsSent().data() != null) {
+						balance_tv.setText(accountByAddress.getBalance() == null ? "0 BTC" : accountByAddress.getBalance() + " BTC");
+						if (accountByAddress.getTxsSent() != null && accountByAddress.getTxsSent().getData() != null) {
 							sents.clear();
-							sents.addAll(accountByAddress.txsSent().data());
+							sents.addAll(accountByAddress.getTxsSent().getData());
 							mTsSentAdapter.notifyDataSetChanged();
 						}
-						if (accountByAddress.txsReceived() != null && accountByAddress.txsReceived().data() != null) {
+						if (accountByAddress.getTxsReceived() != null && accountByAddress.getTxsReceived().getData() != null) {
 							receives.clear();
-							receives.addAll(accountByAddress.txsReceived().data());
+							receives.addAll(accountByAddress.getTxsReceived().getData());
 							mTsReceiverAdapter.notifyDataSetChanged();
 						}
 					}
@@ -141,7 +141,7 @@ public class AccountDetailActivity extends AppCompatActivity {
 				if (position < sents.size()) {
 					Intent intent = new Intent(AccountDetailActivity.this, TransactionDetailActivity.class);
 					Bundle bundle = new Bundle();
-					bundle.putString(TransactionDetailActivity.TRANSACTION_HASH_KEY, sents.get(position).hash());
+					bundle.putString(TransactionDetailActivity.TRANSACTION_HASH_KEY, sents.get(position).getHash());
 					intent.putExtras(bundle);
 					startActivity(intent);
 				}
@@ -155,7 +155,7 @@ public class AccountDetailActivity extends AppCompatActivity {
 				if (position < receives.size()) {
 					Intent intent = new Intent(AccountDetailActivity.this, TransactionDetailActivity.class);
 					Bundle bundle = new Bundle();
-					bundle.putString(TransactionDetailActivity.TRANSACTION_HASH_KEY, receives.get(position).hash());
+					bundle.putString(TransactionDetailActivity.TRANSACTION_HASH_KEY, receives.get(position).getHash());
 					intent.putExtras(bundle);
 					startActivity(intent);
 				}

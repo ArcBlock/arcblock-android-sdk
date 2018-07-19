@@ -105,7 +105,7 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 			public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
 				Intent intent = new Intent(QueryBlocksByHeightActivity.this, BlockDetailActivity.class);
 				Bundle bundle = new Bundle();
-				bundle.putString(BlockDetailActivity.BLOCK_HASH_KEY, mBlocks.get(position).hash());
+				bundle.putString(BlockDetailActivity.BLOCK_HASH_KEY, mBlocks.get(position).getHash());
 				intent.putExtras(bundle);
 				startActivity(intent);
 			}
@@ -117,14 +117,14 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 
 			@Override
 			public List<BlocksByHeightQuery.Datum> map(Response<BlocksByHeightQuery.Data> dataResponse) {
-				if (dataResponse != null && dataResponse.data().blocksByHeight() != null) {
-					if (dataResponse.data().blocksByHeight().page() != null) {
-						haveMore = dataResponse.data().blocksByHeight().page().next();
+				if (dataResponse != null && dataResponse.data().getBlocksByHeight() != null) {
+					if (dataResponse.data().getBlocksByHeight().getPage() != null) {
+						haveMore = dataResponse.data().getBlocksByHeight().getPage().isNext();
 						if (haveMore) {
-							cursor = dataResponse.data().blocksByHeight().page().cursor();
+							cursor = dataResponse.data().getBlocksByHeight().getPage().getCursor();
 						}
 					}
-					return dataResponse.data().blocksByHeight().data();
+					return dataResponse.data().getBlocksByHeight().getData();
 				}
 				return null;
 			}

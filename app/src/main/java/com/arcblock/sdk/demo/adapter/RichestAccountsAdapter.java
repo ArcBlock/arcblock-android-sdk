@@ -37,8 +37,8 @@ public class RichestAccountsAdapter extends BaseQuickAdapter<RichestAccountsQuer
 
 	@Override
 	protected void convert(BaseViewHolder helper, RichestAccountsQuery.Datum item) {
-		helper.setText(R.id.address_tv, item.address());
-		helper.setText(R.id.balance_tv, item.balance() + " BTC");
+		helper.setText(R.id.address_tv, item.getAddress());
+		helper.setText(R.id.balance_tv, item.getBalance() + " BTC");
 		helper.setText(R.id.order_tv, helper.getAdapterPosition() + 1 + "");
 	}
 }

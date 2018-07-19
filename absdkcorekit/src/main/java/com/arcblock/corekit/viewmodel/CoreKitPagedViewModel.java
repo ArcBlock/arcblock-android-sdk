@@ -50,7 +50,6 @@ public class CoreKitPagedViewModel<T, D, K> extends ViewModel {
 	private CoreKitBeanMapper<Response<T>, List<D>> mCoreKitBeanMapper;
 	private boolean isRefresh;
 	private boolean isLoadMore;
-	private boolean isLoading;
 
 	public CoreKitPagedViewModel(CoreKitBeanMapper<Response<T>, List<D>> mapper, Context context) {
 		this.mCoreKitBeanMapper = mapper;
@@ -75,10 +74,6 @@ public class CoreKitPagedViewModel<T, D, K> extends ViewModel {
 	 * fetch data by this method
 	 */
 	public void doQuery(Query pageQuery) {
-		if (isLoading) {
-			return;
-		}
-		isLoading = true;
 		Rx2Apollo.from(mABCoreKitClient.query(pageQuery).watcher())
 				.subscribeOn(Schedulers.io())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -112,9 +107,7 @@ public class CoreKitPagedViewModel<T, D, K> extends ViewModel {
 			if (!t.fromCache()) {
 				isLoadMore = false;
 				isRefresh = false;
-				isLoading = false;
 			}
-			//Collections.reverse(keys);
 			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(temp, CoreKitBean.SUCCESS_CODE, "", isLoadMore ? CoreKitPagedBean.DATA_TYPE_LOAD_MORE : CoreKitPagedBean.DATA_TYPE_REFRESH));
 		} else {
 			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty.", CoreKitPagedBean.DATA_TYPE_NONE));
@@ -125,22 +118,11 @@ public class CoreKitPagedViewModel<T, D, K> extends ViewModel {
 	 * load next page data
 	 */
 	public void loadMore(Query pageQuery) {
-		if (isLoading) {
-			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do loadMore when loading.", CoreKitPagedBean.DATA_TYPE_NONE));
-			return;
-		}
 		if (isRefresh) {
 			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do loadMore when refreshing.", CoreKitPagedBean.DATA_TYPE_NONE));
 			return;
 		}
 		doQuery(pageQuery);
-	}
-
-	/**
-	 * @return is loading data
-	 */
-	public boolean isLoading() {
-		return isLoading;
 	}
 
 	/**

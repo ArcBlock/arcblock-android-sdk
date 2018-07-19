@@ -38,6 +38,6 @@ public class TsOutputsAdapter extends CustomBaseAdapter<TransactionByHashQuery.D
 
 	@Override
 	public void setConvert(BaseViewHolder viewHolder, TransactionByHashQuery.Datum datum) {
-		viewHolder.setTextView(R.id.item_tv, TextUtils.isEmpty(datum.account()) ? "Account is empty" : datum.account());
+		viewHolder.setTextView(R.id.item_tv, TextUtils.isEmpty(datum.getAccount()) ? "Account is empty" : datum.getAccount());
 	}
 }
