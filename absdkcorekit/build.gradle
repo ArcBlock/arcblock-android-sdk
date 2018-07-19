@@ -61,7 +61,7 @@ dependencies {
 	implementation "android.arch.persistence.room:rxjava2:$room_version"
 
 	// page library
-	api "android.arch.paging:runtime:1.0.0"
+	// api "android.arch.paging:runtime:1.0.0"
 
 	// Test helpers
 	testImplementation "android.arch.persistence.room:testing:$room_version"

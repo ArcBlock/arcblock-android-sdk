@@ -154,8 +154,7 @@ public class ABCoreKitClient {
 					@Nonnull
 					@Override
 					public CacheKey fromFieldArguments(@Nonnull ResponseField field, @Nonnull Operation.Variables variables) {
-
-						return formatCacheKey((String) field.resolveArgument("id", variables));
+						return formatCacheKey((String) field.resolveArgument("cursor", variables));
 					}
 
 					private CacheKey formatCacheKey(String id) {

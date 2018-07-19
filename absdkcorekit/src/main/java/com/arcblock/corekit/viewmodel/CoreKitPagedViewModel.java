@@ -102,9 +102,7 @@ public class CoreKitPagedViewModel<T, D extends PageData<K>, K> extends ViewMode
 					@Override
 					public void onNext(Response<T> t) {
 						Log.e("onNext=>", "onNext=>" + t.fromCache());
-						if(t.fromCache()){
-							makeData(t);
-						}
+						makeData(t);
 					}
 
 					@Override
