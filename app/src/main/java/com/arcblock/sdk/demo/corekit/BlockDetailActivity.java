@@ -36,6 +36,7 @@ import android.widget.TextView;
 
 import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitBean;
+import com.arcblock.corekit.bean.CoreKitBeanMapper;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.BlockByHashQuery;
 import com.arcblock.sdk.demo.DemoApplication;
@@ -64,7 +65,7 @@ public class BlockDetailActivity extends AppCompatActivity {
 	private BlockDetailTransactionsAdapter mBlockDetailTransactionsAdapter;
 	private List<BlockByHashQuery.Datum> mDatumList = new ArrayList<>();
 
-	private CoreKitViewModel<Response<BlockByHashQuery.Data>> mBlockByHashQueryViewModel;
+	private CoreKitViewModel<Response<BlockByHashQuery.Data>, BlockByHashQuery.BlockByHash> mBlockByHashQueryViewModel;
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,18 +79,28 @@ public class BlockDetailActivity extends AppCompatActivity {
 
 		initView();
 
+		// init data mapper
+		CoreKitBeanMapper<Response<BlockByHashQuery.Data>, BlockByHashQuery.BlockByHash> blockMapper = new CoreKitBeanMapper<Response<BlockByHashQuery.Data>, BlockByHashQuery.BlockByHash>() {
+
+			@Override
+			public BlockByHashQuery.BlockByHash map(Response<BlockByHashQuery.Data> dataResponse) {
+				if (dataResponse != null) {
+					return dataResponse.data().getBlockByHash();
+				}
+				return null;
+			}
+		};
 		// init a query
 		BlockByHashQuery query = BlockByHashQuery.builder().hash(blockHash).build();
 		// init the ViewModel with CustomClientFactory
-		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(DemoApplication.getInstance().abCoreKitClient());
+		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(blockMapper, DemoApplication.getInstance().abCoreKitClient());
 		mBlockByHashQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
-		mBlockByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<Response<BlockByHashQuery.Data>>>() {
+		mBlockByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<BlockByHashQuery.BlockByHash>>() {
 			@Override
-			public void onChanged(@Nullable CoreKitBean<Response<BlockByHashQuery.Data>> coreKitBean) {
+			public void onChanged(@Nullable CoreKitBean<BlockByHashQuery.BlockByHash> coreKitBean) {
 				if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-					Response<BlockByHashQuery.Data> response = coreKitBean.getData();
-					if (response != null && response.data() != null && response.data().getBlockByHash() != null) {
-						BlockByHashQuery.BlockByHash blockByHash = response.data().getBlockByHash();
+					BlockByHashQuery.BlockByHash blockByHash = coreKitBean.getData();
+					if (blockByHash != null) {
 						block_height_tv.setText(blockByHash.getHeight() + "");
 						size_tv.setText(blockByHash.getSize() + " Bytes");
 						striped_size_tv.setText(blockByHash.getStrippedSize() + " Bytes");
@@ -106,7 +117,7 @@ public class BlockDetailActivity extends AppCompatActivity {
 						}
 					}
 				} else {
-					// todo show error msg
+					// show error msg
 				}
 			}
 		});
