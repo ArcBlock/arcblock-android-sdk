@@ -11,7 +11,7 @@ version = new File('version').text.replace("\n","")
 apollo {
 	// this tells the apollo compiler to generate actual static classes instead of just interfaces (more on that later)
 	useJavaBeansSemanticNaming = true
-	customTypeMapping['Date'] = "java.util.Date"
+	customTypeMapping['DateTime'] = "java.util.Date"
 }
 
 android {

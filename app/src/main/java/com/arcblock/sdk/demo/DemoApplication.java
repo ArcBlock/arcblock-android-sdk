@@ -55,18 +55,20 @@ public class DemoApplication extends Application {
 			@Override
 			public Date decode(CustomTypeValue value) {
 				try {
-					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
-					TimeZone utcZone = TimeZone.getTimeZone("UTC");
-					sdf.setTimeZone(utcZone);
-					return sdf.parse(value.value.toString());
+					SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
+					utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));//时区定义并进行时间获取
+					Date gpsUTCDate = utcFormat.parse(value.value.toString());
+					return gpsUTCDate;
 				} catch (ParseException e) {
-					throw new RuntimeException(e);
+					e.printStackTrace();
 				}
+				return null;
 			}
 
 			@Override
 			public CustomTypeValue encode(Date value) {
-				return new CustomTypeValue.GraphQLString(DATE_FORMAT.format(value));
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
+				return new CustomTypeValue.GraphQLString(sdf.format(value));
 			}
 		};
 
