@@ -19,28 +19,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.corekit.bean;
+package com.arcblock.corekit.utils;
 
-public class CoreKitPagedBean<T> extends CoreKitBean<T> {
-	public static int DATA_TYPE_LOAD_MORE = 0;
-	public static int DATA_TYPE_REFRESH = 1;
-	public static int DATA_TYPE_NONE = -1;
+import com.apollographql.apollo.api.Query;
 
-	private int dataType;
+public abstract class CoreKitPagedHelper {
 
-	public CoreKitPagedBean() {
+	private boolean isHaveMore = true;
+	private String cursor;
+
+	/**
+	 * @return is page have next
+	 */
+	public boolean isHaveMore() {
+		return isHaveMore;
 	}
 
-	public CoreKitPagedBean(T data, int status, String errorMessage, int dataType) {
-		super(data, status, errorMessage);
-		this.dataType = dataType;
+	public void setHaveMore(boolean haveMore) {
+		this.isHaveMore = haveMore;
 	}
 
-	public int getDataType() {
-		return dataType;
+	/**
+	 * @return current cursor
+	 */
+	public String getCursor() {
+		return cursor;
 	}
 
-	public void setDataType(int dataType) {
-		this.dataType = dataType;
+	public void setCursor(String cursor) {
+		this.cursor = cursor;
 	}
+
+	/**
+	 * @return initial query object for page initial query
+	 */
+	public abstract Query getInitialQuery();
+
+	/**
+	 * @return loadMore query object for page loadMore query
+	 */
+	public abstract Query getLoadMoreQuery();
+
+	/**
+	 * @return refresh query object for page refresh query
+	 */
+	public abstract Query getRefreshQuery();
+
+
 }

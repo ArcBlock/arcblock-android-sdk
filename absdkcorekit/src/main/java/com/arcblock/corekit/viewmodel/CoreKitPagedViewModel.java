@@ -26,7 +26,6 @@ import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.api.Response;
@@ -35,6 +34,7 @@ import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.corekit.bean.CoreKitBeanMapper;
 import com.arcblock.corekit.bean.CoreKitPagedBean;
+import com.arcblock.corekit.utils.CoreKitPagedHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,41 +53,51 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel {
 	private boolean isRefresh;
 	private boolean isLoadMore;
 	private List<K> resultDatas = new ArrayList<>();
+	private CoreKitPagedHelper mCoreKitPagedHelper;
 
-	public CoreKitPagedViewModel(CoreKitBeanMapper<Response<T>, List<K>> mapper, Context context) {
+	public CoreKitPagedViewModel(CoreKitBeanMapper<Response<T>, List<K>> mapper, CoreKitPagedHelper coreKitPagedHelper, Context context) {
 		this.mCoreKitBeanMapper = mapper;
+		this.mCoreKitPagedHelper = coreKitPagedHelper;
 		this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context);
 
 	}
 
-	public CoreKitPagedViewModel(CoreKitBeanMapper<Response<T>, List<K>> mapper, ABCoreKitClient aBCoreKitClient) {
+	public CoreKitPagedViewModel(CoreKitBeanMapper<Response<T>, List<K>> mapper, CoreKitPagedHelper coreKitPagedHelper, ABCoreKitClient aBCoreKitClient) {
 		this.mCoreKitBeanMapper = mapper;
+		this.mCoreKitPagedHelper = coreKitPagedHelper;
 		this.mABCoreKitClient = aBCoreKitClient;
 	}
 
 	/**
-	 * @param query
-	 * @return a livedata object with D
+	 * @return a livedata object with CoreKitPagedBean
 	 */
-	public MutableLiveData<CoreKitPagedBean<List<K>>> getQueryDatas(Query query) {
-		doQuery(query);
+	public MutableLiveData<CoreKitPagedBean<List<K>>> getQueryData() {
+		if (mCoreKitPagedHelper == null) {
+			throw new RuntimeException("CoreKitPagedHelper must be init.");
+		}
+		doFinalQuery(mCoreKitPagedHelper.getInitialQuery());
 		return mCoreKitBeanMutableLiveData;
 	}
 
 	/**
-	 * @param query
-	 * @return a livedata object with D
+	 * @return a livedata object with CoreKitPagedBean and have no repeat data
 	 */
-	public MutableLiveData<CoreKitPagedBean<List<K>>> getQueryCleanDatas(Query query) {
-		doQuery(query);
+	public MutableLiveData<CoreKitPagedBean<List<K>>> getCleanQueryData() {
+		if (mCoreKitPagedHelper == null) {
+			throw new RuntimeException("CoreKitPagedHelper must be init.");
+		}
+		doFinalQuery(mCoreKitPagedHelper.getInitialQuery());
 		return mCleanDatasMutableLiveData;
 	}
 
 	/**
 	 * fetch data by this method
 	 */
-	public void doQuery(Query pageQuery) {
-		Rx2Apollo.from(mABCoreKitClient.query(pageQuery).watcher())
+	public void doFinalQuery(Query query) {
+		if (mCoreKitPagedHelper == null && query == null) {
+			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The query is empty.", CoreKitPagedBean.DATA_TYPE_NONE));
+		}
+		Rx2Apollo.from(mABCoreKitClient.query(query).watcher())
 				.subscribeOn(Schedulers.io())
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(new Observer<Response<T>>() {
@@ -98,12 +108,15 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel {
 
 					@Override
 					public void onNext(Response<T> t) {
-						Log.e("onNext=>", "onNext=>" + t.fromCache());
-						makeData(t);
+						isRefresh = false;
+						isLoadMore = false;
+						handleData(t);
 					}
 
 					@Override
 					public void onError(Throwable e) {
+						isRefresh = false;
+						isLoadMore = false;
 						mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, e.toString(), CoreKitPagedBean.DATA_TYPE_NONE));
 					}
 
@@ -114,7 +127,11 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel {
 				});
 	}
 
-	private synchronized void makeData(Response<T> t) {
+	/**
+	 * handle response t to the data which are we want.
+	 * @param t
+	 */
+	private synchronized void handleData(Response<T> t) {
 		if (t != null) {
 			List<K> temp = mCoreKitBeanMapper.map(t);
 
@@ -123,10 +140,6 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel {
 				return;
 			}
 
-			if (!t.fromCache()) {
-				isLoadMore = false;
-				isRefresh = false;
-			}
 			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(temp, CoreKitBean.SUCCESS_CODE, "", isLoadMore ? CoreKitPagedBean.DATA_TYPE_LOAD_MORE : CoreKitPagedBean.DATA_TYPE_REFRESH));
 
 			// handle list for repeated data
@@ -135,6 +148,7 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel {
 					resultDatas.add(temp.get(i));
 				}
 			}
+
 			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(resultDatas, CoreKitBean.SUCCESS_CODE, "", isLoadMore ? CoreKitPagedBean.DATA_TYPE_LOAD_MORE : CoreKitPagedBean.DATA_TYPE_REFRESH));
 		} else {
 			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty.", CoreKitPagedBean.DATA_TYPE_NONE));
@@ -144,12 +158,16 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel {
 	/**
 	 * load next page data
 	 */
-	public void loadMore(Query pageQuery) {
+	public void loadMore() {
 		if (isRefresh) {
 			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do loadMore when refreshing.", CoreKitPagedBean.DATA_TYPE_NONE));
 			return;
 		}
-		doQuery(pageQuery);
+		if (mCoreKitPagedHelper == null) {
+			throw new RuntimeException("CoreKitPagedHelper must be init.");
+		}
+		isLoadMore = true;
+		doFinalQuery(mCoreKitPagedHelper.getLoadMoreQuery());
 	}
 
 	/**
@@ -157,14 +175,17 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel {
 	 * reset query pageInput
 	 * reset page
 	 */
-	public void refresh(Query pageQuery) {
+	public void refresh() {
 		if (isLoadMore) {
 			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do refresh when loadMore.", CoreKitPagedBean.DATA_TYPE_NONE));
 			return;
 		}
+		if (mCoreKitPagedHelper == null) {
+			throw new RuntimeException("CoreKitPagedHelper must be init.");
+		}
 		resultDatas.clear();
 		isRefresh = true;
-		doQuery(pageQuery);
+		doFinalQuery(mCoreKitPagedHelper.getRefreshQuery());
 	}
 
 	/**
@@ -187,35 +208,38 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel {
 	public static class CustomClientFactory<T> extends ViewModelProvider.NewInstanceFactory {
 
 		private CoreKitBeanMapper mCoreKitBeanMapper;
+		private CoreKitPagedHelper mCoreKitPagedHelper;
 		private ABCoreKitClient mABCoreKitClient;
 
-
-		public CustomClientFactory(CoreKitBeanMapper coreKitBeanMapper, ABCoreKitClient aBCoreKitClient) {
+		public CustomClientFactory(CoreKitBeanMapper coreKitBeanMapper, CoreKitPagedHelper coreKitPagedHelper, ABCoreKitClient aBCoreKitClient) {
 			this.mABCoreKitClient = aBCoreKitClient;
+			this.mCoreKitPagedHelper = coreKitPagedHelper;
 			this.mCoreKitBeanMapper = coreKitBeanMapper;
 		}
 
 		@NonNull
 		@Override
 		public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-			return (T) new CoreKitPagedViewModel(mCoreKitBeanMapper, mABCoreKitClient);
+			return (T) new CoreKitPagedViewModel(mCoreKitBeanMapper, mCoreKitPagedHelper, mABCoreKitClient);
 		}
 	}
 
 	public static class DefaultFactory<T> extends ViewModelProvider.NewInstanceFactory {
 
 		private CoreKitBeanMapper mCoreKitBeanMapper;
+		private CoreKitPagedHelper mCoreKitPagedHelper;
 		private Context mContext;
 
-		public DefaultFactory(CoreKitBeanMapper coreKitBeanMapper, Context context) {
+		public DefaultFactory(CoreKitBeanMapper coreKitBeanMapper, CoreKitPagedHelper coreKitPagedHelper, Context context) {
 			this.mCoreKitBeanMapper = coreKitBeanMapper;
+			this.mCoreKitPagedHelper = coreKitPagedHelper;
 			this.mContext = context;
 		}
 
 		@NonNull
 		@Override
 		public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-			return (T) new CoreKitPagedViewModel(mCoreKitBeanMapper, mContext);
+			return (T) new CoreKitPagedViewModel(mCoreKitBeanMapper, mCoreKitPagedHelper, mContext);
 		}
 	}
 
