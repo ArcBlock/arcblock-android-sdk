@@ -66,7 +66,7 @@ dependencies {
 
 	```java
 	// init data mapper
-CoreKitBeanMapper<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress> accountMapper = new CoreKitBeanMapper<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress>() {
+	CoreKitBeanMapper<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress> accountMapper = new CoreKitBeanMapper<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress>() {
 
 	@Override
 	public AccountByAddressQuery.AccountByAddress map(Response<AccountByAddressQuery.Data> dataResponse) {
@@ -75,7 +75,7 @@ CoreKitBeanMapper<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.Ac
 		}
 		return null;
 	}
-};
+	};
 	```
 	
 	*and*
@@ -89,16 +89,14 @@ CoreKitBeanMapper<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.Ac
 
 	```java
 	// init the ViewModel with DefaultFactory
-	CoreKitViewModel.DefaultFactory factory = new CoreKitViewModel.DefaultFactory(accountMapper,
-DemoApplication.getInstance());
+	CoreKitViewModel.DefaultFactory factory = new CoreKitViewModel.DefaultFactory(accountMapper,DemoApplication.getInstance());
 	```
 	
 	*or*
 	
 	```java
 	// init the ViewModel with CustomClientFactory
-	CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(accountMapper,
-DemoApplication.getInstance().abCoreKitClient());
+	CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(accountMapper,DemoApplication.getInstance().abCoreKitClient());
 	```
 	
 	第二种方式传入的是一个自定义的 `ABCoreKitClient` 对象，而 `DefaultFactory` 只需传入一个 `Application` 对象即可，我们会在 `ABCoreKitClient` 中实例一个默认的 `ABCoreKitClient` 对象供 `CoreKitViewModel` 使用。
@@ -156,7 +154,7 @@ DemoApplication.getInstance().abCoreKitClient());
 		public Query getRefreshQuery() {
 			return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).build();
 		}
-};
+		};
 	```
 	
 2. 设置 `CoreKitBeanMapper` 对象，在里面需要手动实现数据的转换，并维护 `CoreKitPagedHelper` 的`isHaveMore` , `cursor` ，示例代码如下：
@@ -170,7 +168,7 @@ DemoApplication.getInstance().abCoreKitClient());
 			// set page info to CoreKitPagedHelper
 			if (dataResponse.data().getBlocksByHeight().getPage() != null) {
 				// set is have next flag to CoreKitPagedHelper
-coreKitPagedHelper.setHaveMore(dataResponse.data().getBlocksByHeight().getPage().isNext());
+				coreKitPagedHelper.setHaveMore(dataResponse.data().getBlocksByHeight().getPage().isNext());
 				// set new cursor to CoreKitPagedHelper
 				coreKitPagedHelper.setCursor(dataResponse.data().getBlocksByHeight().getPage().getCursor());
 			}
@@ -178,7 +176,7 @@ coreKitPagedHelper.setHaveMore(dataResponse.data().getBlocksByHeight().getPage()
 		}
 		return null;
 	}
-};
+	};
 	```
 	
 3. 创建一个 `CoreKitPagedViewModel Factory` 对象，用来给下一步构建 `CoreKitPagedViewModel`，同样的，它也提供了 CustomClientFactory 和 DefaultFactory 用法和 [3. 实现普通的Query功能](#3. 实现普通的Query功能) 类似。示例代码：
@@ -191,7 +189,7 @@ coreKitPagedHelper.setHaveMore(dataResponse.data().getBlocksByHeight().getPage()
 	
 	```java
 	mBlocksByHeightQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitPagedViewModel.class);
-mBlocksByHeightQueryViewModel.getCleanQueryData().observe(this, new Observer<CoreKitPagedBean<List<BlocksByHeightQuery.Datum>>>() {
+	mBlocksByHeightQueryViewModel.getCleanQueryData().observe(this, new Observer<CoreKitPagedBean<List<BlocksByHeightQuery.Datum>>>() {
 	@Override
 	public void onChanged(@Nullable CoreKitPagedBean<List<BlocksByHeightQuery.Datum>> coreKitPagedBean) {
 		//1. handle return data
@@ -221,7 +219,7 @@ mBlocksByHeightQueryViewModel.getCleanQueryData().observe(this, new Observer<Cor
 			mListBlocksAdapter.loadMoreEnd();
 		}
 	}
-});
+	});
 	```
 
 
