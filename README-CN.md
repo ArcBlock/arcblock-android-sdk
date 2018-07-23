@@ -61,7 +61,7 @@ dependencies {
 2. 使用 [ArcBlock OCAP Playground](https://ocap.arcblock.io/) 编写一个测试通过的 GraphQL 语句，并把它复制到一个 `.graphql` 的文件中，你可以在示例项目的 `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/` 目录下找到类似的示例文件 。
 3. 编译你的项目，编译成功之后，你会在 `build` 目录下找到自动编译生成的 `Java` 代码，你可以在示例项目的 `arcblock-android-sdk/app/build/generated/source/apollo/` 目录下看到生成的代码，你不需要修改这些自动生成的代码。
 
-#### 3. 实现普通的Query功能
+#### 3. 实现普通的 Query 功能
 1. 首先，设置一个 `CoreKitBeanMapper` 对象，并你利用上一步生成的代码创建一个 `Query` 对象，如：
 
 	```java
@@ -122,7 +122,7 @@ dependencies {
 
 	> Note：整个过程你无需关心内存释放问题，这要归功于我们使用了 `ViewModel` 组件
 
-#### 4. 实现分页的Query功能
+#### 4. 实现分页的 Query 功能
 
 1. 构建一个 `CoreKitPagedHelper` 对象，需要实现里面的三个返回 `Query` 对象的方法，分别为：
 	1. **getInitialQuery()**：返回页面初始化请求的 `Query` 对象
@@ -179,7 +179,7 @@ dependencies {
 	};
 	```
 	
-3. 创建一个 `CoreKitPagedViewModel Factory` 对象，用来给下一步构建 `CoreKitPagedViewModel`，同样的，它也提供了 CustomClientFactory 和 DefaultFactory 用法和 [3. 实现普通的Query功能](#3. 实现普通的Query功能) 类似。示例代码：
+3. 创建一个 `CoreKitPagedViewModel Factory` 对象，用来给下一步构建 `CoreKitPagedViewModel`，同样的，它也提供了 `CustomClientFactory` 和 `DefaultFactory` 用法和 [3. 实现普通的Query功能](#3-实现普通的query功能) 中类似。示例代码：
 	
 	```java
 	CoreKitPagedViewModel.CustomClientFactory factory = new CoreKitPagedViewModel.CustomClientFactory(blocksMapper, coreKitPagedHelper, DemoApplication.getInstance().abCoreKitClient());
