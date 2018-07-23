@@ -1,3 +1,11 @@
+## 0.1.4 (July 23, 2018)
+  - Revert "bump version"
+  - bump version
+  - Revert "bump version"
+  - bump version
+  - make a corekitpagedhelper for developer
+  - support customtype map
+
 ## 0.1.3 (July 20, 2018)
   - support handle repeat list data with diffutil.
   - change gen code to getXXXX()
