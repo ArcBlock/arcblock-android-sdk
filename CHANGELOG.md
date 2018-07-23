@@ -1,3 +1,7 @@
+## 0.1.4 (July 23, 2018)
+  - make a corekitpagedhelper for developer
+  - support customtype map
+
 ## 0.1.3 (July 20, 2018)
   - support handle repeat list data with diffutil.
   - change gen code to getXXXX()
