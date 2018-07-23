@@ -65,7 +65,6 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 	private CoreKitPagedViewModel<BlocksByHeightQuery.Data, BlocksByHeightQuery.Datum> mBlocksByHeightQueryViewModel;
 	private int startIndex = 448244;
 	private int endIndex = 448344;
-	private CoreKitPagedHelper mCoreKitPagedHelper;
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -120,7 +119,7 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 		//	1.1 set initial query
 		//  1.2 set loadmore query
 		//  1.3 set refresh query
-		mCoreKitPagedHelper = new CoreKitPagedHelper() {
+		CoreKitPagedHelper coreKitPagedHelper = new CoreKitPagedHelper() {
 
 			@Override
 			public Query getInitialQuery() {
@@ -151,9 +150,9 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 					// set page info to CoreKitPagedHelper
 					if (dataResponse.data().getBlocksByHeight().getPage() != null) {
 						// set is have next flag to CoreKitPagedHelper
-						mCoreKitPagedHelper.setHaveMore(dataResponse.data().getBlocksByHeight().getPage().isNext());
+						coreKitPagedHelper.setHaveMore(dataResponse.data().getBlocksByHeight().getPage().isNext());
 						// set new cursor to CoreKitPagedHelper
-						mCoreKitPagedHelper.setCursor(dataResponse.data().getBlocksByHeight().getPage().getCursor());
+						coreKitPagedHelper.setCursor(dataResponse.data().getBlocksByHeight().getPage().getCursor());
 					}
 					return dataResponse.data().getBlocksByHeight().getData();
 				}
@@ -162,7 +161,7 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 		};
 
 		//3. init the ViewModel with CustomClientFactory
-		CoreKitPagedViewModel.CustomClientFactory factory = new CoreKitPagedViewModel.CustomClientFactory(blocksMapper, mCoreKitPagedHelper, DemoApplication.getInstance().abCoreKitClient());
+		CoreKitPagedViewModel.CustomClientFactory factory = new CoreKitPagedViewModel.CustomClientFactory(blocksMapper, coreKitPagedHelper, DemoApplication.getInstance().abCoreKitClient());
 		mBlocksByHeightQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitPagedViewModel.class);
 		mBlocksByHeightQueryViewModel.getCleanQueryData().observe(this, new Observer<CoreKitPagedBean<List<BlocksByHeightQuery.Datum>>>() {
 			@Override
@@ -187,7 +186,7 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 				content.setVisibility(View.VISIBLE);
 				progressBar.setVisibility(View.GONE);
 				content.setRefreshing(false);
-				if (mCoreKitPagedHelper.isHaveMore()) {
+				if (coreKitPagedHelper.isHaveMore()) {
 					mListBlocksAdapter.setEnableLoadMore(true);
 					mListBlocksAdapter.loadMoreComplete();
 				} else {

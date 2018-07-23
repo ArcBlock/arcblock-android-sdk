@@ -205,7 +205,7 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel {
 	 * custom client factory
 	 * developer can set a custom ABCoreKitClient by this Factory
 	 */
-	public static class CustomClientFactory<T> extends ViewModelProvider.NewInstanceFactory {
+	public static class CustomClientFactory extends ViewModelProvider.NewInstanceFactory {
 
 		private CoreKitBeanMapper mCoreKitBeanMapper;
 		private CoreKitPagedHelper mCoreKitPagedHelper;
@@ -224,7 +224,7 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel {
 		}
 	}
 
-	public static class DefaultFactory<T> extends ViewModelProvider.NewInstanceFactory {
+	public static class DefaultFactory extends ViewModelProvider.NewInstanceFactory {
 
 		private CoreKitBeanMapper mCoreKitBeanMapper;
 		private CoreKitPagedHelper mCoreKitPagedHelper;
