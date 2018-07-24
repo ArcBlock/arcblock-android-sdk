@@ -250,24 +250,25 @@ dependencies {
 		
 		```java
 		CustomTypeAdapter dateCustomTypeAdapter = new CustomTypeAdapter<Date>() {
-	@Override
-	public Date decode(CustomTypeValue value) {
-		try {
-			SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
-			utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));//时区定义并进行时间获取
-			Date gpsUTCDate = utcFormat.parse(value.value.toString());
-			return gpsUTCDate;
-		} catch (ParseException e) {
-			e.printStackTrace();
+
+		@Override
+		public Date decode(CustomTypeValue value) {
+			try {
+				SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
+				utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));//时区定义并进行时间获取
+				Date gpsUTCDate = utcFormat.parse(value.value.toString());
+				return gpsUTCDate;
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			return null;
 		}
-		return null;
-	}
-	@Override
-	public CustomTypeValue encode(Date value) {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
-		return new CustomTypeValue.GraphQLString(sdf.format(value));
-	}
-	};
+		@Override
+		public CustomTypeValue encode(Date value) {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
+			return new CustomTypeValue.GraphQLString(sdf.format(value));
+		}
+		};
 		```
 		
 2. `ABCoreKitClient` 初始化：
