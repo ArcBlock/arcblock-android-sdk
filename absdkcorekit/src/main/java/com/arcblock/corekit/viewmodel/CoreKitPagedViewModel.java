@@ -32,8 +32,8 @@ import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.rx2.Rx2Apollo;
 import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.bean.CoreKitBeanMapper;
 import com.arcblock.corekit.bean.CoreKitPagedBean;
+import com.arcblock.corekit.utils.CoreKitBeanMapper;
 import com.arcblock.corekit.utils.CoreKitPagedHelper;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class CoreKitPagedViewModel<T, K> extends ViewModel {
+public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInterface {
 
 	private ABCoreKitClient mABCoreKitClient;
 	private MutableLiveData<CoreKitPagedBean<List<K>>> mCoreKitBeanMutableLiveData = new MutableLiveData<>();
@@ -93,6 +93,7 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel {
 	/**
 	 * fetch data by this method
 	 */
+	@Override
 	public void doFinalQuery(Query query) {
 		if (mCoreKitPagedHelper == null && query == null) {
 			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The query is empty.", CoreKitPagedBean.DATA_TYPE_NONE));
@@ -108,9 +109,9 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel {
 
 					@Override
 					public void onNext(Response<T> t) {
+						handleData(t);
 						isRefresh = false;
 						isLoadMore = false;
-						handleData(t);
 					}
 
 					@Override
@@ -118,6 +119,7 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel {
 						isRefresh = false;
 						isLoadMore = false;
 						mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, e.toString(), CoreKitPagedBean.DATA_TYPE_NONE));
+						mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, e.toString(), CoreKitPagedBean.DATA_TYPE_NONE));
 					}
 
 					@Override
@@ -129,29 +131,28 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel {
 
 	/**
 	 * handle response t to the data which are we want.
+	 *
 	 * @param t
 	 */
 	private synchronized void handleData(Response<T> t) {
 		if (t != null) {
 			List<K> temp = mCoreKitBeanMapper.map(t);
-
 			if (temp == null) {
 				mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty.", CoreKitPagedBean.DATA_TYPE_NONE));
+				mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty.", CoreKitPagedBean.DATA_TYPE_NONE));
 				return;
 			}
-
 			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(temp, CoreKitBean.SUCCESS_CODE, "", isLoadMore ? CoreKitPagedBean.DATA_TYPE_LOAD_MORE : CoreKitPagedBean.DATA_TYPE_REFRESH));
-
 			// handle list for repeated data
 			for (int i = 0; i < temp.size(); i++) {
 				if (isNotInBlocks(temp.get(i))) {
 					resultDatas.add(temp.get(i));
 				}
 			}
-
 			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(resultDatas, CoreKitBean.SUCCESS_CODE, "", isLoadMore ? CoreKitPagedBean.DATA_TYPE_LOAD_MORE : CoreKitPagedBean.DATA_TYPE_REFRESH));
 		} else {
 			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty.", CoreKitPagedBean.DATA_TYPE_NONE));
+			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty.", CoreKitPagedBean.DATA_TYPE_NONE));
 		}
 	}
 
@@ -161,6 +162,7 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel {
 	public void loadMore() {
 		if (isRefresh) {
 			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do loadMore when refreshing.", CoreKitPagedBean.DATA_TYPE_NONE));
+			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do loadMore when refreshing.", CoreKitPagedBean.DATA_TYPE_NONE));
 			return;
 		}
 		if (mCoreKitPagedHelper == null) {
@@ -178,6 +180,7 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel {
 	public void refresh() {
 		if (isLoadMore) {
 			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do refresh when loadMore.", CoreKitPagedBean.DATA_TYPE_NONE));
+			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do refresh when loadMore.", CoreKitPagedBean.DATA_TYPE_NONE));
 			return;
 		}
 		if (mCoreKitPagedHelper == null) {

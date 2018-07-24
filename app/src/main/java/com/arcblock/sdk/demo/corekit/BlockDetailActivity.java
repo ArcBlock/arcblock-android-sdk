@@ -36,7 +36,7 @@ import android.widget.TextView;
 
 import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.bean.CoreKitBeanMapper;
+import com.arcblock.corekit.utils.CoreKitBeanMapper;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.BlockByHashQuery;
 import com.arcblock.sdk.demo.DemoApplication;

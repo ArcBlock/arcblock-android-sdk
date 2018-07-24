@@ -42,6 +42,18 @@ apply plugin: 'com.apollographql.android'
 
 //......
 
+android {
+
+	//.....
+	
+	compileOptions {
+		targetCompatibility 1.8
+		sourceCompatibility 1.8
+	}
+}
+
+//......
+
 dependencies {
 	def absdkcorekitversion = "0.0.9"
 	implementation("com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"){
@@ -222,6 +234,54 @@ dependencies {
 	});
 	```
 
+#### 5. 其他配置
+
+1. `CustomType` 配置：
+
+	1. 首先，需要在 `app module` 的 `build.gradle` 文件中添加 `customTypeMapping` :
+		
+		```groovy
+		apollo {
+			customTypeMapping['DateTime'] = "java.util.Date"
+		}
+		```
+		
+	2. 创建对应的 `CustomTypeAdapter` 用于解析对应的 `CustomType` ：
+		
+		```java
+		CustomTypeAdapter dateCustomTypeAdapter = new CustomTypeAdapter<Date>() {
+	@Override
+	public Date decode(CustomTypeValue value) {
+		try {
+			SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
+			utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));//时区定义并进行时间获取
+			Date gpsUTCDate = utcFormat.parse(value.value.toString());
+			return gpsUTCDate;
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	@Override
+	public CustomTypeValue encode(Date value) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
+		return new CustomTypeValue.GraphQLString(sdf.format(value));
+	}
+	};
+		```
+		
+2. `ABCoreKitClient` 初始化：
+	推荐在主进程的 `Application onCreate` 方法中初始化一个全局单例的 `ABCoreKitClient` 对象：
+	
+	```java
+	mABCoreClient = ABCoreKitClient.builder(this)
+		.addCustomTypeAdapter(CustomType.DATETIME, dateCustomTypeAdapter)
+		.setOkHttpClient(okHttpClient)
+		.setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK)
+		.build();
+	```
+	
+	在初始化的时候，你可以传入自定义的 `okHttpClient` ，`CustomTypeAdapter` ，`ResponseFetcher` 等参数。
 
 ## License
 

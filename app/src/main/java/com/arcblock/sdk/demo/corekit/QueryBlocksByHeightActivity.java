@@ -39,7 +39,7 @@ import android.widget.ProgressBar;
 import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.bean.CoreKitBeanMapper;
+import com.arcblock.corekit.utils.CoreKitBeanMapper;
 import com.arcblock.corekit.bean.CoreKitPagedBean;
 import com.arcblock.corekit.utils.CoreKitDiffUtil;
 import com.arcblock.corekit.utils.CoreKitPagedHelper;
@@ -101,7 +101,7 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 				mBlocksByHeightQueryViewModel.loadMore();
 			}
 		}, feedRecyclerView);
-		mListBlocksAdapter.openLoadAnimation(BaseQuickAdapter.SLIDEIN_LEFT);
+		// mListBlocksAdapter.openLoadAnimation(BaseQuickAdapter.SLIDEIN_LEFT);
 		mListBlocksAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
 			@Override
 			public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
