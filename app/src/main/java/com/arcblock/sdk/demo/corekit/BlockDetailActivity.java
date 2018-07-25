@@ -36,13 +36,14 @@ import android.widget.TextView;
 
 import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.bean.CoreKitBeanMapper;
+import com.arcblock.corekit.utils.CoreKitBeanMapper;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.BlockByHashQuery;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.BlockDetailTransactionsAdapter;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,6 +67,8 @@ public class BlockDetailActivity extends AppCompatActivity {
 	private List<BlockByHashQuery.Datum> mDatumList = new ArrayList<>();
 
 	private CoreKitViewModel<Response<BlockByHashQuery.Data>, BlockByHashQuery.BlockByHash> mBlockByHashQueryViewModel;
+
+	private SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -108,7 +111,7 @@ public class BlockDetailActivity extends AppCompatActivity {
 						version_tv.setText(blockByHash.getVersion() + "");
 						bits_tv.setText(blockByHash.getBits() + "");
 						nonce_tv.setText(blockByHash.getNonce() + "");
-						time_tv.setText(blockByHash.getTime() + "");
+						time_tv.setText(blockByHash.getTime() != null ? DATE_FORMAT.format(blockByHash.getTime()) : "Time is empty");
 						pre_hash_tv.setText(blockByHash.getPreHash() + "");
 						if (blockByHash.getTransactions().getData() != null) {
 							mDatumList.clear();

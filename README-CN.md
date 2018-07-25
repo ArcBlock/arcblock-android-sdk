@@ -38,6 +38,22 @@ allprojects {
 添加下面代码到 app module 的 `build.gradle` 文件中：
 
 ``` groovy
+apply plugin: 'com.apollographql.android'
+
+//......
+
+android {
+
+	//.....
+	
+	compileOptions {
+		targetCompatibility 1.8
+		sourceCompatibility 1.8
+	}
+}
+
+//......
+
 dependencies {
 	def absdkcorekitversion = "0.0.9"
 	implementation("com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"){
@@ -57,8 +73,24 @@ dependencies {
 2. 使用 [ArcBlock OCAP Playground](https://ocap.arcblock.io/) 编写一个测试通过的 GraphQL 语句，并把它复制到一个 `.graphql` 的文件中，你可以在示例项目的 `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/` 目录下找到类似的示例文件 。
 3. 编译你的项目，编译成功之后，你会在 `build` 目录下找到自动编译生成的 `Java` 代码，你可以在示例项目的 `arcblock-android-sdk/app/build/generated/source/apollo/` 目录下看到生成的代码，你不需要修改这些自动生成的代码。
 
-#### 3. 实现你的第一个功能代码
-1. 首先，你需要利用上一步生成的代码创建一个 `Query` 对象，如：
+#### 3. 实现普通的 Query 功能
+1. 首先，设置一个 `CoreKitBeanMapper` 对象，并你利用上一步生成的代码创建一个 `Query` 对象，如：
+
+	```java
+	// init data mapper
+	CoreKitBeanMapper<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress> accountMapper = new CoreKitBeanMapper<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress>() {
+
+	@Override
+	public AccountByAddressQuery.AccountByAddress map(Response<AccountByAddressQuery.Data> dataResponse) {
+		if (dataResponse != null) {
+			return dataResponse.data().getAccountByAddress();
+		}
+		return null;
+	}
+	};
+	```
+	
+	*and*
 
 	```java
 	// init a query
@@ -69,14 +101,14 @@ dependencies {
 
 	```java
 	// init the ViewModel with DefaultFactory
-	CoreKitViewModel.DefaultFactory factory = new CoreKitViewModel.DefaultFactory(DemoApplication.getInstance());
+	CoreKitViewModel.DefaultFactory factory = new CoreKitViewModel.DefaultFactory(accountMapper,DemoApplication.getInstance());
 	```
 	
 	*or*
 	
 	```java
 	// init the ViewModel with CustomClientFactory
-	CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(DemoApplication.getInstance().abCoreKitClient());
+	CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(accountMapper,DemoApplication.getInstance().abCoreKitClient());
 	```
 	
 	第二种方式传入的是一个自定义的 `ABCoreKitClient` 对象，而 `DefaultFactory` 只需传入一个 `Application` 对象即可，我们会在 `ABCoreKitClient` 中实例一个默认的 `ABCoreKitClient` 对象供 `CoreKitViewModel` 使用。
@@ -101,6 +133,156 @@ dependencies {
 	至此你已经完成了一个完整流程的对接，使用 `Absdkcorekit Library` ，你只需编写业务相关的 `GraphQL` 语句并实例化一个`Query` 对象，然后结合 `CoreKitViewModel` 就可以完美的实现数据的获取与展示，你无需关注底层只需专注于本身业务功能代码的开发。
 
 	> Note：整个过程你无需关心内存释放问题，这要归功于我们使用了 `ViewModel` 组件
+
+#### 4. 实现分页的 Query 功能
+
+1. 构建一个 `CoreKitPagedHelper` 对象，需要实现里面的三个返回 `Query` 对象的方法，分别为：
+	1. **getInitialQuery()**：返回页面初始化请求的 `Query` 对象
+	2. **getLoadMoreQuery()**：返回用于加载一下页数据的 `Query` 对象
+	3. **getRefreshQuery()**：返回用于刷新的 `Query` 对象，一般情况下与 `getInitialQuery()` 返回一致
+	
+	另外，`CoreKitPagedHelper` 对象还有两个属性：`isHaveMore` , `cursor` 用来分别控制是否有更多数据以及用于保存查询下一页数据的 `cursor`
+	
+	示例代码：
+	
+	```java
+	CoreKitPagedHelper coreKitPagedHelper = new CoreKitPagedHelper() {
+
+		@Override
+		public Query getInitialQuery() {
+			return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).build();
+		}
+	
+		@Override
+		public Query getLoadMoreQuery() {
+			PageInput pageInput = null;
+			if (!TextUtils.isEmpty(getCursor())) {
+				pageInput = PageInput.builder().cursor(getCursor()).build();
+			}
+			return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).paging(pageInput).build();
+		}
+	
+		@Override
+		public Query getRefreshQuery() {
+			return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).build();
+		}
+		};
+	```
+	
+2. 设置 `CoreKitBeanMapper` 对象，在里面需要手动实现数据的转换，并维护 `CoreKitPagedHelper` 的`isHaveMore` , `cursor` ，示例代码如下：
+	
+	```java
+	CoreKitBeanMapper<Response<BlocksByHeightQuery.Data>, List<BlocksByHeightQuery.Datum>> blocksMapper = new CoreKitBeanMapper<Response<BlocksByHeightQuery.Data>, List<BlocksByHeightQuery.Datum>>() {
+
+	@Override
+	public List<BlocksByHeightQuery.Datum> map(Response<BlocksByHeightQuery.Data> dataResponse) {
+		if (dataResponse != null && dataResponse.data().getBlocksByHeight() != null) {
+			// set page info to CoreKitPagedHelper
+			if (dataResponse.data().getBlocksByHeight().getPage() != null) {
+				// set is have next flag to CoreKitPagedHelper
+				coreKitPagedHelper.setHaveMore(dataResponse.data().getBlocksByHeight().getPage().isNext());
+				// set new cursor to CoreKitPagedHelper
+				coreKitPagedHelper.setCursor(dataResponse.data().getBlocksByHeight().getPage().getCursor());
+			}
+			return dataResponse.data().getBlocksByHeight().getData();
+		}
+		return null;
+	}
+	};
+	```
+	
+3. 创建一个 `CoreKitPagedViewModel Factory` 对象，用来给下一步构建 `CoreKitPagedViewModel`，同样的，它也提供了 `CustomClientFactory` 和 `DefaultFactory` 用法和 [3. 实现普通的Query功能](#3-实现普通的query功能) 中类似。示例代码：
+	
+	```java
+	CoreKitPagedViewModel.CustomClientFactory factory = new CoreKitPagedViewModel.CustomClientFactory(blocksMapper, coreKitPagedHelper, DemoApplication.getInstance().abCoreKitClient());
+	```
+	
+4. 第三步，构建 `CoreKitPagedViewModel` 获得 `LiveData` 对象并设置 `observe` 监听事件，可以在回调监听中实现自己的数据逻辑和视图逻辑，示例代码：
+	
+	```java
+	mBlocksByHeightQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitPagedViewModel.class);
+	mBlocksByHeightQueryViewModel.getCleanQueryData().observe(this, new Observer<CoreKitPagedBean<List<BlocksByHeightQuery.Datum>>>() {
+	@Override
+	public void onChanged(@Nullable CoreKitPagedBean<List<BlocksByHeightQuery.Datum>> coreKitPagedBean) {
+		//1. handle return data
+		if (coreKitPagedBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+			if (coreKitPagedBean.getData() != null) {
+				// new a old list
+				List<BlocksByHeightQuery.Datum> oldList = new ArrayList<>();
+				oldList.addAll(mBlocks);
+
+				// set mBlocks with new data
+				mBlocks = coreKitPagedBean.getData();
+				DiffUtil.DiffResult result = DiffUtil.calculateDiff(new CoreKitDiffUtil<>(oldList, mBlocks), true);
+				// need this line , otherwise the update will have no effect
+				mListBlocksAdapter.setNewListData(mBlocks);
+				result.dispatchUpdatesTo(mListBlocksAdapter);
+			}
+		}
+
+		//2. view status change and loadMore component need
+		content.setVisibility(View.VISIBLE);
+		progressBar.setVisibility(View.GONE);
+		content.setRefreshing(false);
+		if (coreKitPagedHelper.isHaveMore()) {
+			mListBlocksAdapter.setEnableLoadMore(true);
+			mListBlocksAdapter.loadMoreComplete();
+		} else {
+			mListBlocksAdapter.loadMoreEnd();
+		}
+	}
+	});
+	```
+
+#### 5. 其他配置
+
+1. `CustomType` 配置：
+
+	1. 首先，需要在 `app module` 的 `build.gradle` 文件中添加 `customTypeMapping` :
+		
+		```groovy
+		apollo {
+			customTypeMapping['DateTime'] = "java.util.Date"
+		}
+		```
+		
+	2. 创建对应的 `CustomTypeAdapter` 用于解析对应的 `CustomType` ：
+		
+		```java
+		CustomTypeAdapter dateCustomTypeAdapter = new CustomTypeAdapter<Date>() {
+
+		@Override
+		public Date decode(CustomTypeValue value) {
+			try {
+				SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
+				utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));//时区定义并进行时间获取
+				Date gpsUTCDate = utcFormat.parse(value.value.toString());
+				return gpsUTCDate;
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+		@Override
+		public CustomTypeValue encode(Date value) {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
+			return new CustomTypeValue.GraphQLString(sdf.format(value));
+		}
+		};
+		```
+		
+2. `ABCoreKitClient` 初始化：
+	推荐在主进程的 `Application onCreate` 方法中初始化一个全局单例的 `ABCoreKitClient` 对象：
+	
+	```java
+	mABCoreClient = ABCoreKitClient.builder(this)
+		.addCustomTypeAdapter(CustomType.DATETIME, dateCustomTypeAdapter)
+		.setOkHttpClient(okHttpClient)
+		.setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK)
+		.build();
+	```
+	
+	在初始化的时候，你可以传入自定义的 `okHttpClient` ，`CustomTypeAdapter` ，`ResponseFetcher` 等参数。
 
 ## License
 

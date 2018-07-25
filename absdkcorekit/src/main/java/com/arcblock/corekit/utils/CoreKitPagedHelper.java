@@ -19,11 +19,60 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.corekit.bean;
+package com.arcblock.corekit.utils;
 
-public class CoreKitPagedBean<T> extends CoreKitBean<T> {
+import com.apollographql.apollo.api.Query;
 
-	public CoreKitPagedBean(T data, int status, String errorMessage) {
-		super(data, status, errorMessage);
+public abstract class CoreKitPagedHelper {
+
+	private boolean hasMore = true;
+	private String cursor;
+
+	/**
+	 * @return is page have next
+	 */
+	public boolean isHasMore() {
+		return hasMore;
 	}
+
+	public void setHasMore(boolean hasMore) {
+		// if already hasMore = false, just return
+		if (!this.hasMore) {
+			return;
+		}
+		this.hasMore = hasMore;
+	}
+
+	public void setHasMoreForRefresh() {
+		this.hasMore = true;
+		this.cursor = "";
+	}
+
+	/**
+	 * @return current cursor
+	 */
+	public String getCursor() {
+		return cursor;
+	}
+
+	public void setCursor(String cursor) {
+		this.cursor = cursor;
+	}
+
+	/**
+	 * @return initial query object for page initial query
+	 */
+	public abstract Query getInitialQuery();
+
+	/**
+	 * @return loadMore query object for page loadMore query
+	 */
+	public abstract Query getLoadMoreQuery();
+
+	/**
+	 * @return refresh query object for page refresh query
+	 */
+	public abstract Query getRefreshQuery();
+
+
 }

@@ -19,11 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.corekit.bean;
+package com.arcblock.corekit.utils;
 
-public class CoreKitPagedBean<T> extends CoreKitBean<T> {
-
-	public CoreKitPagedBean(T data, int status, String errorMessage) {
-		super(data, status, errorMessage);
-	}
+public interface CoreKitBeanMapper<T,D> {
+	D map(T t);
 }

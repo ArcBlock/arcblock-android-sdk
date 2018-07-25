@@ -31,14 +31,14 @@ import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.rx2.Rx2Apollo;
 import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.bean.CoreKitBeanMapper;
+import com.arcblock.corekit.utils.CoreKitBeanMapper;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class CoreKitViewModel<T, D> extends ViewModel {
+public class CoreKitViewModel<T, D> extends ViewModel implements CoreKitInterface{
 
 	private ABCoreKitClient mABCoreKitClient;
 	private MutableLiveData<CoreKitBean<D>> mCoreKitBeanMutableLiveData = new MutableLiveData<>();
@@ -54,17 +54,25 @@ public class CoreKitViewModel<T, D> extends ViewModel {
 		this.mABCoreKitClient = aBCoreKitClient;
 	}
 
+	/**
+	 * @param query
+	 * @return a livedata object with CoreKitBean
+	 */
 	public MutableLiveData<CoreKitBean<D>> getQueryData(Query query) {
-		doQuery(query);
+		doFinalQuery(query);
 		return mCoreKitBeanMutableLiveData;
 	}
 
-
-	public void setQuery(Query query) {
-		doQuery(query);
+	/**
+	 * set a new query then do query
+	 * @param query
+	 */
+	public void setNewQuery(Query query) {
+		doFinalQuery(query);
 	}
 
-	public void doQuery(Query query) {
+	@Override
+	public void doFinalQuery(Query query) {
 		Rx2Apollo.from(mABCoreKitClient.query(query))
 				.subscribeOn(Schedulers.io())
 				.observeOn(AndroidSchedulers.mainThread())
