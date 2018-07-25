@@ -150,7 +150,7 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 					// set page info to CoreKitPagedHelper
 					if (dataResponse.data().getBlocksByHeight().getPage() != null) {
 						// set is have next flag to CoreKitPagedHelper
-						coreKitPagedHelper.setHaveMore(dataResponse.data().getBlocksByHeight().getPage().isNext());
+						coreKitPagedHelper.setHasMore(dataResponse.data().getBlocksByHeight().getPage().isNext());
 						// set new cursor to CoreKitPagedHelper
 						coreKitPagedHelper.setCursor(dataResponse.data().getBlocksByHeight().getPage().getCursor());
 					}
@@ -186,7 +186,7 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 				content.setVisibility(View.VISIBLE);
 				progressBar.setVisibility(View.GONE);
 				content.setRefreshing(false);
-				if (coreKitPagedHelper.isHaveMore()) {
+				if (coreKitPagedHelper.isHasMore()) {
 					mListBlocksAdapter.setEnableLoadMore(true);
 					mListBlocksAdapter.loadMoreComplete();
 				} else {

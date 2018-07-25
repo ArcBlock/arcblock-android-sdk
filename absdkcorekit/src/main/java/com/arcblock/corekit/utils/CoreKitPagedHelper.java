@@ -25,25 +25,26 @@ import com.apollographql.apollo.api.Query;
 
 public abstract class CoreKitPagedHelper {
 
-	private boolean isHaveMore = true;
+	private boolean hasMore = true;
 	private String cursor;
 
 	/**
 	 * @return is page have next
 	 */
-	public boolean isHaveMore() {
-		return isHaveMore;
+	public boolean isHasMore() {
+		return hasMore;
 	}
 
-	public void setHaveMore(boolean haveMore) {
-		if (!isHaveMore) {
+	public void setHasMore(boolean hasMore) {
+		// if already hasMore = false, just return
+		if (!this.hasMore) {
 			return;
 		}
-		this.isHaveMore = haveMore;
+		this.hasMore = hasMore;
 	}
 
-	public void setHaveMoreFourRefresh() {
-		this.isHaveMore = true;
+	public void setHasMoreForRefresh() {
+		this.hasMore = true;
 		this.cursor = "";
 	}
 
