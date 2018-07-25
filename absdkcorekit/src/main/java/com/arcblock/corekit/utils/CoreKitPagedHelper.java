@@ -36,7 +36,15 @@ public abstract class CoreKitPagedHelper {
 	}
 
 	public void setHaveMore(boolean haveMore) {
+		if (!isHaveMore) {
+			return;
+		}
 		this.isHaveMore = haveMore;
+	}
+
+	public void setHaveMoreFourRefresh() {
+		this.isHaveMore = true;
+		this.cursor = "";
 	}
 
 	/**

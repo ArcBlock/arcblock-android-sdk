@@ -188,6 +188,7 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 		}
 		resultDatas.clear();
 		isRefresh = true;
+		mCoreKitPagedHelper.setHaveMoreFourRefresh();
 		doFinalQuery(mCoreKitPagedHelper.getRefreshQuery());
 	}
 
