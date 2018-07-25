@@ -50,8 +50,7 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 	private MutableLiveData<CoreKitPagedBean<List<K>>> mCoreKitBeanMutableLiveData = new MutableLiveData<>();
 	private MutableLiveData<CoreKitPagedBean<List<K>>> mCleanDatasMutableLiveData = new MutableLiveData<>();
 	private CoreKitBeanMapper<Response<T>, List<K>> mCoreKitBeanMapper;
-	private boolean isRefresh;
-	private boolean isLoadMore;
+	private boolean isLoading;
 	private List<K> resultDatas = new ArrayList<>();
 	private CoreKitPagedHelper mCoreKitPagedHelper;
 
@@ -96,7 +95,7 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 	@Override
 	public void doFinalQuery(Query query) {
 		if (mCoreKitPagedHelper == null && query == null) {
-			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The query is empty.", CoreKitPagedBean.DATA_TYPE_NONE));
+			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The query is empty."));
 		}
 		Rx2Apollo.from(mABCoreKitClient.query(query).watcher())
 				.subscribeOn(Schedulers.io())
@@ -110,16 +109,14 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 					@Override
 					public void onNext(Response<T> t) {
 						handleData(t);
-						isRefresh = false;
-						isLoadMore = false;
+						isLoading = false;
 					}
 
 					@Override
 					public void onError(Throwable e) {
-						isRefresh = false;
-						isLoadMore = false;
-						mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, e.toString(), CoreKitPagedBean.DATA_TYPE_NONE));
-						mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, e.toString(), CoreKitPagedBean.DATA_TYPE_NONE));
+						isLoading = false;
+						mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, e.toString()));
+						mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, e.toString()));
 					}
 
 					@Override
@@ -138,21 +135,21 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 		if (t != null) {
 			List<K> temp = mCoreKitBeanMapper.map(t);
 			if (temp == null) {
-				mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty.", CoreKitPagedBean.DATA_TYPE_NONE));
-				mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty.", CoreKitPagedBean.DATA_TYPE_NONE));
+				mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty."));
+				mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty."));
 				return;
 			}
-			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(temp, CoreKitBean.SUCCESS_CODE, "", isLoadMore ? CoreKitPagedBean.DATA_TYPE_LOAD_MORE : CoreKitPagedBean.DATA_TYPE_REFRESH));
+			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(temp, CoreKitBean.SUCCESS_CODE, ""));
 			// handle list for repeated data
 			for (int i = 0; i < temp.size(); i++) {
 				if (isNotInBlocks(temp.get(i))) {
 					resultDatas.add(temp.get(i));
 				}
 			}
-			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(resultDatas, CoreKitBean.SUCCESS_CODE, "", isLoadMore ? CoreKitPagedBean.DATA_TYPE_LOAD_MORE : CoreKitPagedBean.DATA_TYPE_REFRESH));
+			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(resultDatas, CoreKitBean.SUCCESS_CODE, ""));
 		} else {
-			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty.", CoreKitPagedBean.DATA_TYPE_NONE));
-			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty.", CoreKitPagedBean.DATA_TYPE_NONE));
+			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty."));
+			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty."));
 		}
 	}
 
@@ -160,15 +157,15 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 	 * load next page data
 	 */
 	public void loadMore() {
-		if (isRefresh) {
-			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do loadMore when refreshing.", CoreKitPagedBean.DATA_TYPE_NONE));
-			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do loadMore when refreshing.", CoreKitPagedBean.DATA_TYPE_NONE));
+		if (isLoading) {
+			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do loadMore when loading."));
+			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do loadMore when loading."));
 			return;
 		}
 		if (mCoreKitPagedHelper == null) {
 			throw new RuntimeException("CoreKitPagedHelper must be init.");
 		}
-		isLoadMore = true;
+		isLoading = true;
 		doFinalQuery(mCoreKitPagedHelper.getLoadMoreQuery());
 	}
 
@@ -178,16 +175,16 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 	 * reset page
 	 */
 	public void refresh() {
-		if (isLoadMore) {
-			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do refresh when loadMore.", CoreKitPagedBean.DATA_TYPE_NONE));
-			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do refresh when loadMore.", CoreKitPagedBean.DATA_TYPE_NONE));
+		if (isLoading) {
+			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do refresh when loading."));
+			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do refresh when loading."));
 			return;
 		}
 		if (mCoreKitPagedHelper == null) {
 			throw new RuntimeException("CoreKitPagedHelper must be init.");
 		}
 		resultDatas.clear();
-		isRefresh = true;
+		isLoading = true;
 		mCoreKitPagedHelper.setHasMoreForRefresh();
 		doFinalQuery(mCoreKitPagedHelper.getRefreshQuery());
 	}
