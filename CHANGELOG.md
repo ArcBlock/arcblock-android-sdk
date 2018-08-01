@@ -1,3 +1,6 @@
+## 0.1.5 (August 01, 2018)
+  - update readme
+
 ## 0.1.4 (July 23, 2018)
   - Revert "bump version"
   - bump version

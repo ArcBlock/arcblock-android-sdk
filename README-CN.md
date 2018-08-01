@@ -1,8 +1,8 @@
 # ArcBlock Android SDK
 
-[![license](https://img.shields.io/badge/API-14+-green.svg?longCache=true&style=flat)](https://android-arsenal.com/api?level=14)  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/ArcBlock/arcblock-android-sdk/blob/master/LICENSE)
+[![license](https://img.shields.io/badge/API-15+-green.svg?longCache=true&style=flat)](https://android-arsenal.com/api?level=14)  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/ArcBlock/arcblock-android-sdk/blob/master/LICENSE)
 
-> 在接入 ArcBlock Android SDK 前我们需要开发者具备 [GraphQL](https://graphql.org/) 的基础使用能力 。 我们也提供了一个功能完善的 [ArcBlock OCAP Playground](https://ocap.arcblock.io/) ，开发者可以使用它编写和测试自己想要的 GraphQL 语句 。
+> 在接入 ArcBlock Android SDK 前需要开发者具备 [GraphQL](https://graphql.org/) 的基础使用能力 。 我们也提供了一个功能完善的 [ArcBlock OCAP Playground](https://ocap.arcblock.io/) ，开发者可以使用它编写和测试自己想要的 GraphQL 语句 。
 
 ArcBlock Android SDK 目前提供了 `Absdkcorekit Library` ，未来还将提供
 `AbsdkAccountKit Library` , `AbsdkMessagingKit Library` 。使用这些库可以让 Android 开发者快速的开发出区块链应用 。
@@ -55,7 +55,7 @@ android {
 //......
 
 dependencies {
-	def absdkcorekitversion = "0.0.9"
+	def absdkcorekitversion = "0.1.4"
 	implementation("com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"){
 		transitive = true
 	}
@@ -65,9 +65,9 @@ dependencies {
 }
 ```
 
-#### 2. 创建 graphql 目录并下载添加 `schema.json` 和 创建 .graphql 文件
+#### 2. 创建 graphql 目录并下载添加 `schema.json` 和 创建 `.graphql` 文件
 
-> 推荐创建一个和你 app module 包名相同的目录来存放`schema.json` 和 .graphql 代码，类如示例代码的 `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/`， `arcblock-android-sdk/app/src/main/graphql/` 后面的相对目录和示例项目的包名是一致的，当然你也可以指定目录相关，具体请参考：[explicit-schema-location](https://github.com/apollographql/apollo-android#explicit-schema-location)
+> 推荐创建一个和你 app module 包名相同的目录来存放`schema.json` 和 `.graphql` 代码，类如示例代码的 `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/`， `arcblock-android-sdk/app/src/main/graphql/` 后面的相对目录和示例项目的包名是一致的，当然你也可以指定目录相关，具体请参考：[explicit-schema-location](https://github.com/apollographql/apollo-android#explicit-schema-location)
 
 1. `schema.json` 的下载地址：[bitcoin.json](https://ocap.arcblock.io/doc/bitcoin.json) 下载之后重命名为 `schema.json` ，你可以在示例项目的 `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/` 目录下找到此文件，可以直接复制使用 。
 2. 使用 [ArcBlock OCAP Playground](https://ocap.arcblock.io/) 编写一个测试通过的 GraphQL 语句，并把它复制到一个 `.graphql` 的文件中，你可以在示例项目的 `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/` 目录下找到类似的示例文件 。
