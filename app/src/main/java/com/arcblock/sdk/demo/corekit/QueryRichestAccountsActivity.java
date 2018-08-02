@@ -97,7 +97,7 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
 		// init a query
 		RichestAccountsQuery query = RichestAccountsQuery.builder().build();
 		// init the ViewModel with CustomClientFactory
-		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(richestAccountsMapper, DemoApplication.getInstance().abCoreKitClient());
+		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(richestAccountsMapper, DemoApplication.getInstance().abCoreKitClientBtc());
 		mRichestAccountsQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
 		mRichestAccountsQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<RichestAccountsQuery.RichestAccounts>>() {
 			@Override

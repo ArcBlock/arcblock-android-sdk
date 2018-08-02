@@ -96,7 +96,7 @@ public class BlockDetailActivity extends AppCompatActivity {
 		// init a query
 		BlockByHashQuery query = BlockByHashQuery.builder().hash(blockHash).build();
 		// init the ViewModel with CustomClientFactory
-		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(blockMapper, DemoApplication.getInstance().abCoreKitClient());
+		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(blockMapper, DemoApplication.getInstance().abCoreKitClientBtc());
 		mBlockByHashQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
 		mBlockByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<BlockByHashQuery.BlockByHash>>() {
 			@Override

@@ -100,7 +100,7 @@ public class TransactionDetailActivity extends AppCompatActivity {
 		// init a query
 		TransactionByHashQuery query = TransactionByHashQuery.builder().hash(transactionHash).build();
 		// init the ViewModel with CustomClientFactory
-		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(transactionMapper, DemoApplication.getInstance().abCoreKitClient());
+		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(transactionMapper, DemoApplication.getInstance().abCoreKitClientBtc());
 		mTransactionByHashQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
 		mTransactionByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<TransactionByHashQuery.TransactionByHash>>() {
 			@Override
