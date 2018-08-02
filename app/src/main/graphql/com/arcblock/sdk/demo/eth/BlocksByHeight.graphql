@@ -1,0 +1,13 @@
+query blocksByHeight($fromHeight: Int!, $toHeight: Int, $paging: PageInput) {
+  blocksByHeight(fromHeight: $fromHeight, toHeight: $toHeight, paging: $paging) {
+    data{
+      height
+      hash
+    }
+    page{
+      cursor
+      next
+      total
+    }
+  }
+}

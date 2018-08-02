@@ -25,6 +25,16 @@
                 android:textColor="@android:color/white"/>
 
             <Button
+                android:id="@+id/query_blocks_by_height_eth_btn"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_height"
+                android:layout_marginTop="@dimen/top_margin"
+                android:background="@drawable/btn_bg"
+                android:text="@string/query_list_block_eth_data"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <Button
                 android:id="@+id/query_richest_accounts_btn"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/btn_height"
@@ -44,6 +54,7 @@
                 android:text="@string/query_pizza_transaction"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"/>
+
 
         </LinearLayout>
 

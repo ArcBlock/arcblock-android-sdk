@@ -39,9 +39,9 @@ import com.arcblock.corekit.utils.CoreKitBeanMapper;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
-import com.arcblock.sdk.demo.TransactionByHashQuery;
 import com.arcblock.sdk.demo.adapter.TsInputsAdapter;
 import com.arcblock.sdk.demo.adapter.TsOutputsAdapter;
+import com.arcblock.sdk.demo.btc.TransactionByHashQuery;
 
 import java.util.ArrayList;
 import java.util.List;

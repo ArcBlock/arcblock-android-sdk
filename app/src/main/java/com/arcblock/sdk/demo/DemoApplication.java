@@ -7,7 +7,7 @@ import com.apollographql.apollo.response.CustomTypeAdapter;
 import com.apollographql.apollo.response.CustomTypeValue;
 import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.config.CoreKitConfig;
-import com.arcblock.sdk.demo.type.CustomType;
+import com.arcblock.sdk.demo.btc.type.CustomType;
 import com.facebook.stetho.Stetho;
 
 import org.jetbrains.annotations.NotNull;
@@ -41,6 +41,7 @@ public class DemoApplication extends Application {
 		Timber.plant(new Timber.DebugTree());
 
 		initBtcClient();
+		initEthClient();
 
 	}
 

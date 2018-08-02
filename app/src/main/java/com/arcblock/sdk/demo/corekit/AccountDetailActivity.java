@@ -38,11 +38,11 @@ import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.corekit.config.CoreKitConfig;
 import com.arcblock.corekit.utils.CoreKitBeanMapper;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
-import com.arcblock.sdk.demo.AccountByAddressQuery;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.TsReceiverAdapter;
 import com.arcblock.sdk.demo.adapter.TsSentAdapter;
+import com.arcblock.sdk.demo.btc.AccountByAddressQuery;
 
 import java.util.ArrayList;
 import java.util.List;

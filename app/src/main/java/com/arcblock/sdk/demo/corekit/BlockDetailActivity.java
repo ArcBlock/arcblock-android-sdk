@@ -38,10 +38,10 @@ import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.corekit.utils.CoreKitBeanMapper;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
-import com.arcblock.sdk.demo.BlockByHashQuery;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.BlockDetailTransactionsAdapter;
+import com.arcblock.sdk.demo.btc.BlockByHashQuery;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

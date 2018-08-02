@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.arcblock.sdk.demo.corekit.QueryBlocksByHeightActivity;
+import com.arcblock.sdk.demo.corekit.QueryBlocksByHeightForEthActivity;
 import com.arcblock.sdk.demo.corekit.QueryRichestAccountsActivity;
 import com.arcblock.sdk.demo.corekit.TransactionDetailActivity;
 
@@ -55,6 +56,14 @@ public class CoreKitFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(getActivity(), QueryBlocksByHeightActivity.class);
+				startActivity(intent);
+			}
+		});
+
+		view.findViewById(R.id.query_blocks_by_height_eth_btn).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(getActivity(), QueryBlocksByHeightForEthActivity.class);
 				startActivity(intent);
 			}
 		});
