@@ -1,3 +1,6 @@
+## 0.1.6 (August 07, 2018)
+
+
 ## 0.1.5 (August 01, 2018)
   - update readme
 
