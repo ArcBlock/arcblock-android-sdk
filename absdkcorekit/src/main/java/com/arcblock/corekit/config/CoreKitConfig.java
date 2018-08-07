@@ -8,7 +8,7 @@ public class CoreKitConfig {
 	public static final String BASE_URL_BTC = "https://ocap.arcblock.io/api/btc";
 	public static final String BASE_URL_ETH = "https://ocap.arcblock.io/api/eth";
 
-	public static final String SUBSCRIPTION_BASE_URL_ETH = "wss://ocap.arcblock.io/api/socket";
+	public static final String SUBSCRIPTION_BASE_URL_ETH = "wss://ocap.arcblock.io/api/socket/websocket";
 
 	/**
 	 * @param type

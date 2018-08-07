@@ -29,6 +29,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.arcblock.sdk.demo.corekit.EthNewBlockSubscriptionActivity;
 import com.arcblock.sdk.demo.corekit.QueryBlocksByHeightActivity;
 import com.arcblock.sdk.demo.corekit.QueryBlocksByHeightForEthActivity;
 import com.arcblock.sdk.demo.corekit.QueryRichestAccountsActivity;
@@ -83,6 +84,13 @@ public class CoreKitFragment extends Fragment {
 				Bundle bundle = new Bundle();
 				bundle.putString(TransactionDetailActivity.TRANSACTION_HASH_KEY, "cca7507897abc89628f450e8b1e0c6fca4ec3f7b34cccf55f3f531c659ff4d79");
 				intent.putExtras(bundle);
+				startActivity(intent);
+			}
+		});
+		view.findViewById(R.id.eth_new_block_subscription_btn).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(getActivity(), EthNewBlockSubscriptionActivity.class);
 				startActivity(intent);
 			}
 		});

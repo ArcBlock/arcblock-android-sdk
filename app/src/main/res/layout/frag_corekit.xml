@@ -48,10 +48,20 @@
                 android:id="@+id/query_pizza_transaction_btn"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/btn_height"
-                android:layout_marginBottom="@dimen/bottom_margin"
                 android:layout_marginTop="@dimen/top_margin"
                 android:background="@drawable/btn_bg"
                 android:text="@string/query_pizza_transaction"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <Button
+                android:id="@+id/eth_new_block_subscription_btn"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_height"
+                android:layout_marginBottom="@dimen/bottom_margin"
+                android:layout_marginTop="@dimen/top_margin"
+                android:background="@drawable/btn_bg"
+                android:text="@string/eth_new_block_subscription"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"/>
 
