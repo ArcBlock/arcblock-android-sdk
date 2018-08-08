@@ -234,7 +234,31 @@ dependencies {
 	});
 	```
 
-#### 5. 其他配置
+#### 5. 实现 Subscription
+
+1. 参考上面的步骤构建 `CoreKitSubViewModel` 对象
+
+	```java
+	CoreKitSubViewModel.CustomClientFactory<NewBlockMinedSubscription.Data> factory =
+					new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), NewBlockMinedSubscription.Data.class);
+
+			mDataCoreKitSubViewModel = ViewModelProviders.of(this, factory).get(CoreKitSubViewModel.class);
+	```
+
+2. 通过 `CoreKitSubViewModel` 对象获取 `LiveData` 对象，并设置 `Observer` 监听，从监听回调中获取实时的数据，并使用他们完成自己的业务逻辑
+
+	```java
+	mDataCoreKitSubViewModel.subscription(NewBlockMinedSubscription.QUERY_DOCUMENT).observe(this, new Observer<CoreKitBean<NewBlockMinedSubscription.Data>>() {
+				@Override
+				public void onChanged(@Nullable CoreKitBean<NewBlockMinedSubscription.Data> dataCoreKitBean) {
+					if (dataCoreKitBean != null && dataCoreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+						// ...
+					}
+				}
+			});
+	```
+
+#### 6. 其他配置
 
 1. `CustomType` 配置：
 
