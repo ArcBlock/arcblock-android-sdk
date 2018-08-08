@@ -154,7 +154,7 @@ public class Push {
 		return recHooks;
 	}
 
-	CoreKitMsgBean getReceivedEnvelope() {
+	CoreKitMsgBean getReceivedMsgBean() {
 		return receivedMsgBean;
 	}
 

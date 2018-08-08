@@ -226,17 +226,14 @@ public class CoreKitSocket {
 	}
 
 	public void connect() {
-		Log.e(TAG, "connect");
+		Log.e(TAG, "do connect");
 		disconnect();
-		// No support for ws:// or ws:// in okhttp. See https://github.com/square/okhttp/issues/1652
-//		final String httpUrl = this.endpointUri.replaceFirst("^ws:", "http:")
-//				.replaceFirst("^wss:", "https:");
 		final Request request = new Request.Builder().url(endpointUri).build();
 		webSocket = httpClient.newWebSocket(request, wsListener);
 	}
 
 	public void disconnect() {
-		Log.e(TAG, "disconnect");
+		Log.e(TAG, "do disconnect");
 		if (webSocket != null) {
 			webSocket.close(1001 /*CLOSE_GOING_AWAY*/, "Disconnected by client");
 		}
@@ -274,7 +271,7 @@ public class CoreKitSocket {
 	}
 
 	/**
-	 * Sends a message envelope on this socket
+	 * Sends a message msgBean on this socket
 	 *
 	 * @param msgBean The msgBean
 	 * @return This socket instance

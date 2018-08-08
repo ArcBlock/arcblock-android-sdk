@@ -93,7 +93,7 @@ public class CoreKitMsgBean {
 
 	@Override
 	public String toString() {
-		return "Envelope{" +
+		return "CoreKitMsgBean{" +
 				"topic='" + topic + '\'' +
 				", event='" + event + '\'' +
 				", payload=" + payload +

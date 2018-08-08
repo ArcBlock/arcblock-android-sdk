@@ -57,6 +57,7 @@ public class CoreKitSubViewModel<T> extends ViewModel {
 	}
 
 	public MutableLiveData<CoreKitBean<T>> subscription(String queryDocument) {
+
 		makeFlow(queryDocument)
 				.subscribeOn(Schedulers.io())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -125,6 +126,8 @@ public class CoreKitSubViewModel<T> extends ViewModel {
 										T temp = new Gson().fromJson(data, tClass);
 										if (!emitter.isCancelled()) {
 											emitter.onNext(new CoreKitBean(temp, CoreKitBean.SUCCESS_CODE, ""));
+										} else {
+											subscription(queryDocument);
 										}
 									}
 								});
