@@ -21,8 +21,7 @@
  */
 package com.arcblock.corekit.socket;
 
-import android.util.Log;
-
+import com.arcblock.corekit.utils.CoreKitLogUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
@@ -33,8 +32,6 @@ import java.util.Map;
 import java.util.TimerTask;
 
 public class Push {
-
-	private static final String TAG = "Push";
 
 	private class TimeoutHook {
 
@@ -164,7 +161,7 @@ public class Push {
 
 	void send() throws IOException {
 		final String ref = channel.getSocket().makeRef();
-		Log.e(TAG, "Push send, ref=" + ref);
+		CoreKitLogUtils.e("Push send, ref=" + ref);
 
 		this.refEvent = CoreKitSocket.replyEventName(ref);
 		this.receivedMsgBean = null;

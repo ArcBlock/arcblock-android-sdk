@@ -5,7 +5,6 @@ import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.bean.CoreKitBean;
@@ -16,6 +15,7 @@ import com.arcblock.corekit.socket.IErrorCallback;
 import com.arcblock.corekit.socket.IMessageCallback;
 import com.arcblock.corekit.socket.ISocketCloseCallback;
 import com.arcblock.corekit.socket.ISocketOpenCallback;
+import com.arcblock.corekit.utils.CoreKitLogUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
@@ -32,7 +32,6 @@ import io.reactivex.schedulers.Schedulers;
 
 public class CoreKitSubViewModel<T> extends ViewModel {
 
-	private static final String TAG = "CoreKitSubViewModel";
 	private static final String TOPIC = "__absinthe__:control";
 	private static final String EVENT = "subscription:data";
 
@@ -93,20 +92,20 @@ public class CoreKitSubViewModel<T> extends ViewModel {
 					mCoreKitSocket.onOpen(new ISocketOpenCallback() {
 						@Override
 						public void onOpen() {
-							Log.e(TAG, "Connected");
+							CoreKitLogUtils.e("onOpen");
 							channel = mCoreKitSocket.chan(TOPIC, null);
 							try {
 								channel.join().receive("ok", new IMessageCallback() {
 									@Override
 									public void onMessage(final CoreKitMsgBean msgBean) {
-										Log.e(TAG, "join=>onMessage=>" + msgBean);
+										CoreKitLogUtils.e("join=>onMessage=>" + msgBean);
 										ObjectNode payload = objectMapper.createObjectNode();
 										payload.put("query", queryDocument);
 										try {
 											channel.push("doc", payload).receive("ok", new IMessageCallback() {
 												@Override
 												public void onMessage(CoreKitMsgBean msgBean) {
-													Log.e(TAG, "doc=>onMessage=>" + msgBean);
+													CoreKitLogUtils.e("doc=>onMessage=>" + msgBean);
 													// update subscriptionId for channel
 													String subscriptionId = msgBean.getPayload().get("response").get("subscriptionId").asText();
 													channel.setSubscriptionId(subscriptionId);
@@ -140,7 +139,7 @@ public class CoreKitSubViewModel<T> extends ViewModel {
 					}).onClose(new ISocketCloseCallback() {
 						@Override
 						public void onClose() {
-							Log.e(TAG, "Closed");
+							CoreKitLogUtils.e("Closed");
 						}
 					}).onError(new IErrorCallback() {
 						@Override

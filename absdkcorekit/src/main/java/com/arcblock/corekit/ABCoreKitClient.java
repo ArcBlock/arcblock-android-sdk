@@ -59,6 +59,7 @@ import static com.apollographql.apollo.fetcher.ApolloResponseFetchers.CACHE_FIRS
 
 public class ABCoreKitClient {
 
+	public static boolean IS_DEBUG = false;
 	private ApolloClient mApolloClient;
 	private static final String SQL_CACHE_NAME = "arcblock_core_kit_db";
 	private OkHttpClient mOkHttpClient;

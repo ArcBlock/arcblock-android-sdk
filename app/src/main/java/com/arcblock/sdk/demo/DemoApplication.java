@@ -126,6 +126,9 @@ public class DemoApplication extends Application {
 				.setOkHttpClient(okHttpClient)
 				.setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK)
 				.build();
+
+		// set abcorekitclient is_debug
+		ABCoreKitClient.IS_DEBUG = true;
 	}
 
 	@NotNull

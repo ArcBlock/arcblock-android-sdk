@@ -21,8 +21,7 @@
  */
 package com.arcblock.corekit.socket;
 
-import android.util.Log;
-
+import com.arcblock.corekit.utils.CoreKitLogUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -50,7 +49,6 @@ import okio.ByteString;
 
 public class CoreKitSocket {
 
-	private static final String TAG = "CoreKitSocket";
 	public static final int RECONNECT_INTERVAL_MS = 5000;
 	private static final int DEFAULT_HEARTBEAT_INTERVAL = 7000;
 
@@ -78,7 +76,7 @@ public class CoreKitSocket {
 
 		@Override
 		public void onOpen(WebSocket webSocket, Response response) {
-			Log.e(TAG, "WebSocket onOpen: " + webSocket);
+			CoreKitLogUtils.e("WebSocket onOpen: " + webSocket);
 			CoreKitSocket.this.webSocket = webSocket;
 			cancelReconnectTimer();
 			startHeartbeatTimer();
@@ -90,7 +88,7 @@ public class CoreKitSocket {
 
 		@Override
 		public void onMessage(WebSocket webSocket, String text) {
-			Log.e(TAG, "onMessage: " + text);
+			CoreKitLogUtils.e("onMessage: " + text);
 			try {
 				final CoreKitMsgBean coreKitMsgBean = objectMapper.readValue(text, CoreKitMsgBean.class);
 				synchronized (channels) {
@@ -105,7 +103,7 @@ public class CoreKitSocket {
 					callback.onMessage(coreKitMsgBean);
 				}
 			} catch (IOException e) {
-				Log.e(TAG, "Failed to read message payload " + e.toString());
+				CoreKitLogUtils.e("Failed to read message payload " + e.toString());
 			}
 		}
 
@@ -120,7 +118,7 @@ public class CoreKitSocket {
 
 		@Override
 		public void onClosed(WebSocket webSocket, int code, String reason) {
-			Log.e(TAG, "WebSocket onClose " + code + "/" + reason);
+			CoreKitLogUtils.e("WebSocket onClose " + code + "/" + reason);
 			CoreKitSocket.this.webSocket = null;
 			for (final ISocketCloseCallback callback : socketCloseCallbacks) {
 				callback.onClose();
@@ -129,7 +127,7 @@ public class CoreKitSocket {
 
 		@Override
 		public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-			Log.e(TAG, "WebSocket connection error " + t.toString());
+			CoreKitLogUtils.e("WebSocket connection error " + t.toString());
 			try {
 				//TODO if there are multiple errorCallbacks do we really want to trigger
 				//the same channel error callbacks multiple times?
@@ -164,7 +162,7 @@ public class CoreKitSocket {
 	}
 
 	public CoreKitSocket(final String endpointUri, final OkHttpClient okHttpClient, final int heartbeatIntervalInMs) {
-		Log.e(TAG, "PhoenixSocket({})" + endpointUri);
+		CoreKitLogUtils.e("PhoenixSocket({})" + endpointUri);
 		this.endpointUri = endpointUri;
 		this.httpClient = okHttpClient;
 		this.heartbeatInterval = heartbeatIntervalInMs;
@@ -187,14 +185,14 @@ public class CoreKitSocket {
 		CoreKitSocket.this.heartbeatTimerTask = new TimerTask() {
 			@Override
 			public void run() {
-				Log.e(TAG, "heartbeatTimerTask run");
+				CoreKitLogUtils.e("heartbeatTimerTask run");
 				if (CoreKitSocket.this.isConnected()) {
 					try {
 						CoreKitMsgBean msgBean = new CoreKitMsgBean("phoenix", "heartbeat",
 								new ObjectNode(JsonNodeFactory.instance), CoreKitSocket.this.makeRef());
 						CoreKitSocket.this.push(msgBean);
 					} catch (Exception e) {
-						Log.e(TAG, "Failed to send heartbeat" + e.toString());
+						CoreKitLogUtils.e("Failed to send heartbeat" + e.toString());
 					}
 				}
 			}
@@ -226,14 +224,14 @@ public class CoreKitSocket {
 	}
 
 	public void connect() {
-		Log.e(TAG, "do connect");
+		CoreKitLogUtils.e("do connect");
 		disconnect();
 		final Request request = new Request.Builder().url(endpointUri).build();
 		webSocket = httpClient.newWebSocket(request, wsListener);
 	}
 
 	public void disconnect() {
-		Log.e(TAG, "do disconnect");
+		CoreKitLogUtils.e("do disconnect");
 		if (webSocket != null) {
 			webSocket.close(1001 /*CLOSE_GOING_AWAY*/, "Disconnected by client");
 		}
@@ -251,11 +249,11 @@ public class CoreKitSocket {
 		CoreKitSocket.this.reconnectTimerTask = new TimerTask() {
 			@Override
 			public void run() {
-				Log.e(TAG, "reconnectTimerTask run");
+				CoreKitLogUtils.e("reconnectTimerTask run");
 				try {
 					CoreKitSocket.this.connect();
 				} catch (Exception e) {
-					Log.e(TAG, "Failed to reconnect to " + e.toString());
+					CoreKitLogUtils.e("Failed to reconnect to " + e.toString());
 				}
 			}
 		};
@@ -284,7 +282,7 @@ public class CoreKitSocket {
 		node.put("ref", msgBean.getRef());
 		node.set("payload", msgBean.getPayload() == null ? objectMapper.createObjectNode() : msgBean.getPayload());
 		final String json = objectMapper.writeValueAsString(node);
-		Log.e(TAG, "push: " + msgBean + ", isConnected: " + isConnected() + ", JSON:" + json);
+		CoreKitLogUtils.e("push: " + msgBean + ", isConnected: " + isConnected() + ", JSON:" + json);
 		RequestBody body = RequestBody.create(MediaType.parse("text/xml"), json);
 		if (this.isConnected()) {
 			webSocket.send(json);
@@ -378,7 +376,7 @@ public class CoreKitSocket {
 	 * @return A Channel instance to be used for sending and receiving events for the topic
 	 */
 	public Channel chan(final String topic, final JsonNode payload) {
-		Log.e(TAG, "chan: " + topic + " , " + payload);
+		CoreKitLogUtils.e("chan: " + topic + " , " + payload);
 		final Channel channel = new Channel(topic, payload, CoreKitSocket.this);
 		synchronized (channels) {
 			channels.add(channel);

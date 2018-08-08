@@ -21,8 +21,7 @@
  */
 package com.arcblock.corekit.socket;
 
-import android.util.Log;
-
+import com.arcblock.corekit.utils.CoreKitLogUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
@@ -38,7 +37,6 @@ import java.util.concurrent.LinkedBlockingDeque;
  */
 public class Channel {
 
-	private static final String TAG = "Channel";
 	private static final long DEFAULT_TIMEOUT = 5000;
 	private final List<Binding> bindings = new ArrayList<>();
 	private Timer channelTimer = null;
@@ -289,7 +287,7 @@ public class Channel {
 				try {
 					Channel.this.rejoinUntilConnected();
 				} catch (IOException e) {
-					Log.e(TAG, "Failed to rejoin " + e.toString());
+					CoreKitLogUtils.e("Failed to rejoin " + e.toString());
 				}
 			}
 		};
