@@ -21,6 +21,8 @@
  */
 package com.arcblock.corekit.socket;
 
+import android.text.TextUtils;
+
 import com.arcblock.corekit.utils.CoreKitLogUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -71,12 +73,13 @@ public class CoreKitSocket {
 	private Timer timer = null;
 	private final OkHttpClient httpClient;
 	private int refNo = 1;
+	private boolean isOpening = false;
 
 	public class CoreKitWSListener extends WebSocketListener {
 
 		@Override
 		public void onOpen(WebSocket webSocket, Response response) {
-			CoreKitLogUtils.e("WebSocket onOpen: " + webSocket);
+			CoreKitLogUtils.e("WebSocket onOpen: " + webSocket + " thread name=>" + Thread.currentThread().getName());
 			CoreKitSocket.this.webSocket = webSocket;
 			cancelReconnectTimer();
 			startHeartbeatTimer();
@@ -84,11 +87,14 @@ public class CoreKitSocket {
 				callback.onOpen();
 			}
 			CoreKitSocket.this.flushSendBuffer();
+			isOpening = false;
 		}
 
 		@Override
 		public void onMessage(WebSocket webSocket, String text) {
-			CoreKitLogUtils.e("onMessage: " + text);
+			isOpening = false;
+
+			CoreKitLogUtils.e("onMessage: " + text + " thread name =>" + Thread.currentThread().getName());
 			try {
 				final CoreKitMsgBean coreKitMsgBean = objectMapper.readValue(text, CoreKitMsgBean.class);
 				synchronized (channels) {
@@ -114,10 +120,12 @@ public class CoreKitSocket {
 
 		@Override
 		public void onClosing(WebSocket webSocket, int code, String reason) {
+			isOpening = false;
 		}
 
 		@Override
 		public void onClosed(WebSocket webSocket, int code, String reason) {
+			isOpening = false;
 			CoreKitLogUtils.e("WebSocket onClose " + code + "/" + reason);
 			CoreKitSocket.this.webSocket = null;
 			for (final ISocketCloseCallback callback : socketCloseCallbacks) {
@@ -127,7 +135,8 @@ public class CoreKitSocket {
 
 		@Override
 		public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-			CoreKitLogUtils.e("WebSocket connection error " + t.toString());
+			isOpening = false;
+			CoreKitLogUtils.e("WebSocket connection error " + t.toString() + " thread name=>" + Thread.currentThread().getName());
 			try {
 				//TODO if there are multiple errorCallbacks do we really want to trigger
 				//the same channel error callbacks multiple times?
@@ -208,6 +217,14 @@ public class CoreKitSocket {
 		return webSocket != null;
 	}
 
+	public boolean isOpening() {
+		return isOpening;
+	}
+
+	public void setOpening(boolean opening) {
+		isOpening = opening;
+	}
+
 	private void flushSendBuffer() {
 		while (this.isConnected() && !this.sendBuffer.isEmpty()) {
 			final RequestBody body = this.sendBuffer.remove();
@@ -216,16 +233,21 @@ public class CoreKitSocket {
 	}
 
 	private void triggerChannelError() {
-		synchronized (channels) {
-			for (final Channel channel : channels) {
-				channel.trigger(ChannelEvent.ERROR.getPhxEvent(), null);
+		try {
+			synchronized (channels) {
+				for (final Channel channel : channels) {
+					channel.trigger(ChannelEvent.ERROR.getPhxEvent(), null);
+				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
 	public void connect() {
-		CoreKitLogUtils.e("do connect");
+		CoreKitLogUtils.e("do connect" + Thread.currentThread().getName());
 		disconnect();
+		isOpening = true;
 		final Request request = new Request.Builder().url(endpointUri).build();
 		webSocket = httpClient.newWebSocket(request, wsListener);
 	}
@@ -307,14 +329,19 @@ public class CoreKitSocket {
 	 * @param channel The channel to be removed
 	 */
 	public void remove(final Channel channel) {
-		synchronized (channels) {
-			for (final Iterator chanIter = channels.iterator(); chanIter.hasNext(); ) {
-				if (chanIter.next() == channel) {
-					chanIter.remove();
-					break;
+		try {
+			synchronized (channels) {
+				for (final Iterator chanIter = channels.iterator(); chanIter.hasNext(); ) {
+					if (chanIter.next() == channel) {
+						chanIter.remove();
+						break;
+					}
 				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+
 	}
 
 	public void removeAllChannels() {
@@ -377,8 +404,18 @@ public class CoreKitSocket {
 	 */
 	public Channel chan(final String topic, final JsonNode payload) {
 		CoreKitLogUtils.e("chan: " + topic + " , " + payload);
-		final Channel channel = new Channel(topic, payload, CoreKitSocket.this);
+		return getChannel(topic, payload);
+	}
+
+	private Channel getChannel(final String topic, final JsonNode payload) {
+		Channel channel = null;
 		synchronized (channels) {
+			for (int i = 0; i < channels.size(); i++) {
+				if (TextUtils.equals(channels.get(i).getTopic(), topic)) {
+					return channels.get(i);
+				}
+			}
+			channel = new Channel(topic, payload, this);
 			channels.add(channel);
 		}
 		return channel;

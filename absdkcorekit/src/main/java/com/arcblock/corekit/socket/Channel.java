@@ -47,7 +47,6 @@ public class Channel {
 	private final CoreKitSocket socket;
 	private ChannelState state = ChannelState.CLOSED;
 	private final String topic;
-	private String subscriptionId;
 
 
 	public Channel(final String topic, final JsonNode payload, final CoreKitSocket socket) {
@@ -76,6 +75,7 @@ public class Channel {
 			public void onMessage(CoreKitMsgBean msgBean) {
 				Channel.this.state = ChannelState.CLOSED;
 				Channel.this.socket.remove(Channel.this);
+				Channel.this.joinedOnce = false;
 			}
 		});
 		this.onError(new IErrorCallback() {
@@ -91,8 +91,10 @@ public class Channel {
 				Channel.this.trigger(CoreKitSocket.replyEventName(msgBean.getRef()), msgBean);
 			}
 		});
+	}
 
-
+	public ChannelState getState() {
+		return state;
 	}
 
 	/**
@@ -110,13 +112,11 @@ public class Channel {
 		return topic;
 	}
 
-	public void setSubscriptionId(String subscriptionId) {
-		this.subscriptionId = subscriptionId;
+	public boolean isMember(final String topic) {
+		//return TextUtils.equals(this.topic, topic) || (!TextUtils.isEmpty(this.subscriptionId) && this.subscriptionId.startsWith(topic));
+		return true;
 	}
 
-	public boolean isMember(final String topic) {
-		return this.topic.equals(topic) || this.subscriptionId.equals(topic);
-	}
 
 	/**
 	 * Initiates a channel join event
@@ -168,8 +168,12 @@ public class Channel {
 	 * @return The instance's self
 	 */
 	public Channel on(final String event, final IMessageCallback callback) {
-		synchronized (bindings) {
-			this.bindings.add(new Binding(event, callback));
+		try {
+			synchronized (bindings) {
+				this.bindings.add(new Binding(event, callback));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return this;
 	}
@@ -212,10 +216,14 @@ public class Channel {
 			throw new IllegalStateException("Unable to push event before channel has been joined");
 		}
 		final Push pushEvent = new Push(this, event, payload, timeout);
-		if (this.canPush()) {
-			pushEvent.send();
-		} else {
-			this.pushBuffer.add(pushEvent);
+		try {
+			if (this.canPush()) {
+				pushEvent.send();
+			} else {
+				this.pushBuffer.add(pushEvent);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return pushEvent;
 	}
@@ -253,14 +261,14 @@ public class Channel {
 		this.channelTimer.schedule(timerTask, ms);
 	}
 
-	@Override
-	public String toString() {
-		return "Channel{" +
-				"topic='" + topic + '\'' +
-				", message=" + payload +
-				", bindings(" + bindings.size() + ")=" + bindings +
-				'}';
-	}
+//	@Override
+//	public String toString() {
+//		return "Channel{" +
+//				"topic='" + topic + '\'' +
+//				", message=" + payload +
+//				", bindings(" + bindings.size() + ")=" + bindings +
+//				'}';
+//	}
 
 	/**
 	 * Triggers event signalling to all callbacks bound to the specified event.

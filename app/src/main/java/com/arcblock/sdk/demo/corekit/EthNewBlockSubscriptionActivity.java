@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -36,6 +37,7 @@ import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.NewEthBlockTxsAdapter;
 import com.arcblock.sdk.demo.eth.NewBlockMinedSubscription;
+import com.arcblock.sdk.demo.eth.NewContractCreatedSubscription;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +47,7 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
 	private TextView block_height_tv;
 	private ListView transactions_lv;
 	private CoreKitSubViewModel<NewBlockMinedSubscription.Data> mDataCoreKitSubViewModel;
+	private CoreKitSubViewModel<NewContractCreatedSubscription.Data> mDataCoreKitSubViewModelForNewContract;
 	private NewEthBlockTxsAdapter mNewEthBlockTxsAdapter;
 	private List<NewBlockMinedSubscription.Datum> mDatumList = new ArrayList<>();
 
@@ -65,13 +68,21 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
 		transactions_lv = findViewById(R.id.transactions_lv);
 		mNewEthBlockTxsAdapter = new NewEthBlockTxsAdapter(this, R.layout.item_eth_new_block_sub, mDatumList);
 		transactions_lv.setAdapter(mNewEthBlockTxsAdapter);
+		block_height_tv.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				initData2();
+			}
+		});
 	}
 
 	private void initData() {
 		CoreKitSubViewModel.CustomClientFactory<NewBlockMinedSubscription.Data> factory =
 				new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), NewBlockMinedSubscription.Data.class);
 
-		mDataCoreKitSubViewModel = ViewModelProviders.of(this, factory).get(CoreKitSubViewModel.class);
+		NewBlockMinedSubscription newBlockMinedSubscription = new NewBlockMinedSubscription();
+
+		mDataCoreKitSubViewModel = ViewModelProviders.of(this, factory).get(newBlockMinedSubscription.operationId() + "$" + newBlockMinedSubscription.variables().valueMap().hashCode(), CoreKitSubViewModel.class);
 		mDataCoreKitSubViewModel.subscription(NewBlockMinedSubscription.QUERY_DOCUMENT).observe(this, new Observer<CoreKitBean<NewBlockMinedSubscription.Data>>() {
 			@Override
 			public void onChanged(@Nullable CoreKitBean<NewBlockMinedSubscription.Data> dataCoreKitBean) {
@@ -85,8 +96,26 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
 				}
 			}
 		});
+
+
 	}
 
+	private void initData2() {
+		CoreKitSubViewModel.CustomClientFactory<NewContractCreatedSubscription.Data> factory2 =
+				new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), NewContractCreatedSubscription.Data.class);
+
+		NewContractCreatedSubscription newContractCreatedSubscription = new NewContractCreatedSubscription();
+
+		mDataCoreKitSubViewModelForNewContract = ViewModelProviders.of(this, factory2).get(newContractCreatedSubscription.operationId() + "$" + newContractCreatedSubscription.variables().valueMap().hashCode(), CoreKitSubViewModel.class);
+		mDataCoreKitSubViewModelForNewContract.subscription(NewContractCreatedSubscription.QUERY_DOCUMENT).observe(this, new Observer<CoreKitBean<NewContractCreatedSubscription.Data>>() {
+			@Override
+			public void onChanged(@Nullable CoreKitBean<NewContractCreatedSubscription.Data> dataCoreKitBean) {
+				if (dataCoreKitBean != null && dataCoreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+
+				}
+			}
+		});
+	}
 
 	@Override
 	public void onBackPressed() {

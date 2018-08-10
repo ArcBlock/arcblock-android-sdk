@@ -611,7 +611,7 @@
             {
               "type": {
                 "ofType": null,
-                "name": "String",
+                "name": "Float",
                 "kind": "SCALAR"
               },
               "name": "contractValue",
@@ -758,22 +758,6 @@
             },
             {
               "type": {
-                "ofType": {
-                  "ofType": null,
-                  "name": "String",
-                  "kind": "SCALAR"
-                },
-                "name": null,
-                "kind": "LIST"
-              },
-              "name": "logs",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
                 "ofType": null,
                 "name": "String",
                 "kind": "SCALAR"
@@ -795,6 +779,18 @@
                 "kind": "NON_NULL"
               },
               "name": "nonce",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "EthereumBlock",
+                "kind": "OBJECT"
+              },
+              "name": "parent",
               "isDeprecated": false,
               "description": null,
               "deprecationReason": null,
@@ -939,6 +935,16 @@
           ],
           "enumValues": null,
           "description": "The ethereum transaction objects implements Transaction interface for Ethereum chain."
+        },
+        {
+          "possibleTypes": null,
+          "name": "Float",
+          "kind": "SCALAR",
+          "interfaces": null,
+          "inputFields": null,
+          "fields": null,
+          "enumValues": null,
+          "description": "The `Float` scalar type represents signed double-precision fractional\nvalues as specified by\n[IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point)."
         },
         {
           "possibleTypes": null,
@@ -1553,6 +1559,60 @@
             {
               "type": {
                 "ofType": null,
+                "name": "EthereumTransaction",
+                "kind": "OBJECT"
+              },
+              "name": "bigTransactionExecuted",
+              "isDeprecated": false,
+              "description": "return transaction data once a big transaction happened. For ethereum tx, the threshold is 100 ether, for contract, it is 10000.",
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": {
+                      "ofType": null,
+                      "name": "String",
+                      "kind": "SCALAR"
+                    },
+                    "name": null,
+                    "kind": "NON_NULL"
+                  },
+                  "name": "token",
+                  "description": "could be \"normal\", \"abt\" or a token address.",
+                  "defaultValue": null
+                }
+              ]
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "EthereumTransaction",
+                "kind": "OBJECT"
+              },
+              "name": "contractExecuted",
+              "isDeprecated": false,
+              "description": "return transaction data once a contract is executed",
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": {
+                      "ofType": null,
+                      "name": "String",
+                      "kind": "SCALAR"
+                    },
+                    "name": null,
+                    "kind": "NON_NULL"
+                  },
+                  "name": "address",
+                  "description": "The contract address to listen.",
+                  "defaultValue": null
+                }
+              ]
+            },
+            {
+              "type": {
+                "ofType": null,
                 "name": "EthereumBlock",
                 "kind": "OBJECT"
               },
@@ -1561,6 +1621,72 @@
               "description": "return block data once a new block is mined",
               "deprecationReason": null,
               "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "EthereumTransaction",
+                "kind": "OBJECT"
+              },
+              "name": "newContractCreated",
+              "isDeprecated": false,
+              "description": "return transaction data once a new contract is created",
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "EthereumTransaction",
+                "kind": "OBJECT"
+              },
+              "name": "tokenReceived",
+              "isDeprecated": false,
+              "description": "return transaction once an address received a token.",
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": {
+                      "ofType": null,
+                      "name": "String",
+                      "kind": "SCALAR"
+                    },
+                    "name": null,
+                    "kind": "NON_NULL"
+                  },
+                  "name": "address",
+                  "description": "must be a normal wallet address.",
+                  "defaultValue": null
+                }
+              ]
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "EthereumTransaction",
+                "kind": "OBJECT"
+              },
+              "name": "tokenSent",
+              "isDeprecated": false,
+              "description": "return transaction once an address sent a token.",
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": {
+                      "ofType": null,
+                      "name": "String",
+                      "kind": "SCALAR"
+                    },
+                    "name": null,
+                    "kind": "NON_NULL"
+                  },
+                  "name": "address",
+                  "description": "must be a normal wallet address.",
+                  "defaultValue": null
+                }
+              ]
             }
           ],
           "enumValues": null,

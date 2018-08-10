@@ -124,6 +124,7 @@ public class DemoApplication extends Application {
 
 		mABCoreClientEth = ABCoreKitClient.builder(this, CoreKitConfig.API_TYPE_ETH)
 				.setOkHttpClient(okHttpClient)
+				.setOpenSocket(true)
 				.setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK)
 				.build();
 

@@ -107,14 +107,19 @@ public class Push {
 				callback.onMessage(this.receivedMsgBean);
 			}
 		}
-		synchronized (recHooks) {
-			List<IMessageCallback> statusHooks = this.recHooks.get(status);
-			if (statusHooks == null) {
-				statusHooks = new ArrayList<>();
-				this.recHooks.put(status, statusHooks);
+		try {
+			synchronized (recHooks) {
+				List<IMessageCallback> statusHooks = this.recHooks.get(status);
+				if (statusHooks == null) {
+					statusHooks = new ArrayList<>();
+					this.recHooks.put(status, statusHooks);
+				}
+				statusHooks.add(callback);
 			}
-			statusHooks.add(callback);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+
 
 		return this;
 	}
@@ -211,13 +216,17 @@ public class Push {
 	}
 
 	private void matchReceive(final String status, final CoreKitMsgBean envelope) {
-		synchronized (recHooks) {
-			final List<IMessageCallback> statusCallbacks = this.recHooks.get(status);
-			if (statusCallbacks != null) {
-				for (final IMessageCallback callback : statusCallbacks) {
-					callback.onMessage(envelope);
+		try {
+			synchronized (recHooks) {
+				final List<IMessageCallback> statusCallbacks = this.recHooks.get(status);
+				if (statusCallbacks != null) {
+					for (final IMessageCallback callback : statusCallbacks) {
+						callback.onMessage(envelope);
+					}
 				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

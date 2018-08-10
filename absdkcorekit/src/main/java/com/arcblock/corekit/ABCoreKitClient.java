@@ -44,6 +44,10 @@ import com.apollographql.apollo.fetcher.ResponseFetcher;
 import com.apollographql.apollo.response.CustomTypeAdapter;
 import com.arcblock.corekit.config.CoreKitConfig;
 import com.arcblock.corekit.socket.CoreKitSocket;
+import com.arcblock.corekit.socket.IErrorCallback;
+import com.arcblock.corekit.socket.ISocketCloseCallback;
+import com.arcblock.corekit.socket.ISocketOpenCallback;
+import com.arcblock.corekit.utils.CoreKitLogUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -63,37 +67,35 @@ public class ABCoreKitClient {
 	private ApolloClient mApolloClient;
 	private static final String SQL_CACHE_NAME = "arcblock_core_kit_db";
 	private OkHttpClient mOkHttpClient;
+	private CoreKitSocket mCoreKitSocket;
+	private int apiType;
 
 	private ABCoreKitClient(Builder builder) {
-
+		apiType = builder.apiType;
 		OkHttpClient.Builder okHttpClientBuilder;
 		if (builder.mOkHttpClient == null) {
 			okHttpClientBuilder = new OkHttpClient.Builder();
 		} else {
 			okHttpClientBuilder = builder.mOkHttpClient.newBuilder();
 		}
-
 		mOkHttpClient = okHttpClientBuilder.build();
-
+		if (builder.openSocket) {
+			initCoreKitSocket();
+		}
 		ApolloClient.Builder apolloClientBuilder = ApolloClient.builder()
 				.serverUrl(CoreKitConfig.getApiUrl(builder.apiType))
 				.okHttpClient(mOkHttpClient)
 				.normalizedCache(builder.mNormalizedCacheFactory, builder.mResolver);
-
 		for (ScalarType scalarType : builder.customTypeAdapters.keySet()) {
 			apolloClientBuilder.addCustomTypeAdapter(scalarType, builder.customTypeAdapters.get(scalarType));
 		}
-
 		if (builder.mDispatcher != null) {
 			apolloClientBuilder.dispatcher(builder.mDispatcher);
 		}
-
 		if (builder.mDefaultResponseFetcher != null) {
 			apolloClientBuilder.defaultResponseFetcher(builder.mDefaultResponseFetcher);
 		}
-
 		mApolloClient = apolloClientBuilder.build();
-
 	}
 
 	public static class Builder {
@@ -107,6 +109,7 @@ public class ABCoreKitClient {
 		private Context mContext;
 		private String dbName;
 		private int apiType;
+		private boolean openSocket;
 
 		private Builder(Context context, int apiType) {
 			this.mContext = context;
@@ -140,6 +143,11 @@ public class ABCoreKitClient {
 
 		public Builder setDbName(String dbName) {
 			this.dbName = dbName;
+			return this;
+		}
+
+		public Builder setOpenSocket(boolean openSocket) {
+			this.openSocket = openSocket;
 			return this;
 		}
 
@@ -202,8 +210,38 @@ public class ABCoreKitClient {
 		return mApolloClient.subscribe(subscription);
 	}
 
-	public CoreKitSocket initCoreKitSocket() {
-		return new CoreKitSocket(CoreKitConfig.SUBSCRIPTION_BASE_URL_ETH, mOkHttpClient);
+	private void initCoreKitSocket() {
+		CoreKitLogUtils.e("initCoreKitSocket=>"+Thread.currentThread().getName());
+		if (mCoreKitSocket == null) {
+			// sub url set by apiType
+			mCoreKitSocket = new CoreKitSocket(CoreKitConfig.SUBSCRIPTION_BASE_URL_ETH, mOkHttpClient);
+		}
+
+		synchronized (this) {
+			if (!mCoreKitSocket.isConnected() && !mCoreKitSocket.isOpening()) {
+				mCoreKitSocket.setOpening(true);
+				mCoreKitSocket.onOpen(new ISocketOpenCallback() {
+					@Override
+					public void onOpen() {
+						CoreKitLogUtils.e("onOpen");
+					}
+				}).onClose(new ISocketCloseCallback() {
+					@Override
+					public void onClose() {
+						CoreKitLogUtils.e("Closed");
+					}
+				}).onError(new IErrorCallback() {
+					@Override
+					public void onError(final String reason) {
+						CoreKitLogUtils.e("onError" + reason);
+					}
+				}).connect();
+			}
+		}
+	}
+
+	public CoreKitSocket getCoreKitSocket() {
+		return mCoreKitSocket;
 	}
 
 	public static ABCoreKitClient mABCoreKitClientEth;
