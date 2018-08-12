@@ -27,7 +27,7 @@ import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
-public class CoreKitSubViewModel<T> extends ViewModel {
+public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subscription> extends ViewModel {
 
 	private static final String TOPIC = "__absinthe__:control";
 	private static final String EVENT = "subscription:data";
@@ -38,17 +38,20 @@ public class CoreKitSubViewModel<T> extends ViewModel {
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private Class<T> tClass;
 	private String subscriptionId;
+	private String graphQlSubId;
 
-	public CoreKitSubViewModel(Context context, int apiType, Class<T> tClass) {
+	public CoreKitSubViewModel(Context context, int apiType, D graphSub, Class<T> tClass) {
 		this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context, apiType);
 		this.tClass = tClass;
 		channel = mABCoreKitClient.getCoreKitSocket().chan(TOPIC, null);
+		graphQlSubId = graphSub.operationId() + "$" + graphSub.variables().valueMap().hashCode();
 	}
 
-	public CoreKitSubViewModel(ABCoreKitClient aBCoreKitClient, Class<T> tClass) {
+	public CoreKitSubViewModel(ABCoreKitClient aBCoreKitClient, D graphSub, Class<T> tClass) {
 		this.mABCoreKitClient = aBCoreKitClient;
 		this.tClass = tClass;
 		channel = mABCoreKitClient.getCoreKitSocket().chan(TOPIC, null);
+		graphQlSubId = graphSub.operationId() + "$" + graphSub.variables().valueMap().hashCode();
 	}
 
 	public MutableLiveData<CoreKitBean<T>> subscription(String queryDocument) {
@@ -137,23 +140,27 @@ public class CoreKitSubViewModel<T> extends ViewModel {
 		}
 	}
 
-	private void pushDoc(final String queryDocument, final FlowableEmitter<CoreKitBean<T>> emitter){
-		CoreKitLogUtils.e("join=>already join");
-		ObjectNode payload = objectMapper.createObjectNode();
-		payload.put("query", queryDocument);
-		try {
-			channel.push("doc", payload).receive("ok", new IMessageCallback() {
-				@Override
-				public void onMessage(CoreKitMsgBean msgBean) {
-					CoreKitLogUtils.e("doc=>onMessage=>" + msgBean);
-					// update subscriptionId for channel
-					subscriptionId = msgBean.getPayload().get("response").get("subscriptionId").asText();
+	private void pushDoc(final String queryDocument, final FlowableEmitter<CoreKitBean<T>> emitter) {
+		if (channel.isNeedPushDoc(graphQlSubId)) {
+			CoreKitLogUtils.e("join=>already join");
+			ObjectNode payload = objectMapper.createObjectNode();
+			payload.put("query", queryDocument);
+			try {
+				channel.push("doc", payload).receive("ok", new IMessageCallback() {
+					@Override
+					public void onMessage(CoreKitMsgBean msgBean) {
+						CoreKitLogUtils.e("doc=>onMessage=>" + msgBean);
+						// update subscriptionId for channel
+						subscriptionId = msgBean.getPayload().get("response").get("subscriptionId").asText();
+					}
+				});
+			} catch (Exception e) {
+				if (!emitter.isCancelled()) {
+					emitter.onError(e);
 				}
-			});
-		} catch (Exception e) {
-			if (!emitter.isCancelled()) {
-				emitter.onError(e);
 			}
+		} else {
+			CoreKitLogUtils.e("this graphqlId doc already push");
 		}
 	}
 
@@ -161,46 +168,51 @@ public class CoreKitSubViewModel<T> extends ViewModel {
 	public void leaveChannel() {
 		if (channel != null) {
 			try {
-				channel.leave();
+				channel.leave(graphQlSubId);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
-	public static class CustomClientFactory<T> extends ViewModelProvider.NewInstanceFactory {
+	public static class CustomClientFactory<T, D extends com.apollographql.apollo.api.Subscription> extends ViewModelProvider.NewInstanceFactory {
 
 		private ABCoreKitClient mABCoreKitClient;
 		private Class<T> tClass;
+		private D graphSub;
 
-		public CustomClientFactory(ABCoreKitClient aBCoreKitClient, Class<T> tClass) {
+
+		public CustomClientFactory(ABCoreKitClient aBCoreKitClient, D graphSub, Class<T> tClass) {
 			this.mABCoreKitClient = aBCoreKitClient;
 			this.tClass = tClass;
+			this.graphSub = graphSub;
 		}
 
 		@NonNull
 		@Override
 		public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-			return (T) new CoreKitSubViewModel(mABCoreKitClient, tClass);
+			return (T) new CoreKitSubViewModel(mABCoreKitClient, graphSub, tClass);
 		}
 	}
 
-	public static class DefaultFactory<T> extends ViewModelProvider.NewInstanceFactory {
+	public static class DefaultFactory<T, D extends com.apollographql.apollo.api.Subscription> extends ViewModelProvider.NewInstanceFactory {
 
 		private Context mContext;
 		private int apiType;
 		private Class<T> tClass;
+		private D graphSub;
 
-		public DefaultFactory(Context context, int apiType, Class<T> tClass) {
+		public DefaultFactory(Context context, int apiType, D graphSub, Class<T> tClass) {
 			this.mContext = context;
 			this.apiType = apiType;
 			this.tClass = tClass;
+			this.graphSub = graphSub;
 		}
 
 		@NonNull
 		@Override
 		public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-			return (T) new CoreKitSubViewModel(mContext, apiType, tClass);
+			return (T) new CoreKitSubViewModel(mContext, apiType, graphSub, tClass);
 		}
 	}
 

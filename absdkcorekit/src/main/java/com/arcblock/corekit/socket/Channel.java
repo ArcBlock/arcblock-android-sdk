@@ -21,11 +21,14 @@
  */
 package com.arcblock.corekit.socket;
 
+import android.text.TextUtils;
+
 import com.arcblock.corekit.utils.CoreKitLogUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Timer;
@@ -47,6 +50,7 @@ public class Channel {
 	private final CoreKitSocket socket;
 	private ChannelState state = ChannelState.CLOSED;
 	private final String topic;
+	private HashMap<String, Integer> graphSubsMap = new HashMap<>();
 
 
 	public Channel(final String topic, final JsonNode payload, final CoreKitSocket socket) {
@@ -135,12 +139,36 @@ public class Channel {
 		return this.joinPush;
 	}
 
-	public Push leave() throws IOException {
-		return this.push(ChannelEvent.LEAVE.getPhxEvent()).receive("ok", new IMessageCallback() {
-			public void onMessage(final CoreKitMsgBean msgBean) {
-				Channel.this.trigger(ChannelEvent.CLOSE.getPhxEvent(), null);
+	public Push leave(String graphSubId) throws IOException {
+		synchronized (graphSubsMap) {
+			// remove count num of graphId Map
+			if (graphSubsMap.keySet().contains(graphSubId)) {
+				if (graphSubsMap.get(graphSubId) > 0) {
+					graphSubsMap.put(graphSubId, graphSubsMap.get(graphSubId) - 1);
+				}
+
+				// if graphSubsMap.get(graphSubId) <= 0 do leave
+				if (graphSubsMap.get(graphSubId) <= 0) {
+					// todo 这边leave 的时候，应该需要后台配合，leve 特定query的sub
+					return this.push(ChannelEvent.LEAVE.getPhxEvent()).receive("ok", new IMessageCallback() {
+						public void onMessage(final CoreKitMsgBean msgBean) {
+							// Channel.this.trigger(ChannelEvent.CLOSE.getPhxEvent(), null);
+						}
+					});
+				} else {
+					// do not do leave
+					return null;
+				}
+			} else {
+				// do leave query
+				// todo 这边leave 的时候，应该需要后台配合，leve 特定query的sub
+				return this.push(ChannelEvent.LEAVE.getPhxEvent()).receive("ok", new IMessageCallback() {
+					public void onMessage(final CoreKitMsgBean msgBean) {
+						// Channel.this.trigger(ChannelEvent.CLOSE.getPhxEvent(), null);
+					}
+				});
 			}
-		});
+		}
 	}
 
 	/**
@@ -228,7 +256,24 @@ public class Channel {
 		return pushEvent;
 	}
 
+	public boolean isNeedPushDoc(final String graphQlSubId) {
+		if (!TextUtils.isEmpty(graphQlSubId)) {
+			synchronized (graphSubsMap) {
+				if (graphSubsMap.keySet().contains(graphQlSubId)) {
+					// if already contain this key , then add the value of this key
+					graphSubsMap.put(graphQlSubId, graphSubsMap.get(graphQlSubId) + 1);
+					// do not do push
+					return false;
+				} else {
+					graphSubsMap.put(graphQlSubId, 1);
+				}
+			}
+		}
+		return true;
+	}
+
 	public Push push(final String event, final JsonNode payload) throws IOException {
+
 		return push(event, payload, DEFAULT_TIMEOUT);
 	}
 
