@@ -21,7 +21,6 @@
  */
 package com.arcblock.sdk.demo.corekit;
 
-import android.arch.lifecycle.Observer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -47,7 +46,6 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
 	private TextView block_height_tv;
 	private ListView transactions_lv;
 	private CoreKitSubViewModel<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> mDataCoreKitSubViewModel;
-	private CoreKitSubViewModel<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> mDataCoreKitSubViewModel2;
 	private CoreKitSubViewModel<NewContractCreatedSubscription.Data, NewBlockMinedSubscription> mDataCoreKitSubViewModelForNewContract;
 	private NewEthBlockTxsAdapter mNewEthBlockTxsAdapter;
 	private List<NewBlockMinedSubscription.Datum> mDatumList = new ArrayList<>();
@@ -72,7 +70,7 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
 		block_height_tv.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				initData3();
+				initData2();
 			}
 		});
 	}
@@ -85,39 +83,20 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
 				new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), newBlockMinedSubscription, NewBlockMinedSubscription.Data.class);
 
 		mDataCoreKitSubViewModel = CoreKitSubViewModelUtils.getCoreKitSubViewModel(newBlockMinedSubscription, this, factory);
-		mDataCoreKitSubViewModel.subscription(NewBlockMinedSubscription.QUERY_DOCUMENT).observe(this, new Observer<CoreKitBean<NewBlockMinedSubscription.Data>>() {
-			@Override
-			public void onChanged(@Nullable CoreKitBean<NewBlockMinedSubscription.Data> dataCoreKitBean) {
-				if (dataCoreKitBean != null && dataCoreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-					block_height_tv.setText(dataCoreKitBean.getData().getNewBlockMined().getHeight() + "");
-					if (dataCoreKitBean.getData().getNewBlockMined().getTransactions().getData() != null) {
-						mDatumList.clear();
-						mDatumList.addAll(dataCoreKitBean.getData().getNewBlockMined().getTransactions().getData());
-						mNewEthBlockTxsAdapter.notifyDataSetChanged();
+		mDataCoreKitSubViewModel.subscription(NewBlockMinedSubscription.QUERY_DOCUMENT)
+				.setCoreKitSubCallBack(new CoreKitSubViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
+					@Override
+					public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
+						if (coreKitBean != null && coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+							block_height_tv.setText(coreKitBean.getData().getNewBlockMined().getHeight() + "");
+							if (coreKitBean.getData().getNewBlockMined().getTransactions().getData() != null) {
+								mDatumList.clear();
+								mDatumList.addAll(coreKitBean.getData().getNewBlockMined().getTransactions().getData());
+								mNewEthBlockTxsAdapter.notifyDataSetChanged();
+							}
+						}
 					}
-				}
-			}
-		});
-	}
-
-	private void initData3() {
-
-		NewBlockMinedSubscription newBlockMinedSubscription = new NewBlockMinedSubscription();
-
-		CoreKitSubViewModel.CustomClientFactory<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> factory =
-				new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), newBlockMinedSubscription, NewBlockMinedSubscription.Data.class);
-
-		mDataCoreKitSubViewModel2 = CoreKitSubViewModelUtils.getCoreKitSubViewModel(newBlockMinedSubscription, this, factory);
-		mDataCoreKitSubViewModel2.subscription(NewBlockMinedSubscription.QUERY_DOCUMENT).observe(this, new Observer<CoreKitBean<NewBlockMinedSubscription.Data>>() {
-			@Override
-			public void onChanged(@Nullable CoreKitBean<NewBlockMinedSubscription.Data> dataCoreKitBean) {
-				if (dataCoreKitBean != null && dataCoreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-
-				}
-			}
-		});
-
-
+				});
 	}
 
 	private void initData2() {
@@ -128,21 +107,27 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
 				new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), newContractCreatedSubscription, NewContractCreatedSubscription.Data.class);
 
 		mDataCoreKitSubViewModelForNewContract = CoreKitSubViewModelUtils.getCoreKitSubViewModel(newContractCreatedSubscription, this, factory2);
-		mDataCoreKitSubViewModelForNewContract.subscription(NewContractCreatedSubscription.QUERY_DOCUMENT).observe(this, new Observer<CoreKitBean<NewContractCreatedSubscription.Data>>() {
-			@Override
-			public void onChanged(@Nullable CoreKitBean<NewContractCreatedSubscription.Data> dataCoreKitBean) {
-				if (dataCoreKitBean != null && dataCoreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+		mDataCoreKitSubViewModelForNewContract.subscription(NewContractCreatedSubscription.QUERY_DOCUMENT)
+				.setCoreKitSubCallBack(new CoreKitSubViewModel.CoreKitSubCallBack<NewContractCreatedSubscription.Data>() {
+					@Override
+					public void onNewData(CoreKitBean<NewContractCreatedSubscription.Data> coreKitBean) {
+						if (coreKitBean != null && coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
 
-				}
-			}
-		});
+						}
+					}
+				});
 	}
 
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();
-		mDataCoreKitSubViewModel.leaveChannel();
-		mDataCoreKitSubViewModel2.leaveChannel();
+		if (mDataCoreKitSubViewModel!=null) {
+			mDataCoreKitSubViewModel.leaveChannel();
+		}
+		if (mDataCoreKitSubViewModelForNewContract!=null) {
+			mDataCoreKitSubViewModelForNewContract.leaveChannel();
+		}
+
 	}
 
 	@Override

@@ -9,6 +9,7 @@
 	<string name="query_richest_account_data">Query Richest Account-BTC</string>
 	<string name="query_pizza_transaction">Query Pizza Transaction-BTC</string>
 	<string name="eth_new_block_subscription">New Block Subscription-ETH</string>
+	<string name="eth_new_block_in_main_subscription">New Block Subscription In MainActivity-ETH</string>
 	<string name="test_add_new_data_to_db">Test add a new data to db</string>
 	<string name="core_kit_tab">CoreKit</string>
 	<string name="account_tab">Account</string>

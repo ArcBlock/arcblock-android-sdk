@@ -40,6 +40,8 @@ import java.util.concurrent.LinkedBlockingDeque;
  */
 public class Channel {
 
+	public static final String CORE_KIT_TOPIC = "__absinthe__:control";
+	public static final String CORE_KIT_EVENT = "subscription:data";
 	private static final long DEFAULT_TIMEOUT = 5000;
 	private final List<Binding> bindings = new ArrayList<>();
 	private Timer channelTimer = null;
@@ -51,6 +53,7 @@ public class Channel {
 	private ChannelState state = ChannelState.CLOSED;
 	private final String topic;
 	private HashMap<String, Integer> graphSubsMap = new HashMap<>();
+	private HashMap<String, String> grahpSubAndSubIdMap = new HashMap<>();
 
 
 	public Channel(final String topic, final JsonNode payload, final CoreKitSocket socket) {
@@ -100,6 +103,20 @@ public class Channel {
 	public ChannelState getState() {
 		return state;
 	}
+
+	public void setGrahpSubAndSubIdMapItem(String key,String value){
+		if (grahpSubAndSubIdMap!=null) {
+			grahpSubAndSubIdMap.put(key,value);
+		}
+	}
+
+	public String getGrahpSubAndSubIdMapItemValueByKey(String key){
+		if (grahpSubAndSubIdMap!=null&&grahpSubAndSubIdMap.keySet().contains(key)) {
+			return grahpSubAndSubIdMap.get(key);
+		}
+		return null;
+	}
+
 
 	/**
 	 * @return true if the socket is open and the channel has joined
@@ -259,7 +276,7 @@ public class Channel {
 	public boolean isNeedPushDoc(final String graphQlSubId) {
 		if (!TextUtils.isEmpty(graphQlSubId)) {
 			synchronized (graphSubsMap) {
-				if (graphSubsMap.keySet().contains(graphQlSubId)) {
+				if (graphSubsMap.keySet().contains(graphQlSubId) && graphSubsMap.get(graphQlSubId) > 0) {
 					// if already contain this key , then add the value of this key
 					graphSubsMap.put(graphQlSubId, graphSubsMap.get(graphQlSubId) + 1);
 					// do not do push
@@ -327,7 +344,9 @@ public class Channel {
 				if (binding.getEvent().equals(triggerEvent)) {
 					// Channel Events get the full envelope
 					binding.getCallback().onMessage(msgBean);
-					break;
+					if (!TextUtils.equals(triggerEvent, CORE_KIT_EVENT)) {
+						break;
+					}
 				}
 			}
 		}

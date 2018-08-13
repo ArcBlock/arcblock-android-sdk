@@ -1,6 +1,5 @@
 package com.arcblock.corekit.viewmodel;
 
-import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.content.Context;
@@ -29,32 +28,32 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subscription> extends ViewModel {
 
-	private static final String TOPIC = "__absinthe__:control";
-	private static final String EVENT = "subscription:data";
-
 	private ABCoreKitClient mABCoreKitClient;
-	private MutableLiveData<CoreKitBean<T>> mCoreKitBeanMutableLiveData = new MutableLiveData<>();
 	private Channel channel;
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private Class<T> tClass;
-	private String subscriptionId;
 	private String graphQlSubId;
+	private CoreKitSubCallBack<T> mCoreKitSubCallBack;
 
 	public CoreKitSubViewModel(Context context, int apiType, D graphSub, Class<T> tClass) {
 		this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context, apiType);
 		this.tClass = tClass;
-		channel = mABCoreKitClient.getCoreKitSocket().chan(TOPIC, null);
+		channel = mABCoreKitClient.getCoreKitSocket().chan(Channel.CORE_KIT_TOPIC, null);
 		graphQlSubId = graphSub.operationId() + "$" + graphSub.variables().valueMap().hashCode();
 	}
 
 	public CoreKitSubViewModel(ABCoreKitClient aBCoreKitClient, D graphSub, Class<T> tClass) {
 		this.mABCoreKitClient = aBCoreKitClient;
 		this.tClass = tClass;
-		channel = mABCoreKitClient.getCoreKitSocket().chan(TOPIC, null);
+		channel = mABCoreKitClient.getCoreKitSocket().chan(Channel.CORE_KIT_TOPIC, null);
 		graphQlSubId = graphSub.operationId() + "$" + graphSub.variables().valueMap().hashCode();
 	}
 
-	public MutableLiveData<CoreKitBean<T>> subscription(String queryDocument) {
+	public void setCoreKitSubCallBack(CoreKitSubCallBack<T> coreKitSubCallBack) {
+		mCoreKitSubCallBack = coreKitSubCallBack;
+	}
+
+	public CoreKitSubViewModel<T, D> subscription(String queryDocument) {
 		makeFlow(queryDocument)
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(new Subscriber<CoreKitBean<T>>() {
@@ -65,12 +64,17 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 
 					@Override
 					public void onNext(CoreKitBean<T> coreKitBean) {
-						mCoreKitBeanMutableLiveData.postValue(coreKitBean);
+						if (mCoreKitSubCallBack != null && coreKitBean.getData() != null) {
+							mCoreKitSubCallBack.onNewData(coreKitBean);
+						}
 					}
+
 
 					@Override
 					public void onError(Throwable t) {
-						mCoreKitBeanMutableLiveData.postValue(new CoreKitBean(null, CoreKitBean.FAIL_CODE, t.toString()));
+						if (mCoreKitSubCallBack != null) {
+							mCoreKitSubCallBack.onNewData(new CoreKitBean(null, CoreKitBean.FAIL_CODE, t.toString()));
+						}
 					}
 
 					@Override
@@ -78,7 +82,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 
 					}
 				});
-		return mCoreKitBeanMutableLiveData;
+		return this;
 	}
 
 	private Flowable<CoreKitBean<T>> makeFlow(final String queryDocument) {
@@ -107,32 +111,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 				pushDoc(queryDocument, emitter);
 			}
 
-			channel.on(EVENT, new IMessageCallback() {
-				@Override
-				public void onMessage(final CoreKitMsgBean msgBean) {
-					CoreKitLogUtils.e("channel EVENT onMessage thread name =>" + Thread.currentThread().getName());
-					try {
-						if (!TextUtils.isEmpty(msgBean.getTopic()) && msgBean.getTopic().startsWith("__absinthe__:doc:")) {
-							String data = msgBean.getPayload().get("result").get("data").toString();
-							String tempSubId = msgBean.getPayload().get("subscriptionId").asText("");
-							if (TextUtils.equals(tempSubId, subscriptionId)) {
-								T temp = new Gson().fromJson(data, tClass);
-								if (!emitter.isCancelled()) {
-									emitter.onNext(new CoreKitBean(temp, CoreKitBean.SUCCESS_CODE, ""));
-								} else {
-									subscription(queryDocument);
-								}
-							}
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-						if (!emitter.isCancelled()) {
-							emitter.onError(e);
-						}
-					}
 
-				}
-			});
 		} catch (Exception e) {
 			if (!emitter.isCancelled()) {
 				emitter.onError(e);
@@ -151,7 +130,8 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 					public void onMessage(CoreKitMsgBean msgBean) {
 						CoreKitLogUtils.e("doc=>onMessage=>" + msgBean);
 						// update subscriptionId for channel
-						subscriptionId = msgBean.getPayload().get("response").get("subscriptionId").asText();
+						channel.setGrahpSubAndSubIdMapItem(graphQlSubId,msgBean.getPayload().get("response").get("subscriptionId").asText());
+						setCorekitEvent(emitter,queryDocument);
 					}
 				});
 			} catch (Exception e) {
@@ -161,7 +141,37 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 			}
 		} else {
 			CoreKitLogUtils.e("this graphqlId doc already push");
+			setCorekitEvent(emitter,queryDocument);
 		}
+	}
+
+	private void setCorekitEvent(final FlowableEmitter<CoreKitBean<T>> emitter,final String queryDocument){
+		channel.on(Channel.CORE_KIT_EVENT, new IMessageCallback() {
+			@Override
+			public void onMessage(final CoreKitMsgBean msgBean) {
+				CoreKitLogUtils.e("channel EVENT onMessage thread name =>" + Thread.currentThread().getName());
+				try {
+					if (!TextUtils.isEmpty(msgBean.getTopic()) && msgBean.getTopic().startsWith("__absinthe__:doc:")) {
+						String data = msgBean.getPayload().get("result").get("data").toString();
+						String tempSubId = msgBean.getPayload().get("subscriptionId").asText("");
+						if (TextUtils.equals(tempSubId, channel.getGrahpSubAndSubIdMapItemValueByKey(graphQlSubId))) {
+							T temp = new Gson().fromJson(data, tClass);
+							if (!emitter.isCancelled()) {
+								emitter.onNext(new CoreKitBean(temp, CoreKitBean.SUCCESS_CODE, ""));
+							} else {
+								subscription(queryDocument);
+							}
+						}
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					if (!emitter.isCancelled()) {
+						emitter.onError(e);
+					}
+				}
+
+			}
+		});
 	}
 
 
@@ -214,6 +224,10 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 		public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
 			return (T) new CoreKitSubViewModel(mContext, apiType, graphSub, tClass);
 		}
+	}
+
+	public interface CoreKitSubCallBack<T> {
+		void onNewData(CoreKitBean<T> coreKitBean);
 	}
 
 
