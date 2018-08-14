@@ -12,6 +12,7 @@ import com.arcblock.corekit.socket.Channel;
 import com.arcblock.corekit.socket.ChannelState;
 import com.arcblock.corekit.socket.CoreKitMsgBean;
 import com.arcblock.corekit.socket.IMessageCallback;
+import com.arcblock.corekit.socket.ISocketOpenCallback;
 import com.arcblock.corekit.utils.CoreKitLogUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -34,12 +35,23 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 	private Class<T> tClass;
 	private String graphQlSubId;
 	private CoreKitSubCallBack<T> mCoreKitSubCallBack;
+	private String queryDoc;
 
 	public CoreKitSubViewModel(Context context, int apiType, D graphSub, Class<T> tClass) {
 		this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context, apiType);
 		this.tClass = tClass;
 		channel = mABCoreKitClient.getCoreKitSocket().chan(Channel.CORE_KIT_TOPIC, null);
 		graphQlSubId = graphSub.operationId() + "$" + graphSub.variables().valueMap().hashCode();
+
+		mABCoreKitClient.getCoreKitSocket().onOpen(new ISocketOpenCallback() {
+			@Override
+			public void onOpen() {
+				if (!TextUtils.isEmpty(queryDoc)) {
+					channel.initStatus();
+					subscription(queryDoc);
+				}
+			}
+		});
 	}
 
 	public CoreKitSubViewModel(ABCoreKitClient aBCoreKitClient, D graphSub, Class<T> tClass) {
@@ -47,6 +59,17 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 		this.tClass = tClass;
 		channel = mABCoreKitClient.getCoreKitSocket().chan(Channel.CORE_KIT_TOPIC, null);
 		graphQlSubId = graphSub.operationId() + "$" + graphSub.variables().valueMap().hashCode();
+
+		mABCoreKitClient.getCoreKitSocket().onOpen(new ISocketOpenCallback() {
+			@Override
+			public void onOpen() {
+				CoreKitLogUtils.e("CoreKitSubViewModel********onOpen");
+				if (!TextUtils.isEmpty(queryDoc)) {
+					channel.initStatus();
+					subscription(queryDoc);
+				}
+			}
+		});
 	}
 
 	public void setCoreKitSubCallBack(CoreKitSubCallBack<T> coreKitSubCallBack) {
@@ -54,6 +77,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 	}
 
 	public CoreKitSubViewModel<T, D> subscription(String queryDocument) {
+		queryDoc = queryDocument;
 		makeFlow(queryDocument)
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(new Subscriber<CoreKitBean<T>>() {
@@ -100,19 +124,23 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 			if (channel.getState() == ChannelState.CLOSED) {
 				// only join when the channel is closed
 				channel.join().receive("ok", new IMessageCallback() {
+					boolean isPush = false;
+
 					@Override
 					public void onMessage(final CoreKitMsgBean msgBean) {
 						CoreKitLogUtils.e("join=>onMessage=>" + msgBean);
-						pushDoc(queryDocument, emitter);
+						if (!isPush) {
+							pushDoc(queryDocument, emitter);
+							isPush = true;
+						}
 					}
 				});
 			} else {
 				// if already join, just push a new doc with different payload
 				pushDoc(queryDocument, emitter);
 			}
-
-
 		} catch (Exception e) {
+			CoreKitLogUtils.e("initChannel=>" + e.toString());
 			if (!emitter.isCancelled()) {
 				emitter.onError(e);
 			}
@@ -130,22 +158,24 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 					public void onMessage(CoreKitMsgBean msgBean) {
 						CoreKitLogUtils.e("doc=>onMessage=>" + msgBean);
 						// update subscriptionId for channel
-						channel.setGrahpSubAndSubIdMapItem(graphQlSubId,msgBean.getPayload().get("response").get("subscriptionId").asText());
-						setCoreKitEvent(emitter,queryDocument);
+						channel.setGrahpSubAndSubIdMapItem(graphQlSubId, msgBean.getPayload().get("response").get("subscriptionId").asText());
+						setCoreKitEvent(emitter, queryDocument);
 					}
 				});
 			} catch (Exception e) {
+				CoreKitLogUtils.e("pushDoc=>" + e.toString());
 				if (!emitter.isCancelled()) {
 					emitter.onError(e);
 				}
 			}
 		} else {
 			CoreKitLogUtils.e("this graphqlId doc already push");
-			setCoreKitEvent(emitter,queryDocument);
+			setCoreKitEvent(emitter, queryDocument);
 		}
 	}
 
-	private void setCoreKitEvent(final FlowableEmitter<CoreKitBean<T>> emitter,final String queryDocument){
+	private void setCoreKitEvent(final FlowableEmitter<CoreKitBean<T>> emitter, final String queryDocument) {
+		CoreKitLogUtils.e("********setCoreKitEvent******");
 		channel.on(Channel.CORE_KIT_EVENT, new IMessageCallback() {
 			@Override
 			public void onMessage(final CoreKitMsgBean msgBean) {

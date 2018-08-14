@@ -56,6 +56,21 @@ public class Channel {
 	private HashMap<String, String> grahpSubAndSubIdMap = new HashMap<>();
 
 
+	public synchronized void initStatus(){
+		state = ChannelState.CLOSED;
+		joinedOnce = false;
+		List<Binding> temp = new ArrayList<>();
+		for (Binding binding:bindings) {
+			if(!TextUtils.equals(binding.getEvent(),CORE_KIT_EVENT)){
+				temp.add(binding);
+			}
+		}
+		bindings.clear();
+		bindings.addAll(temp);
+		graphSubsMap.clear();
+		grahpSubAndSubIdMap.clear();
+	}
+
 	public Channel(final String topic, final JsonNode payload, final CoreKitSocket socket) {
 		this.topic = topic;
 		this.payload = payload;
@@ -104,15 +119,21 @@ public class Channel {
 		return state;
 	}
 
-	public void setGrahpSubAndSubIdMapItem(String key,String value){
-		if (grahpSubAndSubIdMap!=null) {
-			grahpSubAndSubIdMap.put(key,value);
+	public void setGrahpSubAndSubIdMapItem(String key, String value) {
+		if (grahpSubAndSubIdMap != null) {
+			synchronized (graphSubsMap) {
+				grahpSubAndSubIdMap.put(key, value);
+			}
 		}
 	}
 
-	public String getGrahpSubAndSubIdMapItemValueByKey(String key){
-		if (grahpSubAndSubIdMap!=null&&grahpSubAndSubIdMap.keySet().contains(key)) {
-			return grahpSubAndSubIdMap.get(key);
+	public String getGrahpSubAndSubIdMapItemValueByKey(String key) {
+		if (grahpSubAndSubIdMap != null) {
+			synchronized (graphSubsMap) {
+				if (grahpSubAndSubIdMap.keySet().contains(key)) {
+					return grahpSubAndSubIdMap.get(key);
+				}
+			}
 		}
 		return null;
 	}
@@ -167,11 +188,12 @@ public class Channel {
 				// if graphSubsMap.get(graphSubId) <= 0 do leave
 				if (graphSubsMap.get(graphSubId) <= 0) {
 					// todo 这边leave 的时候，应该需要后台配合，leve 特定query的sub
-					return this.push(ChannelEvent.LEAVE.getPhxEvent()).receive("ok", new IMessageCallback() {
-						public void onMessage(final CoreKitMsgBean msgBean) {
-							// Channel.this.trigger(ChannelEvent.CLOSE.getPhxEvent(), null);
-						}
-					});
+//					return this.push(ChannelEvent.LEAVE.getPhxEvent()).receive("ok", new IMessageCallback() {
+//						public void onMessage(final CoreKitMsgBean msgBean) {
+//							// Channel.this.trigger(ChannelEvent.CLOSE.getPhxEvent(), null);
+//						}
+//					});
+					return null;
 				} else {
 					// do not do leave
 					return null;
@@ -179,11 +201,12 @@ public class Channel {
 			} else {
 				// do leave query
 				// todo 这边leave 的时候，应该需要后台配合，leve 特定query的sub
-				return this.push(ChannelEvent.LEAVE.getPhxEvent()).receive("ok", new IMessageCallback() {
-					public void onMessage(final CoreKitMsgBean msgBean) {
-						// Channel.this.trigger(ChannelEvent.CLOSE.getPhxEvent(), null);
-					}
-				});
+//				return this.push(ChannelEvent.LEAVE.getPhxEvent()).receive("ok", new IMessageCallback() {
+//					public void onMessage(final CoreKitMsgBean msgBean) {
+//						// Channel.this.trigger(ChannelEvent.CLOSE.getPhxEvent(), null);
+//					}
+//				});
+				return null;
 			}
 		}
 	}
