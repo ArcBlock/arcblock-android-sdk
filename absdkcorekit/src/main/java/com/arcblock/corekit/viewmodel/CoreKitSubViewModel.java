@@ -131,7 +131,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 						CoreKitLogUtils.e("doc=>onMessage=>" + msgBean);
 						// update subscriptionId for channel
 						channel.setGrahpSubAndSubIdMapItem(graphQlSubId,msgBean.getPayload().get("response").get("subscriptionId").asText());
-						setCorekitEvent(emitter,queryDocument);
+						setCoreKitEvent(emitter,queryDocument);
 					}
 				});
 			} catch (Exception e) {
@@ -141,11 +141,11 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 			}
 		} else {
 			CoreKitLogUtils.e("this graphqlId doc already push");
-			setCorekitEvent(emitter,queryDocument);
+			setCoreKitEvent(emitter,queryDocument);
 		}
 	}
 
-	private void setCorekitEvent(final FlowableEmitter<CoreKitBean<T>> emitter,final String queryDocument){
+	private void setCoreKitEvent(final FlowableEmitter<CoreKitBean<T>> emitter,final String queryDocument){
 		channel.on(Channel.CORE_KIT_EVENT, new IMessageCallback() {
 			@Override
 			public void onMessage(final CoreKitMsgBean msgBean) {
@@ -174,6 +174,14 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 		});
 	}
 
+	@Override
+	protected void onCleared() {
+		super.onCleared();
+		CoreKitLogUtils.e("******onCleared*******");
+		leaveChannel();
+		channel = null;
+		mCoreKitSubCallBack = null;
+	}
 
 	public void leaveChannel() {
 		if (channel != null) {

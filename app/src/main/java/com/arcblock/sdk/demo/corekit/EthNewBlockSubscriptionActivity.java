@@ -119,18 +119,6 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
 	}
 
 	@Override
-	public void onBackPressed() {
-		super.onBackPressed();
-		if (mDataCoreKitSubViewModel!=null) {
-			mDataCoreKitSubViewModel.leaveChannel();
-		}
-		if (mDataCoreKitSubViewModelForNewContract!=null) {
-			mDataCoreKitSubViewModelForNewContract.leaveChannel();
-		}
-
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home://返回键的id
