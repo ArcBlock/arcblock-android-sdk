@@ -8,6 +8,7 @@ import android.text.TextUtils;
 
 import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.bean.CoreKitBean;
+import com.arcblock.corekit.socket.Binding;
 import com.arcblock.corekit.socket.Channel;
 import com.arcblock.corekit.socket.ChannelState;
 import com.arcblock.corekit.socket.CoreKitMsgBean;
@@ -36,6 +37,8 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 	private String graphQlSubId;
 	private CoreKitSubCallBack<T> mCoreKitSubCallBack;
 	private String queryDoc;
+	private boolean isJoin = false;
+	private Binding mBinding;
 
 	public CoreKitSubViewModel(Context context, int apiType, D graphSub, Class<T> tClass) {
 		this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context, apiType);
@@ -48,6 +51,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 			public void onOpen() {
 				if (!TextUtils.isEmpty(queryDoc)) {
 					channel.initStatus();
+					isJoin = false;
 					subscription(queryDoc);
 				}
 			}
@@ -66,6 +70,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 				CoreKitLogUtils.e("CoreKitSubViewModel********onOpen");
 				if (!TextUtils.isEmpty(queryDoc)) {
 					channel.initStatus();
+					isJoin = false;
 					subscription(queryDoc);
 				}
 			}
@@ -124,14 +129,13 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 			if (channel.getState() == ChannelState.CLOSED) {
 				// only join when the channel is closed
 				channel.join().receive("ok", new IMessageCallback() {
-					boolean isPush = false;
 
 					@Override
 					public void onMessage(final CoreKitMsgBean msgBean) {
 						CoreKitLogUtils.e("join=>onMessage=>" + msgBean);
-						if (!isPush) {
+						if (!isJoin) {
 							pushDoc(queryDocument, emitter);
-							isPush = true;
+							isJoin = true;
 						}
 					}
 				});
@@ -176,7 +180,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 
 	private void setCoreKitEvent(final FlowableEmitter<CoreKitBean<T>> emitter, final String queryDocument) {
 		CoreKitLogUtils.e("********setCoreKitEvent******");
-		channel.on(Channel.CORE_KIT_EVENT, new IMessageCallback() {
+		mBinding = new Binding(Channel.CORE_KIT_EVENT, channel.getGraphSubAndSubIdMapItemValueByKey(graphQlSubId), new IMessageCallback() {
 			@Override
 			public void onMessage(final CoreKitMsgBean msgBean) {
 				CoreKitLogUtils.e("channel EVENT onMessage thread name =>" + Thread.currentThread().getName());
@@ -202,6 +206,8 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 
 			}
 		});
+
+		channel.on(mBinding);
 	}
 
 	@Override
@@ -209,6 +215,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 		super.onCleared();
 		CoreKitLogUtils.e("******onCleared*******");
 		leaveChannel();
+		channel.offByBind(mBinding);
 		channel = null;
 		mCoreKitSubCallBack = null;
 	}
@@ -216,7 +223,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 	public void leaveChannel() {
 		if (channel != null) {
 			try {
-				channel.leave(graphQlSubId);
+				channel.leave(graphQlSubId, channel.getGraphSubAndSubIdMapItemValueByKey(graphQlSubId));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

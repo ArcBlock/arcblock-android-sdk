@@ -171,7 +171,7 @@ public class Push {
 		this.refEvent = CoreKitSocket.replyEventName(ref);
 		this.receivedMsgBean = null;
 
-		this.channel.on(this.refEvent, new IMessageCallback() {
+		this.channel.on(this.refEvent, null, new IMessageCallback() {
 			@Override
 			public void onMessage(final CoreKitMsgBean msgBean) {
 				Push.this.receivedMsgBean = msgBean;

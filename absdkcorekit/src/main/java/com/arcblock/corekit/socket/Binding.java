@@ -24,14 +24,20 @@ package com.arcblock.corekit.socket;
 public class Binding {
 	private final String event;
 	private final IMessageCallback callback;
+	private final String subId;
 
-	public Binding(final String event, final IMessageCallback callback) {
+	public Binding(final String event,final String subId, final IMessageCallback callback) {
 		this.event = event;
+		this.subId = subId;
 		this.callback = callback;
 	}
 
 	public String getEvent() {
 		return event;
+	}
+
+	public String getSubId() {
+		return subId;
 	}
 
 	public IMessageCallback getCallback() {
@@ -42,6 +48,7 @@ public class Binding {
 	public String toString() {
 		return "Binding{" +
 				"event='" + event + '\'' +
+				"subId='" + subId + '\'' +
 				", callback=" + callback +
 				'}';
 	}

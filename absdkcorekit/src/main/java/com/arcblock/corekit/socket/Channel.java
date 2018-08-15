@@ -25,6 +25,8 @@ import android.text.TextUtils;
 
 import com.arcblock.corekit.utils.CoreKitLogUtils;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,7 +46,7 @@ public class Channel {
 	public static final String CORE_KIT_EVENT = "subscription:data";
 	private static final long DEFAULT_TIMEOUT = 5000;
 	private final List<Binding> bindings = new ArrayList<>();
-	private Timer channelTimer ;
+	private Timer channelTimer;
 	private final Push joinPush;
 	private boolean joinedOnce = false;
 	private final JsonNode payload;
@@ -54,14 +56,15 @@ public class Channel {
 	private final String topic;
 	private HashMap<String, Integer> graphSubsMap = new HashMap<>();
 	private HashMap<String, String> grahppSubAndSubIdMap = new HashMap<>();
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
 
-	public synchronized void initStatus(){
+	public synchronized void initStatus() {
 		state = ChannelState.CLOSED;
 		joinedOnce = false;
 		List<Binding> temp = new ArrayList<>();
-		for (Binding binding:bindings) {
-			if(!TextUtils.equals(binding.getEvent(),CORE_KIT_EVENT)){
+		for (Binding binding : bindings) {
+			if (!TextUtils.equals(binding.getEvent(), CORE_KIT_EVENT)) {
 				temp.add(binding);
 			}
 		}
@@ -107,7 +110,7 @@ public class Channel {
 				scheduleRejoinTimer();
 			}
 		});
-		this.on(ChannelEvent.REPLY.getPhxEvent(), new IMessageCallback() {
+		this.on(ChannelEvent.REPLY.getPhxEvent(), null, new IMessageCallback() {
 			@Override
 			public void onMessage(final CoreKitMsgBean msgBean) {
 				Channel.this.trigger(CoreKitSocket.replyEventName(msgBean.getRef()), msgBean);
@@ -177,36 +180,39 @@ public class Channel {
 		return this.joinPush;
 	}
 
-	public Push leave(String graphSubId) throws IOException {
+	public Push leave(String graphSubId, final String subId) throws IOException {
 		synchronized (graphSubsMap) {
 			// remove count num of graphId Map
 			if (graphSubsMap.keySet().contains(graphSubId)) {
 				if (graphSubsMap.get(graphSubId) > 0) {
 					graphSubsMap.put(graphSubId, graphSubsMap.get(graphSubId) - 1);
 				}
-
 				// if graphSubsMap.get(graphSubId) <= 0 do leave
 				if (graphSubsMap.get(graphSubId) <= 0) {
-					// todo 这边leave 的时候，应该需要后台配合，leve 特定query的sub
-//					return this.push(ChannelEvent.LEAVE.getPhxEvent()).receive("ok", new IMessageCallback() {
-//						public void onMessage(final CoreKitMsgBean msgBean) {
-//							// Channel.this.trigger(ChannelEvent.CLOSE.getPhxEvent(), null);
-//						}
-//					});
-					return null;
+					ObjectNode payload = objectMapper.createObjectNode();
+					payload.put("subscriptionId", subId);
+					return this.push("unsubscribe", payload).receive("ok", new IMessageCallback() {
+						public void onMessage(final CoreKitMsgBean msgBean) {
+							synchronized (bindings) {
+								CoreKitLogUtils.e("**********unsubscribe success**********");
+							}
+						}
+					});
 				} else {
 					// do not do leave
 					return null;
 				}
 			} else {
 				// do leave query
-				// todo 这边leave 的时候，应该需要后台配合，leve 特定query的sub
-//				return this.push(ChannelEvent.LEAVE.getPhxEvent()).receive("ok", new IMessageCallback() {
-//					public void onMessage(final CoreKitMsgBean msgBean) {
-//						// Channel.this.trigger(ChannelEvent.CLOSE.getPhxEvent(), null);
-//					}
-//				});
-				return null;
+				ObjectNode payload = objectMapper.createObjectNode();
+				payload.put("subscriptionId", graphSubId);
+				return this.push("unsubscribe", payload).receive("ok", new IMessageCallback() {
+					public void onMessage(final CoreKitMsgBean msgBean) {
+						synchronized (bindings) {
+							CoreKitLogUtils.e("**********unsubscribe success**********");
+						}
+					}
+				});
 			}
 		}
 	}
@@ -230,15 +236,34 @@ public class Channel {
 		return this;
 	}
 
+	public void offByBind(Binding binding) {
+		synchronized (bindings) {
+			if (binding != null && bindings.indexOf(binding) > 0) {
+				bindings.remove(binding);
+			}
+		}
+	}
+
 	/**
 	 * @param event    The event name
 	 * @param callback The callback to be invoked with the event's message
 	 * @return The instance's self
 	 */
-	public Channel on(final String event, final IMessageCallback callback) {
+	public Channel on(final String event, final String subId, final IMessageCallback callback) {
 		try {
 			synchronized (bindings) {
-				this.bindings.add(new Binding(event, callback));
+				this.bindings.add(new Binding(event, subId, callback));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return this;
+	}
+
+	public Channel on(Binding binding) {
+		try {
+			synchronized (bindings) {
+				this.bindings.add(binding);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -247,7 +272,7 @@ public class Channel {
 	}
 
 	private void onClose(final IMessageCallback callback) {
-		this.on(ChannelEvent.CLOSE.getPhxEvent(), callback);
+		this.on(ChannelEvent.CLOSE.getPhxEvent(), null, callback);
 	}
 
 	/**
@@ -256,7 +281,7 @@ public class Channel {
 	 * @param callback Callback to be invoked on error
 	 */
 	private void onError(final IErrorCallback callback) {
-		this.on(ChannelEvent.ERROR.getPhxEvent(), new IMessageCallback() {
+		this.on(ChannelEvent.ERROR.getPhxEvent(), null, new IMessageCallback() {
 			@Override
 			public void onMessage(final CoreKitMsgBean msgBean) {
 				String reason = null;
