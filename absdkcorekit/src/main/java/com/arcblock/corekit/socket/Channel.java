@@ -44,7 +44,7 @@ public class Channel {
 	public static final String CORE_KIT_EVENT = "subscription:data";
 	private static final long DEFAULT_TIMEOUT = 5000;
 	private final List<Binding> bindings = new ArrayList<>();
-	private Timer channelTimer = null;
+	private Timer channelTimer ;
 	private final Push joinPush;
 	private boolean joinedOnce = false;
 	private final JsonNode payload;
@@ -53,7 +53,7 @@ public class Channel {
 	private ChannelState state = ChannelState.CLOSED;
 	private final String topic;
 	private HashMap<String, Integer> graphSubsMap = new HashMap<>();
-	private HashMap<String, String> grahpSubAndSubIdMap = new HashMap<>();
+	private HashMap<String, String> grahppSubAndSubIdMap = new HashMap<>();
 
 
 	public synchronized void initStatus(){
@@ -68,7 +68,7 @@ public class Channel {
 		bindings.clear();
 		bindings.addAll(temp);
 		graphSubsMap.clear();
-		grahpSubAndSubIdMap.clear();
+		grahppSubAndSubIdMap.clear();
 	}
 
 	public Channel(final String topic, final JsonNode payload, final CoreKitSocket socket) {
@@ -119,19 +119,19 @@ public class Channel {
 		return state;
 	}
 
-	public void setGrahpSubAndSubIdMapItem(String key, String value) {
-		if (grahpSubAndSubIdMap != null) {
+	public void setGraphSubAndSubIdMapItem(String key, String value) {
+		if (grahppSubAndSubIdMap != null) {
 			synchronized (graphSubsMap) {
-				grahpSubAndSubIdMap.put(key, value);
+				grahppSubAndSubIdMap.put(key, value);
 			}
 		}
 	}
 
-	public String getGrahpSubAndSubIdMapItemValueByKey(String key) {
-		if (grahpSubAndSubIdMap != null) {
+	public String getGraphSubAndSubIdMapItemValueByKey(String key) {
+		if (grahppSubAndSubIdMap != null) {
 			synchronized (graphSubsMap) {
-				if (grahpSubAndSubIdMap.keySet().contains(key)) {
-					return grahpSubAndSubIdMap.get(key);
+				if (grahppSubAndSubIdMap.keySet().contains(key)) {
+					return grahppSubAndSubIdMap.get(key);
 				}
 			}
 		}

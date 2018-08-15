@@ -158,7 +158,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 					public void onMessage(CoreKitMsgBean msgBean) {
 						CoreKitLogUtils.e("doc=>onMessage=>" + msgBean);
 						// update subscriptionId for channel
-						channel.setGrahpSubAndSubIdMapItem(graphQlSubId, msgBean.getPayload().get("response").get("subscriptionId").asText());
+						channel.setGraphSubAndSubIdMapItem(graphQlSubId, msgBean.getPayload().get("response").get("subscriptionId").asText());
 						setCoreKitEvent(emitter, queryDocument);
 					}
 				});
@@ -184,7 +184,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 					if (!TextUtils.isEmpty(msgBean.getTopic()) && msgBean.getTopic().startsWith("__absinthe__:doc:")) {
 						String data = msgBean.getPayload().get("result").get("data").toString();
 						String tempSubId = msgBean.getPayload().get("subscriptionId").asText("");
-						if (TextUtils.equals(tempSubId, channel.getGrahpSubAndSubIdMapItemValueByKey(graphQlSubId))) {
+						if (TextUtils.equals(tempSubId, channel.getGraphSubAndSubIdMapItemValueByKey(graphQlSubId))) {
 							T temp = new Gson().fromJson(data, tClass);
 							if (!emitter.isCancelled()) {
 								emitter.onNext(new CoreKitBean(temp, CoreKitBean.SUCCESS_CODE, ""));
