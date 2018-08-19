@@ -192,8 +192,10 @@ public class Push {
 	}
 
 	private void cancelTimeout() {
-		this.timeoutHook.getTimerTask().cancel();
-		this.timeoutHook.setTimerTask(null);
+		if (this.timeoutHook.getTimerTask()!=null) {
+			this.timeoutHook.getTimerTask().cancel();
+			this.timeoutHook.setTimerTask(null);
+		}
 	}
 
 	private TimerTask createTimerTask() {

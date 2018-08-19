@@ -59,6 +59,10 @@ public class Channel {
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
 
+	/**
+	 * when the socket is reconnect , init the status of the channel
+	 * current , we have only one channel which topic is "__absinthe__:control"
+	 */
 	public synchronized void initStatus() {
 		state = ChannelState.CLOSED;
 		joinedOnce = false;
@@ -99,7 +103,6 @@ public class Channel {
 			@Override
 			public void onMessage(CoreKitMsgBean msgBean) {
 				Channel.this.state = ChannelState.CLOSED;
-				Channel.this.socket.remove(Channel.this);
 				Channel.this.joinedOnce = false;
 			}
 		});
@@ -124,7 +127,7 @@ public class Channel {
 
 	public void setGraphSubAndSubIdMapItem(String key, String value) {
 		if (grahppSubAndSubIdMap != null) {
-			synchronized (graphSubsMap) {
+			synchronized (grahppSubAndSubIdMap) {
 				grahppSubAndSubIdMap.put(key, value);
 			}
 		}
@@ -132,7 +135,7 @@ public class Channel {
 
 	public String getGraphSubAndSubIdMapItemValueByKey(String key) {
 		if (grahppSubAndSubIdMap != null) {
-			synchronized (graphSubsMap) {
+			synchronized (grahppSubAndSubIdMap) {
 				if (grahppSubAndSubIdMap.keySet().contains(key)) {
 					return grahppSubAndSubIdMap.get(key);
 				}

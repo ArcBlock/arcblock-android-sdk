@@ -53,6 +53,7 @@ public class CoreKitSocket {
 
 	public static final int RECONNECT_INTERVAL_MS = 5000;
 	private static final int DEFAULT_HEARTBEAT_INTERVAL = 7000;
+	private static final int MAX_RETRY_NUM = 10;
 
 	private WebSocket webSocket = null;
 	private boolean reconnectOnFailure = true;
@@ -74,6 +75,8 @@ public class CoreKitSocket {
 	private final OkHttpClient httpClient;
 	private int refNo = 1;
 	private boolean isOpening = false;
+	private int reTryNum = 0;
+
 
 	public class CoreKitWSListener extends WebSocketListener {
 
@@ -88,6 +91,7 @@ public class CoreKitSocket {
 			}
 			CoreKitSocket.this.flushSendBuffer();
 			isOpening = false;
+			reTryNum = 0;
 		}
 
 		@Override
@@ -268,12 +272,17 @@ public class CoreKitSocket {
 	private void scheduleReconnectTimer() {
 		cancelReconnectTimer();
 		cancelHeartbeatTimer();
+		if (reTryNum > MAX_RETRY_NUM) {
+			CoreKitLogUtils.e("have to max retry limit");
+			return;
+		}
 		CoreKitSocket.this.reconnectTimerTask = new TimerTask() {
 			@Override
 			public void run() {
 				CoreKitLogUtils.e("reconnectTimerTask run");
 				try {
 					CoreKitSocket.this.connect();
+					reTryNum = reTryNum + 1;
 				} catch (Exception e) {
 					CoreKitLogUtils.e("Failed to reconnect to " + e.toString());
 				}
@@ -341,14 +350,8 @@ public class CoreKitSocket {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
-	public void removeAllChannels() {
-		synchronized (channels) {
-			channels.clear();
-		}
-	}
 
 	/**
 	 * Register a callback for SocketEvent.ERROR events
@@ -407,6 +410,13 @@ public class CoreKitSocket {
 		return getChannel(topic, payload);
 	}
 
+	/**
+	 * get channel with same topic , maybe also need the same payload later
+	 *
+	 * @param topic
+	 * @param payload
+	 * @return
+	 */
 	private Channel getChannel(final String topic, final JsonNode payload) {
 		Channel channel = null;
 		synchronized (channels) {
