@@ -45,6 +45,7 @@ import com.apollographql.apollo.response.CustomTypeAdapter;
 import com.apollographql.apollo.response.ScalarTypeAdapters;
 import com.arcblock.corekit.config.CoreKitConfig;
 import com.arcblock.corekit.socket.CoreKitSocket;
+import com.arcblock.corekit.socket.CoreKitSocketStatusCallBack;
 import com.arcblock.corekit.socket.IErrorCallback;
 import com.arcblock.corekit.socket.ISocketCloseCallback;
 import com.arcblock.corekit.socket.ISocketOpenCallback;
@@ -52,12 +53,18 @@ import com.arcblock.corekit.utils.CoreKitLogUtils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
 import javax.annotation.Nonnull;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import okhttp3.OkHttpClient;
 
 import static com.apollographql.apollo.fetcher.ApolloResponseFetchers.CACHE_FIRST;
@@ -71,6 +78,7 @@ public class ABCoreKitClient {
 	private CoreKitSocket mCoreKitSocket;
 	private int apiType;
 	private ScalarTypeAdapters scalarTypeAdapters = null;
+	private List<CoreKitSocketStatusCallBack> mCoreKitSocketStatusCallBacks = new ArrayList<>();
 
 	private ABCoreKitClient(Builder builder) {
 		apiType = builder.apiType;
@@ -105,6 +113,18 @@ public class ABCoreKitClient {
 
 	public ScalarTypeAdapters getScalarTypeAdapters() {
 		return scalarTypeAdapters;
+	}
+
+	public void addSocketStatusCallBack(CoreKitSocketStatusCallBack socketStatusCallBack) {
+		if (socketStatusCallBack != null && mCoreKitSocketStatusCallBacks.indexOf(socketStatusCallBack) == -1) {
+			mCoreKitSocketStatusCallBacks.add(socketStatusCallBack);
+		}
+	}
+
+	public void doManualReconnect() {
+		if (mCoreKitSocket != null && !mCoreKitSocket.isConnected() && !mCoreKitSocket.isOpening()) {
+			mCoreKitSocket.manualReconnect();
+		}
 	}
 
 	public static class Builder {
@@ -220,7 +240,7 @@ public class ABCoreKitClient {
 	}
 
 	private void initCoreKitSocket() {
-		CoreKitLogUtils.e("initCoreKitSocket=>"+Thread.currentThread().getName());
+		CoreKitLogUtils.e("initCoreKitSocket=>" + Thread.currentThread().getName());
 		if (mCoreKitSocket == null) {
 			// sub url set by apiType
 			mCoreKitSocket = new CoreKitSocket(CoreKitConfig.SUBSCRIPTION_BASE_URL_ETH, mOkHttpClient);
@@ -232,17 +252,90 @@ public class ABCoreKitClient {
 				mCoreKitSocket.onOpen(new ISocketOpenCallback() {
 					@Override
 					public void onOpen() {
-						CoreKitLogUtils.e("onOpen");
+						Observable.just(1)
+								.subscribeOn(AndroidSchedulers.mainThread())
+								.subscribe(new Observer<Integer>() {
+									@Override
+									public void onSubscribe(Disposable d) {
+
+									}
+
+									@Override
+									public void onNext(Integer integer) {
+										for (CoreKitSocketStatusCallBack callBack : mCoreKitSocketStatusCallBacks) {
+											callBack.onOpen();
+										}
+									}
+
+									@Override
+									public void onError(Throwable e) {
+
+									}
+
+									@Override
+									public void onComplete() {
+
+									}
+								});
+
 					}
 				}).onClose(new ISocketCloseCallback() {
 					@Override
 					public void onClose() {
-						CoreKitLogUtils.e("Closed");
+						Observable.just(1)
+								.subscribeOn(AndroidSchedulers.mainThread())
+								.subscribe(new Observer<Integer>() {
+									@Override
+									public void onSubscribe(Disposable d) {
+
+									}
+
+									@Override
+									public void onNext(Integer integer) {
+										for (CoreKitSocketStatusCallBack callBack : mCoreKitSocketStatusCallBacks) {
+											callBack.onClose();
+										}
+									}
+
+									@Override
+									public void onError(Throwable e) {
+
+									}
+
+									@Override
+									public void onComplete() {
+
+									}
+								});
 					}
 				}).onError(new IErrorCallback() {
 					@Override
 					public void onError(final String reason) {
-						CoreKitLogUtils.e("onError" + reason);
+						Observable.just(1)
+								.subscribeOn(AndroidSchedulers.mainThread())
+								.subscribe(new Observer<Integer>() {
+									@Override
+									public void onSubscribe(Disposable d) {
+
+									}
+
+									@Override
+									public void onNext(Integer integer) {
+										for (CoreKitSocketStatusCallBack callBack : mCoreKitSocketStatusCallBacks) {
+											callBack.onError();
+										}
+									}
+
+									@Override
+									public void onError(Throwable e) {
+
+									}
+
+									@Override
+									public void onComplete() {
+
+									}
+								});
 					}
 				}).connect();
 			}
@@ -250,6 +343,9 @@ public class ABCoreKitClient {
 	}
 
 	public CoreKitSocket getCoreKitSocket() {
+		if (mCoreKitSocket == null) {
+			throw new RuntimeException("The mCoreKitSocket can not be null.");
+		}
 		return mCoreKitSocket;
 	}
 
