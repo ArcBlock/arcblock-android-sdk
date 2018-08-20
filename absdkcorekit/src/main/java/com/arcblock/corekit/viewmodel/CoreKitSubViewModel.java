@@ -68,6 +68,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 	private boolean isSubed = false;
 	private final D mGraphSub;
 	private Boolean needOpen = true;
+	private boolean isCleared = false;
 
 	public CoreKitSubViewModel(Context context, int apiType, D graphSub, Class<T> tClass) {
 		this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context, apiType);
@@ -228,6 +229,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 		mBinding = null;
 		channel = null;
 		mCoreKitSubCallBack = null;
+		isCleared = true;
 	}
 
 	public void leaveChannel() {
@@ -309,7 +311,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 				return;
 			}
 			CoreKitSubViewModel v = ref.get();
-			if (v == null || v.mCoreKitSubCallBack == null) {
+			if (v == null || v.isCleared) {
 				return;
 			}
 			CoreKitLogUtils.e("CoreKitSubViewModel********onOpen");
