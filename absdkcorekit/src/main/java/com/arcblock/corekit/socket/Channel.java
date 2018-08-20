@@ -55,7 +55,7 @@ public class Channel {
 	private ChannelState state = ChannelState.CLOSED;
 	private final String topic;
 	private HashMap<String, Integer> graphSubsMap = new HashMap<>();
-	private HashMap<String, String> grahppSubAndSubIdMap = new HashMap<>();
+	private HashMap<String, String> graphSubAndSubIdMap = new HashMap<>();
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
 
@@ -75,7 +75,7 @@ public class Channel {
 		bindings.clear();
 		bindings.addAll(temp);
 		graphSubsMap.clear();
-		grahppSubAndSubIdMap.clear();
+		graphSubAndSubIdMap.clear();
 	}
 
 	public Channel(final String topic, final JsonNode payload, final CoreKitSocket socket) {
@@ -126,18 +126,18 @@ public class Channel {
 	}
 
 	public void setGraphSubAndSubIdMapItem(String key, String value) {
-		if (grahppSubAndSubIdMap != null) {
-			synchronized (grahppSubAndSubIdMap) {
-				grahppSubAndSubIdMap.put(key, value);
+		if (graphSubAndSubIdMap != null) {
+			synchronized (graphSubAndSubIdMap) {
+				graphSubAndSubIdMap.put(key, value);
 			}
 		}
 	}
 
 	public String getGraphSubAndSubIdMapItemValueByKey(String key) {
-		if (grahppSubAndSubIdMap != null) {
-			synchronized (grahppSubAndSubIdMap) {
-				if (grahppSubAndSubIdMap.keySet().contains(key)) {
-					return grahppSubAndSubIdMap.get(key);
+		if (graphSubAndSubIdMap != null) {
+			synchronized (graphSubAndSubIdMap) {
+				if (graphSubAndSubIdMap.keySet().contains(key)) {
+					return graphSubAndSubIdMap.get(key);
 				}
 			}
 		}
