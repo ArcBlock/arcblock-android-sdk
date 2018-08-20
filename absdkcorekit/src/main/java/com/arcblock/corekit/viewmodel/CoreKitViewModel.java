@@ -38,15 +38,15 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class CoreKitViewModel<T, D> extends ViewModel implements CoreKitInterface{
+public class CoreKitViewModel<T, D> extends ViewModel implements CoreKitInterface {
 
 	private ABCoreKitClient mABCoreKitClient;
 	private MutableLiveData<CoreKitBean<D>> mCoreKitBeanMutableLiveData = new MutableLiveData<>();
 	private CoreKitBeanMapper<T, D> mCoreKitBeanMapper;
 
-	public CoreKitViewModel(CoreKitBeanMapper<T, D> mapper, Context context) {
+	public CoreKitViewModel(CoreKitBeanMapper<T, D> mapper, Context context, int apiType) {
 		this.mCoreKitBeanMapper = mapper;
-		this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context);
+		this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context, apiType);
 	}
 
 	public CoreKitViewModel(CoreKitBeanMapper<T, D> mapper, ABCoreKitClient aBCoreKitClient) {
@@ -65,6 +65,7 @@ public class CoreKitViewModel<T, D> extends ViewModel implements CoreKitInterfac
 
 	/**
 	 * set a new query then do query
+	 *
 	 * @param query
 	 */
 	public void setNewQuery(Query query) {
@@ -127,16 +128,18 @@ public class CoreKitViewModel<T, D> extends ViewModel implements CoreKitInterfac
 
 		private CoreKitBeanMapper mCoreKitBeanMapper;
 		private Context mContext;
+		private int apiType;
 
-		public DefaultFactory(CoreKitBeanMapper coreKitBeanMapper, Context context) {
+		public DefaultFactory(CoreKitBeanMapper coreKitBeanMapper, Context context, int apiType) {
 			this.mCoreKitBeanMapper = coreKitBeanMapper;
 			this.mContext = context;
+			this.apiType = apiType;
 		}
 
 		@NonNull
 		@Override
 		public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-			return (T) new CoreKitViewModel(mCoreKitBeanMapper, mContext);
+			return (T) new CoreKitViewModel(mCoreKitBeanMapper, mContext, apiType);
 		}
 	}
 

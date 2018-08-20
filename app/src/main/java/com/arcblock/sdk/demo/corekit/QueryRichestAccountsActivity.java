@@ -40,8 +40,8 @@ import com.arcblock.corekit.utils.CoreKitBeanMapper;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
-import com.arcblock.sdk.demo.RichestAccountsQuery;
 import com.arcblock.sdk.demo.adapter.RichestAccountsAdapter;
+import com.arcblock.sdk.demo.btc.RichestAccountsQuery;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 
 import java.util.ArrayList;
@@ -97,7 +97,7 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
 		// init a query
 		RichestAccountsQuery query = RichestAccountsQuery.builder().build();
 		// init the ViewModel with CustomClientFactory
-		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(richestAccountsMapper, DemoApplication.getInstance().abCoreKitClient());
+		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(richestAccountsMapper, DemoApplication.getInstance().abCoreKitClientBtc());
 		mRichestAccountsQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
 		mRichestAccountsQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<RichestAccountsQuery.RichestAccounts>>() {
 			@Override

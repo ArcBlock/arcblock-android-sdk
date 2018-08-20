@@ -38,10 +38,10 @@ import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.corekit.utils.CoreKitBeanMapper;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
-import com.arcblock.sdk.demo.BlockByHashQuery;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.BlockDetailTransactionsAdapter;
+import com.arcblock.sdk.demo.btc.BlockByHashQuery;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -96,7 +96,7 @@ public class BlockDetailActivity extends AppCompatActivity {
 		// init a query
 		BlockByHashQuery query = BlockByHashQuery.builder().hash(blockHash).build();
 		// init the ViewModel with CustomClientFactory
-		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(blockMapper, DemoApplication.getInstance().abCoreKitClient());
+		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(blockMapper, DemoApplication.getInstance().abCoreKitClientBtc());
 		mBlockByHashQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
 		mBlockByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<BlockByHashQuery.BlockByHash>>() {
 			@Override

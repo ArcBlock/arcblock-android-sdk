@@ -54,10 +54,10 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 	private List<K> resultDatas = new ArrayList<>();
 	private CoreKitPagedHelper mCoreKitPagedHelper;
 
-	public CoreKitPagedViewModel(CoreKitBeanMapper<Response<T>, List<K>> mapper, CoreKitPagedHelper coreKitPagedHelper, Context context) {
+	public CoreKitPagedViewModel(CoreKitBeanMapper<Response<T>, List<K>> mapper, CoreKitPagedHelper coreKitPagedHelper, Context context, int apiType) {
 		this.mCoreKitBeanMapper = mapper;
 		this.mCoreKitPagedHelper = coreKitPagedHelper;
-		this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context);
+		this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context, apiType);
 
 	}
 
@@ -230,17 +230,19 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 		private CoreKitBeanMapper mCoreKitBeanMapper;
 		private CoreKitPagedHelper mCoreKitPagedHelper;
 		private Context mContext;
+		private int apiType;
 
-		public DefaultFactory(CoreKitBeanMapper coreKitBeanMapper, CoreKitPagedHelper coreKitPagedHelper, Context context) {
+		public DefaultFactory(CoreKitBeanMapper coreKitBeanMapper, CoreKitPagedHelper coreKitPagedHelper, Context context, int apiType) {
 			this.mCoreKitBeanMapper = coreKitBeanMapper;
 			this.mCoreKitPagedHelper = coreKitPagedHelper;
 			this.mContext = context;
+			this.apiType = apiType;
 		}
 
 		@NonNull
 		@Override
 		public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-			return (T) new CoreKitPagedViewModel(mCoreKitBeanMapper, mCoreKitPagedHelper, mContext);
+			return (T) new CoreKitPagedViewModel(mCoreKitBeanMapper, mCoreKitPagedHelper, mContext, apiType);
 		}
 	}
 

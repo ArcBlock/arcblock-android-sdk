@@ -25,9 +25,9 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.arcblock.sdk.demo.R;
-import com.arcblock.sdk.demo.TransactionByHashQuery;
 import com.arcblock.sdk.demo.adapter.base.BaseViewHolder;
 import com.arcblock.sdk.demo.adapter.base.CustomBaseAdapter;
+import com.arcblock.sdk.demo.btc.TransactionByHashQuery;
 
 import java.util.List;
 

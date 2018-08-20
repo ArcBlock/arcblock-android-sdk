@@ -19,25 +19,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.sdk.demo.adapter;
+package com.arcblock.corekit.utils;
 
-import android.content.Context;
+import android.util.Log;
 
-import com.arcblock.sdk.demo.R;
-import com.arcblock.sdk.demo.adapter.base.BaseViewHolder;
-import com.arcblock.sdk.demo.adapter.base.CustomBaseAdapter;
-import com.arcblock.sdk.demo.btc.BlockByHashQuery;
+import com.arcblock.corekit.ABCoreKitClient;
 
-import java.util.List;
+public class CoreKitLogUtils {
 
-public class BlockDetailTransactionsAdapter extends CustomBaseAdapter<BlockByHashQuery.Datum> {
+	private static final String TAG = "CoreKitSocket";
 
-	public BlockDetailTransactionsAdapter(Context context, int resource, List<BlockByHashQuery.Datum> list) {
-		super(context, resource, list);
+	public static void v(String log) {
+		if (ABCoreKitClient.IS_DEBUG) {
+			Log.v(TAG, log);
+		}
 	}
 
-	@Override
-	public void setConvert(BaseViewHolder viewHolder, BlockByHashQuery.Datum item) {
-		viewHolder.setTextView(R.id.item_tv, item.getHash());
+	public static void d(String log) {
+		if (ABCoreKitClient.IS_DEBUG) {
+			Log.d(TAG, log);
+		}
 	}
+
+	public static void i(String log) {
+		if (ABCoreKitClient.IS_DEBUG) {
+			Log.i(TAG, log);
+		}
+	}
+
+	public static void w(String log) {
+		if (ABCoreKitClient.IS_DEBUG) {
+			Log.w(TAG, log);
+		}
+	}
+
+	public static void e(String log) {
+		if (ABCoreKitClient.IS_DEBUG) {
+			Log.e(TAG, log);
+		}
+	}
+
 }

@@ -41,6 +41,14 @@
 			android:name=".corekit.AccountDetailActivity"
 			android:screenOrientation="portrait"
 			android:windowSoftInputMode="adjustNothing|stateAlwaysHidden"/>
+		<activity
+			android:name=".corekit.QueryBlocksByHeightForEthActivity"
+			android:screenOrientation="portrait"
+			android:windowSoftInputMode="adjustNothing|stateAlwaysHidden"/>
+		<activity
+			android:name=".corekit.EthNewBlockSubscriptionActivity"
+			android:screenOrientation="portrait"
+			android:windowSoftInputMode="adjustNothing|stateAlwaysHidden"/>
 	</application>
 
 </manifest>

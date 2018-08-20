@@ -26,18 +26,17 @@ import android.content.Context;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.base.BaseViewHolder;
 import com.arcblock.sdk.demo.adapter.base.CustomBaseAdapter;
-import com.arcblock.sdk.demo.btc.BlockByHashQuery;
+import com.arcblock.sdk.demo.eth.NewBlockMinedSubscription;
 
 import java.util.List;
 
-public class BlockDetailTransactionsAdapter extends CustomBaseAdapter<BlockByHashQuery.Datum> {
-
-	public BlockDetailTransactionsAdapter(Context context, int resource, List<BlockByHashQuery.Datum> list) {
+public class NewEthBlockTxsAdapter extends CustomBaseAdapter<NewBlockMinedSubscription.Datum> {
+	public NewEthBlockTxsAdapter(Context context, int resource, List<NewBlockMinedSubscription.Datum> list) {
 		super(context, resource, list);
 	}
 
 	@Override
-	public void setConvert(BaseViewHolder viewHolder, BlockByHashQuery.Datum item) {
-		viewHolder.setTextView(R.id.item_tv, item.getHash());
+	public void setConvert(BaseViewHolder viewHolder, NewBlockMinedSubscription.Datum datum) {
+		viewHolder.setTextView(R.id.txs_hash_tv, datum.getHash());
 	}
 }
