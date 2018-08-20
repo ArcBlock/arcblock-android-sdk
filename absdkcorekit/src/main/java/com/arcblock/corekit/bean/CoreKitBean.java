@@ -21,7 +21,7 @@
  */
 package com.arcblock.corekit.bean;
 
-public class CoreKitBean<T> {
+public class CoreKitBean<T>{
 
 	public static final int SUCCESS_CODE = 0;
 	public static final int FAIL_CODE = 1;
@@ -63,5 +63,4 @@ public class CoreKitBean<T> {
 	public void setErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
 	}
-
 }

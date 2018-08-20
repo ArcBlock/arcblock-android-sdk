@@ -24,7 +24,7 @@ package com.arcblock.sdk.demo.adapter;
 import android.support.annotation.Nullable;
 
 import com.arcblock.sdk.demo.R;
-import com.arcblock.sdk.demo.RichestAccountsQuery;
+import com.arcblock.sdk.demo.btc.RichestAccountsQuery;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 

@@ -22,6 +22,7 @@
 package com.arcblock.corekit;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.ApolloMutationCall;
@@ -41,6 +42,12 @@ import com.apollographql.apollo.cache.normalized.sql.SqlNormalizedCacheFactory;
 import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.apollographql.apollo.fetcher.ResponseFetcher;
 import com.apollographql.apollo.response.CustomTypeAdapter;
+import com.arcblock.corekit.config.CoreKitConfig;
+import com.arcblock.corekit.socket.CoreKitSocket;
+import com.arcblock.corekit.socket.IErrorCallback;
+import com.arcblock.corekit.socket.ISocketCloseCallback;
+import com.arcblock.corekit.socket.ISocketOpenCallback;
+import com.arcblock.corekit.utils.CoreKitLogUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -55,55 +62,58 @@ import okhttp3.OkHttpClient;
 import static com.apollographql.apollo.fetcher.ApolloResponseFetchers.CACHE_FIRST;
 
 public class ABCoreKitClient {
+
+	public static boolean IS_DEBUG = false;
 	private ApolloClient mApolloClient;
 	private static final String SQL_CACHE_NAME = "arcblock_core_kit_db";
-	private static final String BASE_URL = "https://ocap.arcblock.io/api/btc";
-	//private static final String SUBSCRIPTION_BASE_URL = "wss://api.githunt.com/subscriptions";
+	private OkHttpClient mOkHttpClient;
+	private CoreKitSocket mCoreKitSocket;
+	private int apiType;
 
 	private ABCoreKitClient(Builder builder) {
-
+		apiType = builder.apiType;
 		OkHttpClient.Builder okHttpClientBuilder;
 		if (builder.mOkHttpClient == null) {
 			okHttpClientBuilder = new OkHttpClient.Builder();
 		} else {
 			okHttpClientBuilder = builder.mOkHttpClient.newBuilder();
 		}
-
-		OkHttpClient okHttpClient = okHttpClientBuilder.build();
-
+		mOkHttpClient = okHttpClientBuilder.build();
+		if (builder.openSocket) {
+			initCoreKitSocket();
+		}
 		ApolloClient.Builder apolloClientBuilder = ApolloClient.builder()
-				.serverUrl(BASE_URL)
-				.okHttpClient(okHttpClient)
+				.serverUrl(CoreKitConfig.getApiUrl(builder.apiType))
+				.okHttpClient(mOkHttpClient)
 				.normalizedCache(builder.mNormalizedCacheFactory, builder.mResolver);
-
 		for (ScalarType scalarType : builder.customTypeAdapters.keySet()) {
 			apolloClientBuilder.addCustomTypeAdapter(scalarType, builder.customTypeAdapters.get(scalarType));
 		}
-
 		if (builder.mDispatcher != null) {
 			apolloClientBuilder.dispatcher(builder.mDispatcher);
 		}
-
 		if (builder.mDefaultResponseFetcher != null) {
 			apolloClientBuilder.defaultResponseFetcher(builder.mDefaultResponseFetcher);
 		}
-
 		mApolloClient = apolloClientBuilder.build();
-
 	}
 
 	public static class Builder {
 
-		NormalizedCacheFactory mNormalizedCacheFactory;
-		CacheKeyResolver mResolver;
-		final Map<ScalarType, CustomTypeAdapter> customTypeAdapters = new LinkedHashMap<>();
-		Executor mDispatcher;
-		OkHttpClient mOkHttpClient;
-		ResponseFetcher mDefaultResponseFetcher = CACHE_FIRST;
-		Context mContext;
+		private NormalizedCacheFactory mNormalizedCacheFactory;
+		private CacheKeyResolver mResolver;
+		private Map<ScalarType, CustomTypeAdapter> customTypeAdapters = new LinkedHashMap<>();
+		private Executor mDispatcher;
+		private OkHttpClient mOkHttpClient;
+		private ResponseFetcher mDefaultResponseFetcher = CACHE_FIRST;
+		private Context mContext;
+		private String dbName;
+		private int apiType;
+		private boolean openSocket;
 
-		private Builder(Context context) {
+		private Builder(Context context, int apiType) {
 			this.mContext = context;
+			this.apiType = apiType;
 		}
 
 		public Builder setNormalizedCacheFactory(NormalizedCacheFactory normalizedCacheFactory) {
@@ -131,15 +141,25 @@ public class ABCoreKitClient {
 			return this;
 		}
 
+		public Builder setDbName(String dbName) {
+			this.dbName = dbName;
+			return this;
+		}
+
+		public Builder setOpenSocket(boolean openSocket) {
+			this.openSocket = openSocket;
+			return this;
+		}
+
 		public <T> Builder addCustomTypeAdapter(@NotNull ScalarType scalarType,
-															 @NotNull final CustomTypeAdapter<T> customTypeAdapter) {
+												@NotNull final CustomTypeAdapter<T> customTypeAdapter) {
 			customTypeAdapters.put(scalarType, customTypeAdapter);
 			return this;
 		}
 
 		public ABCoreKitClient build() {
 			if (mNormalizedCacheFactory == null) {
-				ApolloSqlHelper appSyncSqlHelper = ApolloSqlHelper.create(mContext, SQL_CACHE_NAME);
+				ApolloSqlHelper appSyncSqlHelper = ApolloSqlHelper.create(mContext, TextUtils.isEmpty(dbName) ? SQL_CACHE_NAME : dbName);
 				mNormalizedCacheFactory = new SqlNormalizedCacheFactory(appSyncSqlHelper);
 			}
 
@@ -170,8 +190,8 @@ public class ABCoreKitClient {
 		}
 	}
 
-	public static Builder builder(Context context) {
-		return new Builder(context);
+	public static Builder builder(Context context, int apiType) {
+		return new Builder(context, apiType);
 	}
 
 	public <D extends Query.Data, T, V extends Query.Variables> ApolloQueryCall<T> query(@Nonnull Query<D, T, V> query) {
@@ -190,7 +210,56 @@ public class ABCoreKitClient {
 		return mApolloClient.subscribe(subscription);
 	}
 
-	public static ABCoreKitClient defaultInstance(Context context){
-		return ABCoreKitClient.builder(context).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();
+	private void initCoreKitSocket() {
+		CoreKitLogUtils.e("initCoreKitSocket=>"+Thread.currentThread().getName());
+		if (mCoreKitSocket == null) {
+			// sub url set by apiType
+			mCoreKitSocket = new CoreKitSocket(CoreKitConfig.SUBSCRIPTION_BASE_URL_ETH, mOkHttpClient);
+		}
+
+		synchronized (this) {
+			if (!mCoreKitSocket.isConnected() && !mCoreKitSocket.isOpening()) {
+				mCoreKitSocket.setOpening(true);
+				mCoreKitSocket.onOpen(new ISocketOpenCallback() {
+					@Override
+					public void onOpen() {
+						CoreKitLogUtils.e("onOpen");
+					}
+				}).onClose(new ISocketCloseCallback() {
+					@Override
+					public void onClose() {
+						CoreKitLogUtils.e("Closed");
+					}
+				}).onError(new IErrorCallback() {
+					@Override
+					public void onError(final String reason) {
+						CoreKitLogUtils.e("onError" + reason);
+					}
+				}).connect();
+			}
+		}
 	}
+
+	public CoreKitSocket getCoreKitSocket() {
+		return mCoreKitSocket;
+	}
+
+	public static ABCoreKitClient mABCoreKitClientEth;
+	public static ABCoreKitClient mABCoreKitClientBtc;
+
+	public static ABCoreKitClient defaultInstance(Context context, int apiType) {
+		if (apiType == CoreKitConfig.API_TYPE_BTC) {
+			if (mABCoreKitClientBtc == null) {
+				mABCoreKitClientBtc = ABCoreKitClient.builder(context, CoreKitConfig.API_TYPE_BTC).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();
+			}
+			return mABCoreKitClientBtc;
+		} else {
+			if (mABCoreKitClientEth == null) {
+				mABCoreKitClientEth = ABCoreKitClient.builder(context, CoreKitConfig.API_TYPE_ETH).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();
+			}
+			return mABCoreKitClientEth;
+		}
+	}
+
+
 }

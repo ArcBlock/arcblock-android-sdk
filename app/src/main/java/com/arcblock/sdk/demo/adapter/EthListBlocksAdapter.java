@@ -21,23 +21,27 @@
  */
 package com.arcblock.sdk.demo.adapter;
 
-import android.content.Context;
+import android.support.annotation.Nullable;
 
 import com.arcblock.sdk.demo.R;
-import com.arcblock.sdk.demo.adapter.base.BaseViewHolder;
-import com.arcblock.sdk.demo.adapter.base.CustomBaseAdapter;
-import com.arcblock.sdk.demo.btc.BlockByHashQuery;
+import com.arcblock.sdk.demo.eth.BlocksByHeightQuery;
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.BaseViewHolder;
 
 import java.util.List;
 
-public class BlockDetailTransactionsAdapter extends CustomBaseAdapter<BlockByHashQuery.Datum> {
+public class EthListBlocksAdapter extends BaseQuickAdapter<BlocksByHeightQuery.Datum, BaseViewHolder> {
+	public EthListBlocksAdapter(int layoutResId, @Nullable List<BlocksByHeightQuery.Datum> data) {
+		super(layoutResId, data);
+	}
 
-	public BlockDetailTransactionsAdapter(Context context, int resource, List<BlockByHashQuery.Datum> list) {
-		super(context, resource, list);
+	public void setNewListData(List<BlocksByHeightQuery.Datum> newList){
+		this.mData = newList;
 	}
 
 	@Override
-	public void setConvert(BaseViewHolder viewHolder, BlockByHashQuery.Datum item) {
-		viewHolder.setTextView(R.id.item_tv, item.getHash());
+	protected void convert(BaseViewHolder helper, BlocksByHeightQuery.Datum item) {
+		helper.setText(R.id.hash_tv, item.getHash());
+		helper.setText(R.id.height_tv, "" + item.getHeight());
 	}
 }

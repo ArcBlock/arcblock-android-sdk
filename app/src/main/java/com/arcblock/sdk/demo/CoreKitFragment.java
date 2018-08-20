@@ -28,10 +28,17 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.arcblock.corekit.bean.CoreKitBean;
+import com.arcblock.corekit.utils.CoreKitSubViewModelUtils;
+import com.arcblock.corekit.viewmodel.CoreKitSubViewModel;
+import com.arcblock.sdk.demo.corekit.EthNewBlockSubscriptionActivity;
 import com.arcblock.sdk.demo.corekit.QueryBlocksByHeightActivity;
+import com.arcblock.sdk.demo.corekit.QueryBlocksByHeightForEthActivity;
 import com.arcblock.sdk.demo.corekit.QueryRichestAccountsActivity;
 import com.arcblock.sdk.demo.corekit.TransactionDetailActivity;
+import com.arcblock.sdk.demo.eth.NewBlockMinedSubscription;
 
 public class CoreKitFragment extends Fragment {
 
@@ -39,6 +46,8 @@ public class CoreKitFragment extends Fragment {
 		CoreKitFragment fragment = new CoreKitFragment();
 		return fragment;
 	}
+
+	private CoreKitSubViewModel<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> mDataCoreKitSubViewModel;
 
 	@Nullable
 	@Override
@@ -55,6 +64,14 @@ public class CoreKitFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(getActivity(), QueryBlocksByHeightActivity.class);
+				startActivity(intent);
+			}
+		});
+
+		view.findViewById(R.id.query_blocks_by_height_eth_btn).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(getActivity(), QueryBlocksByHeightForEthActivity.class);
 				startActivity(intent);
 			}
 		});
@@ -77,6 +94,38 @@ public class CoreKitFragment extends Fragment {
 				startActivity(intent);
 			}
 		});
+		view.findViewById(R.id.eth_new_block_subscription_btn).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(getActivity(), EthNewBlockSubscriptionActivity.class);
+				startActivity(intent);
+			}
+		});
+		view.findViewById(R.id.eth_new_block_subscription_in_main_btn).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				initSub();
+			}
+		});
+	}
+
+	private void initSub() {
+		NewBlockMinedSubscription newBlockMinedSubscription = new NewBlockMinedSubscription();
+
+		CoreKitSubViewModel.CustomClientFactory<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> factory =
+				new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), newBlockMinedSubscription, NewBlockMinedSubscription.Data.class);
+
+		mDataCoreKitSubViewModel = CoreKitSubViewModelUtils.getCoreKitSubViewModel(newBlockMinedSubscription, this, factory);
+		mDataCoreKitSubViewModel
+				.subscription(NewBlockMinedSubscription.QUERY_DOCUMENT)
+				.setCoreKitSubCallBack(new CoreKitSubViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
+					@Override
+					public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
+						if (coreKitBean != null && coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+							Toast.makeText(getActivity(), "New Block Height:" + coreKitBean.getData().getNewBlockMined().getHeight(), Toast.LENGTH_SHORT).show();
+						}
+					}
+				});
 	}
 
 	@Override

@@ -1,0 +1,10 @@
+subscription newBlockMined{
+  newBlockMined{
+    height
+    transactions{
+      data{
+        hash
+      }
+    }
+  }
+}

@@ -39,9 +39,9 @@ import com.arcblock.corekit.utils.CoreKitBeanMapper;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
-import com.arcblock.sdk.demo.TransactionByHashQuery;
 import com.arcblock.sdk.demo.adapter.TsInputsAdapter;
 import com.arcblock.sdk.demo.adapter.TsOutputsAdapter;
+import com.arcblock.sdk.demo.btc.TransactionByHashQuery;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +100,7 @@ public class TransactionDetailActivity extends AppCompatActivity {
 		// init a query
 		TransactionByHashQuery query = TransactionByHashQuery.builder().hash(transactionHash).build();
 		// init the ViewModel with CustomClientFactory
-		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(transactionMapper, DemoApplication.getInstance().abCoreKitClient());
+		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(transactionMapper, DemoApplication.getInstance().abCoreKitClientBtc());
 		mTransactionByHashQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
 		mTransactionByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<TransactionByHashQuery.TransactionByHash>>() {
 			@Override

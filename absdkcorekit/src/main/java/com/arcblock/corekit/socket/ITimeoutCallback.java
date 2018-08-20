@@ -19,25 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.sdk.demo.adapter;
+package com.arcblock.corekit.socket;
 
-import android.content.Context;
-
-import com.arcblock.sdk.demo.R;
-import com.arcblock.sdk.demo.adapter.base.BaseViewHolder;
-import com.arcblock.sdk.demo.adapter.base.CustomBaseAdapter;
-import com.arcblock.sdk.demo.btc.BlockByHashQuery;
-
-import java.util.List;
-
-public class BlockDetailTransactionsAdapter extends CustomBaseAdapter<BlockByHashQuery.Datum> {
-
-	public BlockDetailTransactionsAdapter(Context context, int resource, List<BlockByHashQuery.Datum> list) {
-		super(context, resource, list);
-	}
-
-	@Override
-	public void setConvert(BaseViewHolder viewHolder, BlockByHashQuery.Datum item) {
-		viewHolder.setTextView(R.id.item_tv, item.getHash());
-	}
+public interface ITimeoutCallback {
+    void onTimeout();
 }

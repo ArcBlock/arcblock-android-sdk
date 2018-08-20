@@ -23,8 +23,8 @@ package com.arcblock.sdk.demo.adapter;
 
 import android.support.annotation.Nullable;
 
-import com.arcblock.sdk.demo.BlocksByHeightQuery;
 import com.arcblock.sdk.demo.R;
+import com.arcblock.sdk.demo.btc.BlocksByHeightQuery;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 

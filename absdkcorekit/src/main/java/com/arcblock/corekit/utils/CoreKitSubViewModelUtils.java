@@ -19,25 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.sdk.demo.adapter;
+package com.arcblock.corekit.utils;
 
-import android.content.Context;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 
-import com.arcblock.sdk.demo.R;
-import com.arcblock.sdk.demo.adapter.base.BaseViewHolder;
-import com.arcblock.sdk.demo.adapter.base.CustomBaseAdapter;
-import com.arcblock.sdk.demo.btc.BlockByHashQuery;
+import com.apollographql.apollo.api.Subscription;
+import com.arcblock.corekit.viewmodel.CoreKitSubViewModel;
 
-import java.util.List;
+public class CoreKitSubViewModelUtils {
 
-public class BlockDetailTransactionsAdapter extends CustomBaseAdapter<BlockByHashQuery.Datum> {
-
-	public BlockDetailTransactionsAdapter(Context context, int resource, List<BlockByHashQuery.Datum> list) {
-		super(context, resource, list);
+	public static <T extends Subscription> CoreKitSubViewModel getCoreKitSubViewModel(T graphQlSub, FragmentActivity activity, ViewModelProvider.Factory factory){
+		return ViewModelProviders.of(activity, factory).get(graphQlSub.operationId() + "$" + graphQlSub.variables().valueMap().hashCode(), CoreKitSubViewModel.class);
 	}
 
-	@Override
-	public void setConvert(BaseViewHolder viewHolder, BlockByHashQuery.Datum item) {
-		viewHolder.setTextView(R.id.item_tv, item.getHash());
+	public static <T extends Subscription> CoreKitSubViewModel getCoreKitSubViewModel(T graphQlSub, Fragment fragment, ViewModelProvider.Factory factory){
+		return ViewModelProviders.of(fragment, factory).get(graphQlSub.operationId() + "$" + graphQlSub.variables().valueMap().hashCode(), CoreKitSubViewModel.class);
 	}
 }
