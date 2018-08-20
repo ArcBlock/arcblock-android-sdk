@@ -31,7 +31,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.utils.CoreKitSubViewModelUtils;
 import com.arcblock.corekit.viewmodel.CoreKitSubViewModel;
 import com.arcblock.sdk.demo.corekit.EthNewBlockSubscriptionActivity;
 import com.arcblock.sdk.demo.corekit.QueryBlocksByHeightActivity;
@@ -115,9 +114,9 @@ public class CoreKitFragment extends Fragment {
 		CoreKitSubViewModel.CustomClientFactory<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> factory =
 				new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), newBlockMinedSubscription, NewBlockMinedSubscription.Data.class);
 
-		mDataCoreKitSubViewModel = CoreKitSubViewModelUtils.getCoreKitSubViewModel(newBlockMinedSubscription, this, factory);
+		mDataCoreKitSubViewModel = CoreKitSubViewModel.getInstance(this, factory);
 		mDataCoreKitSubViewModel
-				.subscription(NewBlockMinedSubscription.QUERY_DOCUMENT)
+				.subscription()
 				.setCoreKitSubCallBack(new CoreKitSubViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
 					@Override
 					public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
