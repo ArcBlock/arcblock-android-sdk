@@ -30,7 +30,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.utils.CoreKitSubViewModelUtils;
 import com.arcblock.corekit.viewmodel.CoreKitSubViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
@@ -82,8 +81,8 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
 		CoreKitSubViewModel.CustomClientFactory<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> factory =
 				new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), newBlockMinedSubscription, NewBlockMinedSubscription.Data.class);
 
-		mDataCoreKitSubViewModel = CoreKitSubViewModelUtils.getCoreKitSubViewModel(newBlockMinedSubscription, this, factory);
-		mDataCoreKitSubViewModel.subscription(NewBlockMinedSubscription.QUERY_DOCUMENT)
+		mDataCoreKitSubViewModel = CoreKitSubViewModel.getInstance(this, factory);
+		mDataCoreKitSubViewModel.subscription()
 				.setCoreKitSubCallBack(new CoreKitSubViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
 					@Override
 					public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
@@ -103,11 +102,11 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
 
 		NewContractCreatedSubscription newContractCreatedSubscription = new NewContractCreatedSubscription();
 
-		CoreKitSubViewModel.CustomClientFactory<NewContractCreatedSubscription.Data, NewContractCreatedSubscription> factory2 =
+		CoreKitSubViewModel.CustomClientFactory<NewContractCreatedSubscription.Data, NewContractCreatedSubscription> factory =
 				new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), newContractCreatedSubscription, NewContractCreatedSubscription.Data.class);
 
-		mDataCoreKitSubViewModelForNewContract = CoreKitSubViewModelUtils.getCoreKitSubViewModel(newContractCreatedSubscription, this, factory2);
-		mDataCoreKitSubViewModelForNewContract.subscription(NewContractCreatedSubscription.QUERY_DOCUMENT)
+		mDataCoreKitSubViewModelForNewContract = CoreKitSubViewModel.getInstance(this, factory);
+		mDataCoreKitSubViewModelForNewContract.subscription()
 				.setCoreKitSubCallBack(new CoreKitSubViewModel.CoreKitSubCallBack<NewContractCreatedSubscription.Data>() {
 					@Override
 					public void onNewData(CoreKitBean<NewContractCreatedSubscription.Data> coreKitBean) {

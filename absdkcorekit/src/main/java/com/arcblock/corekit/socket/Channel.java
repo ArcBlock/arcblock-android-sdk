@@ -241,6 +241,7 @@ public class Channel {
 
 	public void offByBind(Binding binding) {
 		synchronized (bindings) {
+			CoreKitLogUtils.e("*****offByBind*****" + binding.toString());
 			if (binding != null && bindings.indexOf(binding) > 0) {
 				bindings.remove(binding);
 			}

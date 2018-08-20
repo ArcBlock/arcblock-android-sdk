@@ -2,23 +2,30 @@ package com.arcblock.corekit.viewmodel;
 
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 
+import com.apollographql.apollo.subscription.OperationClientMessage;
 import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.corekit.socket.Binding;
 import com.arcblock.corekit.socket.Channel;
 import com.arcblock.corekit.socket.ChannelState;
 import com.arcblock.corekit.socket.CoreKitMsgBean;
+import com.arcblock.corekit.socket.IErrorCallback;
 import com.arcblock.corekit.socket.IMessageCallback;
+import com.arcblock.corekit.socket.ISocketCloseCallback;
 import com.arcblock.corekit.socket.ISocketOpenCallback;
 import com.arcblock.corekit.utils.CoreKitLogUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 
+import org.json.JSONObject;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
@@ -30,30 +37,68 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subscription> extends ViewModel {
 
+
+	public static <D extends com.apollographql.apollo.api.Subscription> CoreKitSubViewModel getInstance(FragmentActivity activity, CustomClientFactory factory) {
+		return ViewModelProviders.of(activity, factory).get(factory.getGraphSub().operationId() + "$" + factory.getGraphSub().variables().valueMap().hashCode(), CoreKitSubViewModel.class);
+	}
+
+	public static CoreKitSubViewModel getInstance(FragmentActivity activity, DefaultFactory factory) {
+		return ViewModelProviders.of(activity, factory).get(factory.getGraphSub().operationId() + "$" + factory.getGraphSub().variables().valueMap().hashCode(), CoreKitSubViewModel.class);
+	}
+
+	public static CoreKitSubViewModel getInstance(Fragment fragment, CustomClientFactory factory) {
+		return ViewModelProviders.of(fragment, factory).get(factory.getGraphSub().operationId() + "$" + factory.getGraphSub().variables().valueMap().hashCode(), CoreKitSubViewModel.class);
+	}
+
+	public static CoreKitSubViewModel getInstance(Fragment fragment, DefaultFactory factory) {
+		return ViewModelProviders.of(fragment, factory).get(factory.getGraphSub().operationId() + "$" + factory.getGraphSub().variables().valueMap().hashCode(), CoreKitSubViewModel.class);
+	}
+
 	private final ABCoreKitClient mABCoreKitClient;
 	private Channel channel;
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final Class<T> tClass;
 	private final String graphQlSubId;
 	private CoreKitSubCallBack<T> mCoreKitSubCallBack;
-	private String queryDoc;
 	private boolean isJoin = false;
 	private Binding mBinding;
+	private boolean isSubed = false;
+	private final D mGraphSub;
+	private Boolean needOpen = true;
 
 	public CoreKitSubViewModel(Context context, int apiType, D graphSub, Class<T> tClass) {
 		this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context, apiType);
 		this.tClass = tClass;
-		initChannel();
-		graphQlSubId = graphSub.operationId() + "$" + graphSub.variables().valueMap().hashCode();
-
-		mABCoreKitClient.getCoreKitSocket().onOpen(new ISocketOpenCallback() {
+		this.mGraphSub = graphSub;
+		this.graphQlSubId = graphSub.operationId() + "$" + graphSub.variables().valueMap().hashCode();
+		this.initChannel();
+		this.mABCoreKitClient.getCoreKitSocket().onOpen(new ISocketOpenCallback() {
 			@Override
 			public void onOpen() {
-				if (!TextUtils.isEmpty(queryDoc)) {
+				synchronized (needOpen) {
+					CoreKitLogUtils.e("CoreKitSubViewModel********onOpen");
+					needOpen = false;
 					initChannel();
 					channel.initStatus();
 					isJoin = false;
+					isSubed = false;
 					doFinalSubscription();
+				}
+			}
+		});
+		this.mABCoreKitClient.getCoreKitSocket().onClose(new ISocketCloseCallback() {
+			@Override
+			public void onClose() {
+				synchronized (needOpen) {
+					needOpen = true;
+				}
+			}
+		});
+		this.mABCoreKitClient.getCoreKitSocket().onError(new IErrorCallback() {
+			@Override
+			public void onError(String reason) {
+				synchronized (needOpen) {
+					needOpen = true;
 				}
 			}
 		});
@@ -62,18 +107,35 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 	public CoreKitSubViewModel(ABCoreKitClient aBCoreKitClient, D graphSub, Class<T> tClass) {
 		this.mABCoreKitClient = aBCoreKitClient;
 		this.tClass = tClass;
-		initChannel();
-		graphQlSubId = graphSub.operationId() + "$" + graphSub.variables().valueMap().hashCode();
-
-		mABCoreKitClient.getCoreKitSocket().onOpen(new ISocketOpenCallback() {
+		this.mGraphSub = graphSub;
+		this.graphQlSubId = graphSub.operationId() + "$" + graphSub.variables().valueMap().hashCode();
+		this.initChannel();
+		this.mABCoreKitClient.getCoreKitSocket().onOpen(new ISocketOpenCallback() {
 			@Override
 			public void onOpen() {
-				CoreKitLogUtils.e("CoreKitSubViewModel********onOpen");
-				if (!TextUtils.isEmpty(queryDoc)) {
+				synchronized (needOpen) {
+					CoreKitLogUtils.e("CoreKitSubViewModel********onOpen");
+					needOpen = false;
 					initChannel();
 					channel.initStatus();
 					isJoin = false;
 					doFinalSubscription();
+				}
+			}
+		});
+		this.mABCoreKitClient.getCoreKitSocket().onClose(new ISocketCloseCallback() {
+			@Override
+			public void onClose() {
+				synchronized (needOpen) {
+					needOpen = true;
+				}
+			}
+		});
+		this.mABCoreKitClient.getCoreKitSocket().onError(new IErrorCallback() {
+			@Override
+			public void onError(String reason) {
+				synchronized (needOpen) {
+					needOpen = true;
 				}
 			}
 		});
@@ -92,15 +154,15 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 		mCoreKitSubCallBack = coreKitSubCallBack;
 	}
 
-	public CoreKitSubViewModel<T, D> subscription(String queryDocument) {
-		if (!TextUtils.isEmpty(queryDoc)) {
-			throw new RuntimeException("The query Doc have been set, can not set again");
+	public CoreKitSubViewModel<T, D> subscription() {
+		if (isSubed) {
+			throw new RuntimeException("The query Doc have been sub, can not set again");
 		}
-		queryDoc = queryDocument;
+		isSubed = true;
 		return doFinalSubscription();
 	}
 
-	public CoreKitSubViewModel<T, D> doFinalSubscription() {
+	private CoreKitSubViewModel<T, D> doFinalSubscription() {
 		makeFlow()
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(new Subscriber<CoreKitBean<T>>() {
@@ -136,12 +198,12 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 		return Flowable.create(new FlowableOnSubscribe<CoreKitBean<T>>() {
 			@Override
 			public void subscribe(final FlowableEmitter<CoreKitBean<T>> emitter) {
-				initChannel(emitter, queryDoc);
+				initChannel(emitter);
 			}
 		}, BackpressureStrategy.LATEST);
 	}
 
-	private void initChannel(final FlowableEmitter<CoreKitBean<T>> emitter, final String queryDocument) {
+	private void initChannel(final FlowableEmitter<CoreKitBean<T>> emitter) {
 		try {
 			CoreKitLogUtils.e("channel id=>" + channel.toString() + "  this viewmodel id=>" + CoreKitSubViewModel.this.toString());
 			if (channel.getState() == ChannelState.CLOSED) {
@@ -152,14 +214,14 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 					public void onMessage(final CoreKitMsgBean msgBean) {
 						CoreKitLogUtils.e("join=>onMessage=>" + msgBean);
 						if (!isJoin) {
-							pushDoc(queryDocument, emitter);
+							pushDoc(emitter);
 							isJoin = true;
 						}
 					}
 				});
 			} else {
 				// if already join, just push a new doc with different payload
-				pushDoc(queryDocument, emitter);
+				pushDoc(emitter);
 			}
 		} catch (Exception e) {
 			CoreKitLogUtils.e("initChannel=>" + e.toString());
@@ -169,21 +231,32 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 		}
 	}
 
-	private void pushDoc(final String queryDocument, final FlowableEmitter<CoreKitBean<T>> emitter) {
+	private void pushDoc(final FlowableEmitter<CoreKitBean<T>> emitter) {
 		if (channel.isNeedPushDoc(graphQlSubId)) {
 			CoreKitLogUtils.e("join=>already join");
-			ObjectNode payload = objectMapper.createObjectNode();
-			payload.put("query", queryDocument);
 			try {
+				OperationClientMessage message = new OperationClientMessage.Start("empty", mGraphSub, mABCoreKitClient.getScalarTypeAdapters());
+				JSONObject rootJson = new JSONObject(message.toJsonString());
+				JSONObject payLoadJson = new JSONObject(rootJson.getString("payload"));
+				String queryDocument = payLoadJson.getString("query");
+				String variables = payLoadJson.getString("variables");
+
+				ObjectNode payload = objectMapper.createObjectNode();
+				payload.put("query", queryDocument);
+				if (!TextUtils.equals(variables.trim(), "{}")) {
+					payload.put("variables", variables);
+				}
+
 				channel.push("doc", payload).receive("ok", new IMessageCallback() {
 					@Override
 					public void onMessage(CoreKitMsgBean msgBean) {
 						CoreKitLogUtils.e("doc=>onMessage=>" + msgBean);
 						// update subscriptionId for channel
 						channel.setGraphSubAndSubIdMapItem(graphQlSubId, msgBean.getPayload().get("response").get("subscriptionId").asText());
-						setCoreKitEvent(emitter, queryDocument);
+						setCoreKitEvent(emitter);
 					}
 				});
+
 			} catch (Exception e) {
 				CoreKitLogUtils.e("pushDoc=>" + e.toString());
 				if (!emitter.isCancelled()) {
@@ -192,11 +265,11 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 			}
 		} else {
 			CoreKitLogUtils.e("this graphqlId doc already push");
-			setCoreKitEvent(emitter, queryDocument);
+			setCoreKitEvent(emitter);
 		}
 	}
 
-	private void setCoreKitEvent(final FlowableEmitter<CoreKitBean<T>> emitter, final String queryDocument) {
+	private void setCoreKitEvent(final FlowableEmitter<CoreKitBean<T>> emitter) {
 		CoreKitLogUtils.e("********setCoreKitEvent******");
 		if (mBinding == null) {
 			mBinding = new Binding(Channel.CORE_KIT_EVENT, channel.getGraphSubAndSubIdMapItemValueByKey(graphQlSubId), new IMessageCallback() {
@@ -212,7 +285,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 								if (!emitter.isCancelled()) {
 									emitter.onNext(new CoreKitBean(temp, CoreKitBean.SUCCESS_CODE, ""));
 								} else {
-									subscription(queryDocument);
+									subscription();
 								}
 							}
 						}
@@ -263,6 +336,10 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 			this.graphSub = graphSub;
 		}
 
+		public D getGraphSub() {
+			return graphSub;
+		}
+
 		@NonNull
 		@Override
 		public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
@@ -282,6 +359,10 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 			this.apiType = apiType;
 			this.tClass = tClass;
 			this.graphSub = graphSub;
+		}
+
+		public D getGraphSub() {
+			return graphSub;
 		}
 
 		@NonNull

@@ -42,6 +42,7 @@ import com.apollographql.apollo.cache.normalized.sql.SqlNormalizedCacheFactory;
 import com.apollographql.apollo.fetcher.ApolloResponseFetchers;
 import com.apollographql.apollo.fetcher.ResponseFetcher;
 import com.apollographql.apollo.response.CustomTypeAdapter;
+import com.apollographql.apollo.response.ScalarTypeAdapters;
 import com.arcblock.corekit.config.CoreKitConfig;
 import com.arcblock.corekit.socket.CoreKitSocket;
 import com.arcblock.corekit.socket.IErrorCallback;
@@ -69,6 +70,7 @@ public class ABCoreKitClient {
 	private OkHttpClient mOkHttpClient;
 	private CoreKitSocket mCoreKitSocket;
 	private int apiType;
+	private ScalarTypeAdapters scalarTypeAdapters = null;
 
 	private ABCoreKitClient(Builder builder) {
 		apiType = builder.apiType;
@@ -89,6 +91,9 @@ public class ABCoreKitClient {
 		for (ScalarType scalarType : builder.customTypeAdapters.keySet()) {
 			apolloClientBuilder.addCustomTypeAdapter(scalarType, builder.customTypeAdapters.get(scalarType));
 		}
+
+		scalarTypeAdapters = new ScalarTypeAdapters(builder.customTypeAdapters);
+
 		if (builder.mDispatcher != null) {
 			apolloClientBuilder.dispatcher(builder.mDispatcher);
 		}
@@ -96,6 +101,10 @@ public class ABCoreKitClient {
 			apolloClientBuilder.defaultResponseFetcher(builder.mDefaultResponseFetcher);
 		}
 		mApolloClient = apolloClientBuilder.build();
+	}
+
+	public ScalarTypeAdapters getScalarTypeAdapters() {
+		return scalarTypeAdapters;
 	}
 
 	public static class Builder {
