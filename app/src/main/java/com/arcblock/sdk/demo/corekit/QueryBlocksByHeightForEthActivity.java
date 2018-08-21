@@ -72,7 +72,7 @@ public class QueryBlocksByHeightForEthActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_query_list_blocks_for_eth);
 
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setTitle(R.string.query_list_blocks_data);
+		getSupportActionBar().setTitle(R.string.query_list_block_eth_data);
 
 		content = (SwipeRefreshLayout) findViewById(R.id.content_holder);
 		progressBar = (ProgressBar) findViewById(R.id.loading_bar);
@@ -119,7 +119,7 @@ public class QueryBlocksByHeightForEthActivity extends AppCompatActivity {
 		//	1.1 set initial query
 		//  1.2 set loadmore query
 		//  1.3 set refresh query
-		CoreKitPagedHelper coreKitPagedHelper = new CoreKitPagedHelper() {
+		final CoreKitPagedHelper coreKitPagedHelper = new CoreKitPagedHelper() {
 
 			@Override
 			public Query getInitialQuery() {

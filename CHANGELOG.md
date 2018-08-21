@@ -1,3 +1,6 @@
+## 0.1.8 (August 21, 2018)
+
+
 ## 0.1.7 (August 20, 2018)
   - spell modify
   - change to weakref for memory friendly
