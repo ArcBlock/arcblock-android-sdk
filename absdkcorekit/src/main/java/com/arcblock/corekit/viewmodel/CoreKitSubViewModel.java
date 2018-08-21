@@ -41,7 +41,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subscription> extends ViewModel {
 
 
-	public static <D extends com.apollographql.apollo.api.Subscription> CoreKitSubViewModel getInstance(FragmentActivity activity, CustomClientFactory factory) {
+	public static CoreKitSubViewModel getInstance(FragmentActivity activity, CustomClientFactory factory) {
 		return ViewModelProviders.of(activity, factory).get(factory.getGraphSub().operationId() + "$" + factory.getGraphSub().variables().valueMap().hashCode(), CoreKitSubViewModel.class);
 	}
 
