@@ -30,7 +30,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.utils.CoreKitSubViewModelUtils;
+import com.arcblock.corekit.socket.CoreKitSocketStatusCallBack;
 import com.arcblock.corekit.viewmodel.CoreKitSubViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
@@ -44,6 +44,7 @@ import java.util.List;
 public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
 
 	private TextView block_height_tv;
+	private TextView connect_status_tv;
 	private ListView transactions_lv;
 	private CoreKitSubViewModel<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> mDataCoreKitSubViewModel;
 	private CoreKitSubViewModel<NewContractCreatedSubscription.Data, NewBlockMinedSubscription> mDataCoreKitSubViewModelForNewContract;
@@ -64,13 +65,20 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
 
 	private void initView() {
 		block_height_tv = findViewById(R.id.block_height_tv);
+		connect_status_tv = findViewById(R.id.connect_status_tv);
 		transactions_lv = findViewById(R.id.transactions_lv);
 		mNewEthBlockTxsAdapter = new NewEthBlockTxsAdapter(this, R.layout.item_eth_new_block_sub, mDatumList);
 		transactions_lv.setAdapter(mNewEthBlockTxsAdapter);
 		block_height_tv.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				initData2();
+				//initData2();
+			}
+		});
+		connect_status_tv.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mDataCoreKitSubViewModel.doManualReconnect();
 			}
 		});
 	}
@@ -82,8 +90,8 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
 		CoreKitSubViewModel.CustomClientFactory<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> factory =
 				new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), newBlockMinedSubscription, NewBlockMinedSubscription.Data.class);
 
-		mDataCoreKitSubViewModel = CoreKitSubViewModelUtils.getCoreKitSubViewModel(newBlockMinedSubscription, this, factory);
-		mDataCoreKitSubViewModel.subscription(NewBlockMinedSubscription.QUERY_DOCUMENT)
+		mDataCoreKitSubViewModel = CoreKitSubViewModel.getInstance(this, factory);
+		mDataCoreKitSubViewModel.subscription()
 				.setCoreKitSubCallBack(new CoreKitSubViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
 					@Override
 					public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
@@ -97,17 +105,36 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
 						}
 					}
 				});
+
+		mDataCoreKitSubViewModel.setCoreKitSocketStatusCallBack(new CoreKitSocketStatusCallBack() {
+			@Override
+			public void onOpen() {
+				connect_status_tv.setVisibility(View.GONE);
+			}
+
+			@Override
+			public void onClose() {
+				connect_status_tv.setVisibility(View.VISIBLE);
+				connect_status_tv.setText("connect close");
+			}
+
+			@Override
+			public void onError() {
+				connect_status_tv.setVisibility(View.VISIBLE);
+				connect_status_tv.setText("connect error");
+			}
+		});
 	}
 
 	private void initData2() {
 
 		NewContractCreatedSubscription newContractCreatedSubscription = new NewContractCreatedSubscription();
 
-		CoreKitSubViewModel.CustomClientFactory<NewContractCreatedSubscription.Data, NewContractCreatedSubscription> factory2 =
+		CoreKitSubViewModel.CustomClientFactory<NewContractCreatedSubscription.Data, NewContractCreatedSubscription> factory =
 				new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), newContractCreatedSubscription, NewContractCreatedSubscription.Data.class);
 
-		mDataCoreKitSubViewModelForNewContract = CoreKitSubViewModelUtils.getCoreKitSubViewModel(newContractCreatedSubscription, this, factory2);
-		mDataCoreKitSubViewModelForNewContract.subscription(NewContractCreatedSubscription.QUERY_DOCUMENT)
+		mDataCoreKitSubViewModelForNewContract = CoreKitSubViewModel.getInstance(this, factory);
+		mDataCoreKitSubViewModelForNewContract.subscription()
 				.setCoreKitSubCallBack(new CoreKitSubViewModel.CoreKitSubCallBack<NewContractCreatedSubscription.Data>() {
 					@Override
 					public void onNewData(CoreKitBean<NewContractCreatedSubscription.Data> coreKitBean) {

@@ -265,6 +265,11 @@ public class CoreKitSocket {
 		cancelReconnectTimer();
 	}
 
+	public void manualReconnect(){
+		reTryNum = 0;
+		scheduleReconnectTimer();
+	}
+
 	/**
 	 * Sets up and schedules a timer task to make repeated reconnect attempts at configured
 	 * intervals
@@ -393,7 +398,7 @@ public class CoreKitSocket {
 	 * @return This Socket instance
 	 */
 	public CoreKitSocket onOpen(final ISocketOpenCallback callback) {
-		cancelReconnectTimer();
+		//cancelReconnectTimer();
 		this.socketOpenCallbacks.add(callback);
 		return this;
 	}
