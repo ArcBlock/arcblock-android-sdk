@@ -71,4 +71,5 @@ dependencies {
 	implementation 'com.android.support:cardview-v7:27.1.1'
 	implementation 'com.android.support:design:27.1.1'
 	implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.30'
+	implementation 'com.yuyh.json:jsonviewer:1.0.6'
 }

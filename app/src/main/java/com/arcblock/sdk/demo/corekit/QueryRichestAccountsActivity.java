@@ -22,7 +22,6 @@
 package com.arcblock.sdk.demo.corekit;
 
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -97,8 +96,8 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
 		// init a query
 		RichestAccountsQuery query = RichestAccountsQuery.builder().build();
 		// init the ViewModel with CustomClientFactory
-		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(richestAccountsMapper, DemoApplication.getInstance().abCoreKitClientBtc());
-		mRichestAccountsQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
+		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(query, richestAccountsMapper, DemoApplication.getInstance().abCoreKitClientBtc());
+		mRichestAccountsQueryViewModel = CoreKitViewModel.getInstance(this, factory);
 		mRichestAccountsQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<RichestAccountsQuery.RichestAccounts>>() {
 			@Override
 			public void onChanged(@Nullable CoreKitBean<RichestAccountsQuery.RichestAccounts> coreKitBean) {

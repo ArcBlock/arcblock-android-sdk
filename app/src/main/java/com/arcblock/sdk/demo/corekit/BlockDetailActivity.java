@@ -22,7 +22,6 @@
 package com.arcblock.sdk.demo.corekit;
 
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -96,8 +95,8 @@ public class BlockDetailActivity extends AppCompatActivity {
 		// init a query
 		BlockByHashQuery query = BlockByHashQuery.builder().hash(blockHash).build();
 		// init the ViewModel with CustomClientFactory
-		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(blockMapper, DemoApplication.getInstance().abCoreKitClientBtc());
-		mBlockByHashQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
+		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(query, blockMapper, DemoApplication.getInstance().abCoreKitClientBtc());
+		mBlockByHashQueryViewModel = CoreKitViewModel.getInstance(this, factory);
 		mBlockByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<BlockByHashQuery.BlockByHash>>() {
 			@Override
 			public void onChanged(@Nullable CoreKitBean<BlockByHashQuery.BlockByHash> coreKitBean) {

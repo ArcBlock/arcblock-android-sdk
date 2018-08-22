@@ -37,12 +37,14 @@ public class DemoApplication extends Application {
 		super.onCreate();
 		INSTANCE = this;
 
+		// set abcorekitclient is_debug
+		ABCoreKitClient.IS_DEBUG = true;
+
 		Stetho.initializeWithDefaults(this);
 		Timber.plant(new Timber.DebugTree());
 
 		initBtcClient();
 		initEthClient();
-
 	}
 
 	private void initBtcClient(){
@@ -101,35 +103,12 @@ public class DemoApplication extends Application {
 
 		loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
-		CustomTypeAdapter dateCustomTypeAdapter = new CustomTypeAdapter<Date>() {
-			@Override
-			public Date decode(CustomTypeValue value) {
-				try {
-					SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
-					utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));//时区定义并进行时间获取
-					Date gpsUTCDate = utcFormat.parse(value.value.toString());
-					return gpsUTCDate;
-				} catch (ParseException e) {
-					e.printStackTrace();
-				}
-				return null;
-			}
-
-			@Override
-			public CustomTypeValue encode(Date value) {
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
-				return new CustomTypeValue.GraphQLString(sdf.format(value));
-			}
-		};
 
 		mABCoreClientEth = ABCoreKitClient.builder(this, CoreKitConfig.API_TYPE_ETH)
 				.setOkHttpClient(okHttpClient)
 				.setOpenSocket(true)
 				.setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK)
 				.build();
-
-		// set abcorekitclient is_debug
-		ABCoreKitClient.IS_DEBUG = true;
 	}
 
 	@NotNull
