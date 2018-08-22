@@ -225,10 +225,10 @@ dependencies {
 
 	```java
 	ABCoreKitClient.xxx
-				.xxxx
-				.setOpenSocket(true) // the socket switch
-				.xxxx
-				.build();
+			.xxxx
+			.setOpenSocket(true) // the socket switch
+			.xxxx
+			.build();
 	```
 
 2. Refer to the steps above to build the `CoreKitSubViewModel` object:
@@ -261,7 +261,7 @@ dependencies {
 		
 		```groovy
 		apollo {
-			customTypeMapping['DateTime'] = "java.util.Date"
+		  customTypeMapping['DateTime'] = "java.util.Date"
 		}
 		```
 		

@@ -226,10 +226,10 @@ dependencies {
 
 	```java
 	ABCoreKitClient.xxx
-				.xxxx
-				.setOpenSocket(true) // socket 开关
-				.xxxx
-				.build();
+			.xxxx
+			.setOpenSocket(true) // socket 开关
+			.xxxx
+			.build();
 	```
 
 2. 参考上面的步骤构建 `CoreKitSubViewModel` 对象
