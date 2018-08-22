@@ -42,7 +42,8 @@ apply plugin: 'com.apollographql.android'
 
 //......
 dependencies {
-  def absdkcorekitversion = "0.1.8"
+  // x.x.x => tag version
+  def absdkcorekitversion = "x.x.x"
   implementation("com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"){
 	transitive = true
   }
@@ -230,7 +231,7 @@ dependencies {
 	mDataCoreKitSubViewModel = CoreKitSubViewModel.getInstance(this, factory);
 	```
 
-2. 通过 `CoreKitSubViewModel` 对象获取 `LiveData` 对象，并设置 `Observer` 监听，从监听回调中获取实时的数据，并使用他们完成自己的业务逻辑
+2. 通过 `CoreKitSubViewModel` 对象获取 `LiveData` 对象，并设置 `Observer` 监听，从监听回调中获取实时的数据，并使用他们完成自己的业务逻辑
 
 	```java
 	mDataCoreKitSubViewModel.subscription()
