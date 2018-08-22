@@ -219,7 +219,33 @@ dependencies {
 	});
 	```
 
-#### 5. Other Settings
+#### 5. 实现 Subscription
+
+1. Refer to the steps above to build the `CoreKitSubViewModel` object:
+
+	```java
+	NewBlockMinedSubscription newBlockMinedSubscription = new NewBlockMinedSubscription();
+	CoreKitSubViewModel.CustomClientFactory<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> factory =
+				new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), newBlockMinedSubscription, NewBlockMinedSubscription.Data.class);
+	mDataCoreKitSubViewModel = CoreKitSubViewModel.getInstance(this, factory);
+	```
+
+2. Through ` CoreKitSubViewModel ` object access ` LiveData ` object, and set the ` Observer ` listening, acquiring real-time data from monitoring the callback, and use them to finish their business logic:
+
+	```java
+	mDataCoreKitSubViewModel.subscription()
+				.setCoreKitSubCallBack(new CoreKitSubViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
+					@Override
+					public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
+						if (coreKitBean != null && coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+							// set data to view
+						}
+					}
+				});
+	```
+
+
+#### 6. Other Settings
 
 1. `CustomType` Setting：
 	1. First, add `customTypeMapping` in the `build.gradle` file of `app module`:
