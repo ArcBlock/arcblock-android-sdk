@@ -41,27 +41,11 @@ allprojects {
 apply plugin: 'com.apollographql.android'
 
 //......
-
-android {
-
-	//.....
-	
-	compileOptions {
-		targetCompatibility 1.8
-		sourceCompatibility 1.8
-	}
-}
-
-//......
-
 dependencies {
-	def absdkcorekitversion = "0.1.4"
-	implementation("com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"){
-		transitive = true
-	}
-	def lifecycle_version = "1.1.1"
-	implementation "android.arch.lifecycle:extensions:$lifecycle_version"
-	implementation "android.arch.lifecycle:runtime:$lifecycle_version"
+  def absdkcorekitversion = "0.1.8"
+  implementation("com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"){
+	transitive = true
+  }
 }
 ```
 
@@ -213,6 +197,7 @@ dependencies {
 
 				// set mBlocks with new data
 				mBlocks = coreKitPagedBean.getData();
+				// use DiffUtil
 				DiffUtil.DiffResult result = DiffUtil.calculateDiff(new CoreKitDiffUtil<>(oldList, mBlocks), true);
 				// need this line , otherwise the update will have no effect
 				mListBlocksAdapter.setNewListData(mBlocks);
@@ -239,23 +224,24 @@ dependencies {
 1. 参考上面的步骤构建 `CoreKitSubViewModel` 对象
 
 	```java
-	CoreKitSubViewModel.CustomClientFactory<NewBlockMinedSubscription.Data> factory =
-					new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), NewBlockMinedSubscription.Data.class);
-
-			mDataCoreKitSubViewModel = ViewModelProviders.of(this, factory).get(CoreKitSubViewModel.class);
+	NewBlockMinedSubscription newBlockMinedSubscription = new NewBlockMinedSubscription();
+	CoreKitSubViewModel.CustomClientFactory<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> factory =
+				new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), newBlockMinedSubscription, NewBlockMinedSubscription.Data.class);
+	mDataCoreKitSubViewModel = CoreKitSubViewModel.getInstance(this, factory);
 	```
 
 2. 通过 `CoreKitSubViewModel` 对象获取 `LiveData` 对象，并设置 `Observer` 监听，从监听回调中获取实时的数据，并使用他们完成自己的业务逻辑
 
 	```java
-	mDataCoreKitSubViewModel.subscription(NewBlockMinedSubscription.QUERY_DOCUMENT).observe(this, new Observer<CoreKitBean<NewBlockMinedSubscription.Data>>() {
-				@Override
-				public void onChanged(@Nullable CoreKitBean<NewBlockMinedSubscription.Data> dataCoreKitBean) {
-					if (dataCoreKitBean != null && dataCoreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-						// ...
+	mDataCoreKitSubViewModel.subscription()
+				.setCoreKitSubCallBack(new CoreKitSubViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
+					@Override
+					public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
+						if (coreKitBean != null && coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+							// set data to view
+						}
 					}
-				}
-			});
+				});
 	```
 
 #### 6. 其他配置
@@ -266,7 +252,7 @@ dependencies {
 		
 		```groovy
 		apollo {
-			customTypeMapping['DateTime'] = "java.util.Date"
+		  customTypeMapping['DateTime'] = "java.util.Date"
 		}
 		```
 		
@@ -296,7 +282,7 @@ dependencies {
 		```
 		
 2. `ABCoreKitClient` 初始化：
-	推荐在主进程的 `Application onCreate` 方法中初始化一个全局单例的 `ABCoreKitClient` 对象：
+	在主进程的 `Application onCreate` 方法中初始化一个全局单例的 `ABCoreKitClient` 对象：
 	
 	```java
 	mABCoreClient = ABCoreKitClient.builder(this)

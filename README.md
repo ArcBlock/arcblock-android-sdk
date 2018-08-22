@@ -1,6 +1,6 @@
 # ArcBlock Android SDK
 
-[![license](https://img.shields.io/badge/API-14+-green.svg?longCache=true&style=flat)](https://android-arsenal.com/api?level=14)  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/ArcBlock/arcblock-android-sdk/blob/master/LICENSE)
+[![license](https://img.shields.io/badge/API-15+-green.svg?longCache=true&style=flat)](https://android-arsenal.com/api?level=15)  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/ArcBlock/arcblock-android-sdk/blob/master/LICENSE)
 
 [README of Chinese](https://github.com/ArcBlock/arcblock-android-sdk/blob/master/README-CN.md)
 
@@ -40,27 +40,12 @@ Add the following code into the app module `build.gradle` file:
 apply plugin: 'com.apollographql.android'
 
 //......
-
-android {
-
-	//.....
-	
-	compileOptions {
-		targetCompatibility 1.8
-		sourceCompatibility 1.8
-	}
-}
-
-//......
-
 dependencies {
-	def absdkcorekitversion = "0.1.4"
-	implementation("com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"){
-		transitive = true
-	}
-	def lifecycle_version = "1.1.1"
-	implementation "android.arch.lifecycle:extensions:$lifecycle_version"
-	implementation "android.arch.lifecycle:runtime:$lifecycle_version"
+  // tag version
+  def absdkcorekitversion = "x.x.x" 
+  implementation("com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"){
+	transitive = true
+  }
 }
 ```
 
