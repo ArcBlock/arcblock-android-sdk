@@ -1,3 +1,6 @@
+## 0.1.9 (August 22, 2018)
+  - update readme for subscription
+
 ## 0.1.8 (August 21, 2018)
 
 
