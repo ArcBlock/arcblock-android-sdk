@@ -54,7 +54,7 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:background="@drawable/btn_bg"
-            android:text="query account detail"
+            android:text="query block detail"
             android:textAllCaps="false"
             android:textColor="@color/white"/>
 
