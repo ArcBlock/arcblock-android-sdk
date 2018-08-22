@@ -227,7 +227,7 @@ dependencies {
 	```java
 	ABCoreKitClient.xxx
 			.xxxx
-			.setOpenSocket(true) // socket 开关
+			.setOpenSocket(true) // socket 开关
 			.xxxx
 			.build();
 	```

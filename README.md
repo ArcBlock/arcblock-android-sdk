@@ -226,7 +226,7 @@ dependencies {
 	```java
 	ABCoreKitClient.xxx
 			.xxxx
-			.setOpenSocket(true) // the socket switch
+			.setOpenSocket(true) // the socket switch
 			.xxxx
 			.build();
 	```
