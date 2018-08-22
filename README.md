@@ -221,7 +221,17 @@ dependencies {
 
 #### 5. 实现 Subscription
 
-1. Refer to the steps above to build the `CoreKitSubViewModel` object:
+1. Open the socket switch when init the ABCoreClient :
+
+	```java
+	ABCoreKitClient.xxx
+				.xxxx
+				.setOpenSocket(true) // the socket switch
+				.xxxx
+				.build();
+	```
+
+2. Refer to the steps above to build the `CoreKitSubViewModel` object:
 
 	```java
 	NewBlockMinedSubscription newBlockMinedSubscription = new NewBlockMinedSubscription();
@@ -230,7 +240,7 @@ dependencies {
 	mDataCoreKitSubViewModel = CoreKitSubViewModel.getInstance(this, factory);
 	```
 
-2. Through ` CoreKitSubViewModel ` object access ` LiveData ` object, and set the ` Observer ` listening, acquiring real-time data from monitoring the callback, and use them to finish their business logic:
+3. Through ` CoreKitSubViewModel ` object access ` LiveData ` object, and set the ` Observer ` listening, acquiring real-time data from monitoring the callback, and use them to finish their business logic:
 
 	```java
 	mDataCoreKitSubViewModel.subscription()
@@ -243,7 +253,6 @@ dependencies {
 					}
 				});
 	```
-
 
 #### 6. Other Settings
 

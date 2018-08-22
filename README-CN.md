@@ -222,7 +222,17 @@ dependencies {
 
 #### 5. 实现 Subscription
 
-1. 参考上面的步骤构建 `CoreKitSubViewModel` 对象
+1. 在 ABCoreClient 初始化的时候打开 socket 开关:
+
+	```java
+	ABCoreKitClient.xxx
+				.xxxx
+				.setOpenSocket(true) // socket 开关
+				.xxxx
+				.build();
+	```
+
+2. 参考上面的步骤构建 `CoreKitSubViewModel` 对象
 
 	```java
 	NewBlockMinedSubscription newBlockMinedSubscription = new NewBlockMinedSubscription();
@@ -231,7 +241,7 @@ dependencies {
 	mDataCoreKitSubViewModel = CoreKitSubViewModel.getInstance(this, factory);
 	```
 
-2. 通过 `CoreKitSubViewModel` 对象获取 `LiveData` 对象，并设置 `Observer` 监听，从监听回调中获取实时的数据，并使用他们完成自己的业务逻辑
+3. 通过 `CoreKitSubViewModel` 对象获取 `LiveData` 对象，并设置 `Observer` 监听，从监听回调中获取实时的数据，并使用他们完成自己的业务逻辑
 
 	```java
 	mDataCoreKitSubViewModel.subscription()
