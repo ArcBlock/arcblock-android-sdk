@@ -2,7 +2,7 @@
 
 [![license](https://img.shields.io/badge/API-15+-green.svg?longCache=true&style=flat)](https://android-arsenal.com/api?level=14)  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/ArcBlock/arcblock-android-sdk/blob/master/LICENSE)
 
-> 在接入 ArcBlock Android SDK 前需要开发者具备 [GraphQL](https://graphql.org/) 的基础使用能力 。 我们也提供了一个功能完善的 [ArcBlock OCAP Playground](https://ocap.arcblock.io/) ，开发者可以使用它编写和测试自己想要的 GraphQL 语句 。
+> 在接入 ArcBlock Android SDK 前需要开发者具备 [GraphQL](https://graphql.org/) 的基础使用能力 。 我们提供了一个功能完善的 [ArcBlock OCAP Playground](https://ocap.arcblock.io/) ，开发者可以使用它编写和测试自己想要的 GraphQL 语句 。
 
 ArcBlock Android SDK 目前提供了 `Absdkcorekit Library` ，未来还将提供
 `AbsdkAccountKit Library` , `AbsdkMessagingKit Library` 。使用这些库可以让 Android 开发者快速的开发出区块链应用 。
@@ -86,14 +86,14 @@ dependencies {
 
 	```java
 	// init the ViewModel with DefaultFactory
-	CoreKitViewModel.DefaultFactory factory = new CoreKitViewModel.DefaultFactory(accountMapper,DemoApplication.getInstance());
+	CoreKitViewModel.DefaultFactory factory = new CoreKitViewModel.DefaultFactory(query,accountMapper,DemoApplication.getInstance(),CoreKitConfig.API_TYPE_BTC);
 	```
 	
 	*or*
 	
 	```java
 	// init the ViewModel with CustomClientFactory
-	CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(accountMapper,DemoApplication.getInstance().abCoreKitClient());
+	CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(query,accountMapper,DemoApplication.getInstance().abCoreKitClient());
 	```
 	
 	第二种方式传入的是一个自定义的 `ABCoreKitClient` 对象，而 `DefaultFactory` 只需传入一个 `Application` 对象即可，我们会在 `ABCoreKitClient` 中实例一个默认的 `ABCoreKitClient` 对象供 `CoreKitViewModel` 使用。
@@ -101,7 +101,7 @@ dependencies {
 3. 第三步，构建 `CoreKitViewModel` 获得 `LiveData` 对象并设置 `observe` 监听事件，如：
 
 	```java
-	mBlockByHashQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
+	mBlockByHashQueryViewModel = CoreKitViewModel.getInstance(this, factory);
 	// get livedata and set observe
 	mBlockByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<Response<BlockByHashQuery.Data>>>() {
 		@Override
@@ -185,7 +185,7 @@ dependencies {
 4. 第三步，构建 `CoreKitPagedViewModel` 获得 `LiveData` 对象并设置 `observe` 监听事件，可以在回调监听中实现自己的数据逻辑和视图逻辑，示例代码：
 	
 	```java
-	mBlocksByHeightQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitPagedViewModel.class);
+	mBlocksByHeightQueryViewModel = CoreKitPagedViewModel.getInstance(this, factory);
 	mBlocksByHeightQueryViewModel.getCleanQueryData().observe(this, new Observer<CoreKitPagedBean<List<BlocksByHeightQuery.Datum>>>() {
 	@Override
 	public void onChanged(@Nullable CoreKitPagedBean<List<BlocksByHeightQuery.Datum>> coreKitPagedBean) {

@@ -86,14 +86,14 @@ dependencies {
 
 	```java
 	// init the ViewModel with DefaultFactory
-	CoreKitViewModel.DefaultFactory factory = new CoreKitViewModel.DefaultFactory(accountMapper,DemoApplication.getInstance());
+	CoreKitViewModel.DefaultFactory factory = new CoreKitViewModel.DefaultFactory(query,accountMapper,DemoApplication.getInstance(),CoreKitConfig.API_TYPE_BTC);
 	```
 	
 	*or*
 	
 	```java
 	// init the ViewModel with CustomClientFactory
-	CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(accountMapper,DemoApplication.getInstance().abCoreKitClient());
+	CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(query,accountMapper,DemoApplication.getInstance().abCoreKitClient());
 	```
 
 	Second way incoming is a custom `ABCoreKitClient` object, and `DefaultFactory` simply pass in a `Application` object can, we will be in ` ABCoreKitClient` instance in a default `ABCoreKitClient` object for `CoreKitViewModel` use.
@@ -101,7 +101,7 @@ dependencies {
 3. The third step, build `CoreKitViewModel` get `LiveData` object and set the `observe` event monitoring, such as:
 
 	```java
-	mBlockByHashQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
+	mBlockByHashQueryViewModel = CoreKitViewModel.getInstance(this, factory);
 	// get livedata and set observe
 	mBlockByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<Response<BlockByHashQuery.Data>>>() {
 		@Override
@@ -185,7 +185,7 @@ dependencies {
 4. Third step, build `CoreKitPagedViewModel` get `LiveData` object and set the `observe` listen for an event, you can implement your own data in the callback listener logic and view logic, sample code:
 
 	```java
-	mBlocksByHeightQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitPagedViewModel.class);
+	mBlocksByHeightQueryViewModel = CoreKitPagedViewModel.getInstance(this, factory);
 	mBlocksByHeightQueryViewModel.getCleanQueryData().observe(this, new Observer<CoreKitPagedBean<List<BlocksByHeightQuery.Datum>>>() {
 	@Override
 	public void onChanged(@Nullable CoreKitPagedBean<List<BlocksByHeightQuery.Datum>> coreKitPagedBean) {
@@ -274,7 +274,7 @@ dependencies {
 		public Date decode(CustomTypeValue value) {
 			try {
 				SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
-				utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));//时区定义并进行时间获取
+				utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 				Date gpsUTCDate = utcFormat.parse(value.value.toString());
 				return gpsUTCDate;
 			} catch (ParseException e) {
