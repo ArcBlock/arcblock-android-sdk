@@ -101,7 +101,7 @@ dependencies {
 3. The third step, build `CoreKitViewModel` get `LiveData` object and set the `observe` event monitoring, such as:
 
 	```java
-	mBlockByHashQueryViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
+	mBlockByHashQueryViewModel = CoreKitViewModel.getInstance(this, factory);
 	// get livedata and set observe
 	mBlockByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<Response<BlockByHashQuery.Data>>>() {
 		@Override
