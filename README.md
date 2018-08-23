@@ -1,6 +1,6 @@
 # ArcBlock Android SDK
 
-[![license](https://img.shields.io/badge/API-14+-green.svg?longCache=true&style=flat)](https://android-arsenal.com/api?level=14)  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/ArcBlock/arcblock-android-sdk/blob/master/LICENSE)
+[![license](https://img.shields.io/badge/API-15+-green.svg?longCache=true&style=flat)](https://android-arsenal.com/api?level=15)  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/ArcBlock/arcblock-android-sdk/blob/master/LICENSE)
 
 [README of Chinese](https://github.com/ArcBlock/arcblock-android-sdk/blob/master/README-CN.md)
 
@@ -40,27 +40,12 @@ Add the following code into the app module `build.gradle` file:
 apply plugin: 'com.apollographql.android'
 
 //......
-
-android {
-
-	//.....
-	
-	compileOptions {
-		targetCompatibility 1.8
-		sourceCompatibility 1.8
-	}
-}
-
-//......
-
 dependencies {
-	def absdkcorekitversion = "0.1.4"
-	implementation("com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"){
-		transitive = true
-	}
-	def lifecycle_version = "1.1.1"
-	implementation "android.arch.lifecycle:extensions:$lifecycle_version"
-	implementation "android.arch.lifecycle:runtime:$lifecycle_version"
+  // x.x.x => tag version
+  def absdkcorekitversion = "x.x.x" 
+  implementation("com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"){
+	transitive = true
+  }
 }
 ```
 
@@ -234,14 +219,49 @@ dependencies {
 	});
 	```
 
-#### 5. Other Settings
+#### 5. 实现 Subscription
+
+1. Open the socket switch when init the ABCoreClient :
+
+	```java
+	ABCoreKitClient.xxx
+			.xxxx
+			.setOpenSocket(true) // the socket switch
+			.xxxx
+			.build();
+	```
+
+2. Refer to the steps above to build the `CoreKitSubViewModel` object:
+
+	```java
+	NewBlockMinedSubscription newBlockMinedSubscription = new NewBlockMinedSubscription();
+	CoreKitSubViewModel.CustomClientFactory<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> factory =
+				new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), newBlockMinedSubscription, NewBlockMinedSubscription.Data.class);
+	mDataCoreKitSubViewModel = CoreKitSubViewModel.getInstance(this, factory);
+	```
+
+3. Through ` CoreKitSubViewModel ` object access ` LiveData ` object, and set the ` Observer ` listening, acquiring real-time data from monitoring the callback, and use them to finish their business logic:
+
+	```java
+	mDataCoreKitSubViewModel.subscription()
+				.setCoreKitSubCallBack(new CoreKitSubViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
+					@Override
+					public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
+						if (coreKitBean != null && coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+							// set data to view
+						}
+					}
+				});
+	```
+
+#### 6. Other Settings
 
 1. `CustomType` Setting：
 	1. First, add `customTypeMapping` in the `build.gradle` file of `app module`:
 		
 		```groovy
 		apollo {
-			customTypeMapping['DateTime'] = "java.util.Date"
+		  customTypeMapping['DateTime'] = "java.util.Date"
 		}
 		```
 		
