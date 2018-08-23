@@ -1,3 +1,6 @@
+## 0.1.11 (August 23, 2018)
+  - update readme for new init mode
+
 ## 0.1.10 (August 23, 2018)
   - create pageviewmodel with query operationid
   - create viewmodel with query id
