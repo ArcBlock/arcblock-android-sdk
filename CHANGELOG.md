@@ -1,3 +1,7 @@
+## 0.1.10 (August 23, 2018)
+  - create pageviewmodel with query operationid
+  - create viewmodel with query id
+
 ## 0.1.9 (August 22, 2018)
   - update readme for subscription
 
