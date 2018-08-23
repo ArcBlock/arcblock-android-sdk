@@ -274,8 +274,7 @@ dependencies {
 		public Date decode(CustomTypeValue value) {
 			try {
 				SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
-				utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));//时区定义并进行时间获取
-				Date gpsUTCDate = utcFormat.parse(value.value.toString());
+				utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));				Date gpsUTCDate = utcFormat.parse(value.value.toString());
 				return gpsUTCDate;
 			} catch (ParseException e) {
 				e.printStackTrace();
