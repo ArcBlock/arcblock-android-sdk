@@ -55,6 +55,16 @@
                 android:textColor="@android:color/white"/>
 
             <Button
+                android:id="@+id/multi_query_in_one_page_btn"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_height"
+                android:layout_marginTop="@dimen/top_margin"
+                android:background="@drawable/btn_bg"
+                android:text="@string/multi_query_in_one_page"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <Button
                 android:id="@+id/eth_new_block_subscription_btn"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/btn_height"

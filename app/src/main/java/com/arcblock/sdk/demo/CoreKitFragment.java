@@ -33,6 +33,7 @@ import android.widget.Toast;
 import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.corekit.viewmodel.CoreKitSubViewModel;
 import com.arcblock.sdk.demo.corekit.EthNewBlockSubscriptionActivity;
+import com.arcblock.sdk.demo.corekit.MultiQueryInOnePageActivity;
 import com.arcblock.sdk.demo.corekit.QueryBlocksByHeightActivity;
 import com.arcblock.sdk.demo.corekit.QueryBlocksByHeightForEthActivity;
 import com.arcblock.sdk.demo.corekit.QueryRichestAccountsActivity;
@@ -93,6 +94,15 @@ public class CoreKitFragment extends Fragment {
 				startActivity(intent);
 			}
 		});
+
+		view.findViewById(R.id.multi_query_in_one_page_btn).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(getActivity(), MultiQueryInOnePageActivity.class);
+				startActivity(intent);
+			}
+		});
+
 		view.findViewById(R.id.eth_new_block_subscription_btn).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -100,6 +110,7 @@ public class CoreKitFragment extends Fragment {
 				startActivity(intent);
 			}
 		});
+
 		view.findViewById(R.id.eth_new_block_subscription_in_main_btn).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {

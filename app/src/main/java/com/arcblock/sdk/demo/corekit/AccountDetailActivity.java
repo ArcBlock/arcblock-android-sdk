@@ -22,7 +22,6 @@
 package com.arcblock.sdk.demo.corekit;
 
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -98,8 +97,8 @@ public class AccountDetailActivity extends AppCompatActivity {
 		// init a query
 		AccountByAddressQuery query = AccountByAddressQuery.builder().address(address).build();
 		// init the ViewModel with DefaultFactory
-		CoreKitViewModel.DefaultFactory factory = new CoreKitViewModel.DefaultFactory(accountMapper, DemoApplication.getInstance(), CoreKitConfig.API_TYPE_BTC);
-		mAccountByAddressViewModel = ViewModelProviders.of(this, factory).get(CoreKitViewModel.class);
+		CoreKitViewModel.DefaultFactory factory = new CoreKitViewModel.DefaultFactory(query, accountMapper, DemoApplication.getInstance(), CoreKitConfig.API_TYPE_BTC);
+		mAccountByAddressViewModel = CoreKitViewModel.getInstance(this, factory);
 		mAccountByAddressViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<AccountByAddressQuery.AccountByAddress>>() {
 			@Override
 			public void onChanged(@Nullable CoreKitBean<AccountByAddressQuery.AccountByAddress> coreKitBean) {

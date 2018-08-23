@@ -8,6 +8,7 @@
 	<string name="query_list_block_eth_data">Query Blocks By Height-ETH</string>
 	<string name="query_richest_account_data">Query Richest Account-BTC</string>
 	<string name="query_pizza_transaction">Query Pizza Transaction-BTC</string>
+	<string name="multi_query_in_one_page">Multi Query In One Page</string>
 	<string name="eth_new_block_subscription">New Block Subscription-ETH</string>
 	<string name="eth_new_block_in_main_subscription">New Block Subscription In MainActivity-ETH</string>
 	<string name="test_add_new_data_to_db">Test add a new data to db</string>

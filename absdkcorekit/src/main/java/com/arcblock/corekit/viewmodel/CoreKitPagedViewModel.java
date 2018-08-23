@@ -24,8 +24,11 @@ package com.arcblock.corekit.viewmodel;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 
 import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.api.Response;
@@ -38,6 +41,7 @@ import com.arcblock.corekit.utils.CoreKitPagedHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -45,6 +49,22 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInterface {
+
+	public static CoreKitPagedViewModel getInstance(FragmentActivity activity, CoreKitPagedViewModel.CustomClientFactory factory) {
+		return ViewModelProviders.of(activity, factory).get(factory.getOperationId(), CoreKitPagedViewModel.class);
+	}
+
+	public static CoreKitPagedViewModel getInstance(FragmentActivity activity, CoreKitPagedViewModel.DefaultFactory factory) {
+		return ViewModelProviders.of(activity, factory).get(factory.getOperationId(), CoreKitPagedViewModel.class);
+	}
+
+	public static CoreKitPagedViewModel getInstance(Fragment fragment, CoreKitPagedViewModel.CustomClientFactory factory) {
+		return ViewModelProviders.of(fragment, factory).get(factory.getOperationId(), CoreKitPagedViewModel.class);
+	}
+
+	public static CoreKitPagedViewModel getInstance(Fragment fragment, CoreKitPagedViewModel.DefaultFactory factory) {
+		return ViewModelProviders.of(fragment, factory).get(factory.getOperationId(), CoreKitPagedViewModel.class);
+	}
 
 	private ABCoreKitClient mABCoreKitClient;
 	private MutableLiveData<CoreKitPagedBean<List<K>>> mCoreKitBeanMutableLiveData = new MutableLiveData<>();
@@ -211,11 +231,17 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 		private CoreKitBeanMapper mCoreKitBeanMapper;
 		private CoreKitPagedHelper mCoreKitPagedHelper;
 		private ABCoreKitClient mABCoreKitClient;
+		private String operationId;
 
 		public CustomClientFactory(CoreKitBeanMapper coreKitBeanMapper, CoreKitPagedHelper coreKitPagedHelper, ABCoreKitClient aBCoreKitClient) {
 			this.mABCoreKitClient = aBCoreKitClient;
 			this.mCoreKitPagedHelper = coreKitPagedHelper;
 			this.mCoreKitBeanMapper = coreKitBeanMapper;
+			this.operationId = mCoreKitPagedHelper != null && mCoreKitPagedHelper.getInitialQuery() != null ? mCoreKitPagedHelper.getInitialQuery().operationId() : UUID.randomUUID().toString();
+		}
+
+		public String getOperationId() {
+			return operationId;
 		}
 
 		@NonNull
@@ -231,12 +257,18 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 		private CoreKitPagedHelper mCoreKitPagedHelper;
 		private Context mContext;
 		private int apiType;
+		private String operationId;
 
 		public DefaultFactory(CoreKitBeanMapper coreKitBeanMapper, CoreKitPagedHelper coreKitPagedHelper, Context context, int apiType) {
 			this.mCoreKitBeanMapper = coreKitBeanMapper;
 			this.mCoreKitPagedHelper = coreKitPagedHelper;
 			this.mContext = context;
 			this.apiType = apiType;
+			this.operationId = mCoreKitPagedHelper != null && mCoreKitPagedHelper.getInitialQuery() != null ? mCoreKitPagedHelper.getInitialQuery().operationId() : UUID.randomUUID().toString();
+		}
+
+		public String getOperationId() {
+			return operationId;
 		}
 
 		@NonNull
