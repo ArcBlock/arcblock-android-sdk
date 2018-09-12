@@ -36,8 +36,9 @@ import com.apollographql.apollo.rx2.Rx2Apollo;
 import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.corekit.bean.CoreKitPagedBean;
-import com.arcblock.corekit.utils.CoreKitBeanMapper;
-import com.arcblock.corekit.utils.CoreKitPagedHelper;
+import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
+import com.arcblock.corekit.viewmodel.i.CoreKitInterface;
+import com.arcblock.corekit.viewmodel.i.CoreKitPagedHelperInterface;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,35 +68,23 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 	}
 
 	private ABCoreKitClient mABCoreKitClient;
-	private MutableLiveData<CoreKitPagedBean<List<K>>> mCoreKitBeanMutableLiveData = new MutableLiveData<>();
 	private MutableLiveData<CoreKitPagedBean<List<K>>> mCleanDatasMutableLiveData = new MutableLiveData<>();
-	private CoreKitBeanMapper<Response<T>, List<K>> mCoreKitBeanMapper;
+	private CoreKitBeanMapperInterface<Response<T>, List<K>> mCoreKitBeanMapper;
 	private boolean isLoading;
 	private List<K> resultDatas = new ArrayList<>();
-	private CoreKitPagedHelper mCoreKitPagedHelper;
+	private CoreKitPagedHelperInterface mCoreKitPagedHelper;
 
-	public CoreKitPagedViewModel(CoreKitBeanMapper<Response<T>, List<K>> mapper, CoreKitPagedHelper coreKitPagedHelper, Context context, int apiType) {
+	public CoreKitPagedViewModel(CoreKitBeanMapperInterface<Response<T>, List<K>> mapper, CoreKitPagedHelperInterface coreKitPagedHelper, Context context, int apiType) {
 		this.mCoreKitBeanMapper = mapper;
 		this.mCoreKitPagedHelper = coreKitPagedHelper;
 		this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context, apiType);
 
 	}
 
-	public CoreKitPagedViewModel(CoreKitBeanMapper<Response<T>, List<K>> mapper, CoreKitPagedHelper coreKitPagedHelper, ABCoreKitClient aBCoreKitClient) {
+	public CoreKitPagedViewModel(CoreKitBeanMapperInterface<Response<T>, List<K>> mapper, CoreKitPagedHelperInterface coreKitPagedHelper, ABCoreKitClient aBCoreKitClient) {
 		this.mCoreKitBeanMapper = mapper;
 		this.mCoreKitPagedHelper = coreKitPagedHelper;
 		this.mABCoreKitClient = aBCoreKitClient;
-	}
-
-	/**
-	 * @return a livedata object with CoreKitPagedBean
-	 */
-	public MutableLiveData<CoreKitPagedBean<List<K>>> getQueryData() {
-		if (mCoreKitPagedHelper == null) {
-			throw new RuntimeException("CoreKitPagedHelper must be init.");
-		}
-		doFinalQuery(mCoreKitPagedHelper.getInitialQuery());
-		return mCoreKitBeanMutableLiveData;
 	}
 
 	/**
@@ -103,7 +92,7 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 	 */
 	public MutableLiveData<CoreKitPagedBean<List<K>>> getCleanQueryData() {
 		if (mCoreKitPagedHelper == null) {
-			throw new RuntimeException("CoreKitPagedHelper must be init.");
+			throw new RuntimeException("CoreKitPagedHelperInterface must be init.");
 		}
 		doFinalQuery(mCoreKitPagedHelper.getInitialQuery());
 		return mCleanDatasMutableLiveData;
@@ -115,7 +104,7 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 	@Override
 	public void doFinalQuery(Query query) {
 		if (mCoreKitPagedHelper == null && query == null) {
-			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The query is empty."));
+			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The query is empty."));
 		}
 		Rx2Apollo.from(mABCoreKitClient.query(query).watcher())
 				.subscribeOn(Schedulers.io())
@@ -135,7 +124,6 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 					@Override
 					public void onError(Throwable e) {
 						isLoading = false;
-						mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, e.toString()));
 						mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, e.toString()));
 					}
 
@@ -155,11 +143,9 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 		if (t != null) {
 			List<K> temp = mCoreKitBeanMapper.map(t);
 			if (temp == null) {
-				mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty."));
 				mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty."));
 				return;
 			}
-			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(temp, CoreKitBean.SUCCESS_CODE, ""));
 			// handle list for repeated data
 			for (int i = 0; i < temp.size(); i++) {
 				if (isNotInBlocks(temp.get(i))) {
@@ -168,7 +154,6 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 			}
 			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(resultDatas, CoreKitBean.SUCCESS_CODE, ""));
 		} else {
-			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty."));
 			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty."));
 		}
 	}
@@ -178,12 +163,11 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 	 */
 	public void loadMore() {
 		if (isLoading) {
-			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do loadMore when loading."));
 			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do loadMore when loading."));
 			return;
 		}
 		if (mCoreKitPagedHelper == null) {
-			throw new RuntimeException("CoreKitPagedHelper must be init.");
+			throw new RuntimeException("CoreKitPagedHelperInterface must be init.");
 		}
 		isLoading = true;
 		doFinalQuery(mCoreKitPagedHelper.getLoadMoreQuery());
@@ -196,12 +180,11 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 	 */
 	public void refresh() {
 		if (isLoading) {
-			mCoreKitBeanMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do refresh when loading."));
 			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do refresh when loading."));
 			return;
 		}
 		if (mCoreKitPagedHelper == null) {
-			throw new RuntimeException("CoreKitPagedHelper must be init.");
+			throw new RuntimeException("CoreKitPagedHelperInterface must be init.");
 		}
 		resultDatas.clear();
 		isLoading = true;
@@ -228,12 +211,12 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 	 */
 	public static class CustomClientFactory extends ViewModelProvider.NewInstanceFactory {
 
-		private CoreKitBeanMapper mCoreKitBeanMapper;
-		private CoreKitPagedHelper mCoreKitPagedHelper;
+		private CoreKitBeanMapperInterface mCoreKitBeanMapper;
+		private CoreKitPagedHelperInterface mCoreKitPagedHelper;
 		private ABCoreKitClient mABCoreKitClient;
 		private String operationId;
 
-		public CustomClientFactory(CoreKitBeanMapper coreKitBeanMapper, CoreKitPagedHelper coreKitPagedHelper, ABCoreKitClient aBCoreKitClient) {
+		public CustomClientFactory(CoreKitBeanMapperInterface coreKitBeanMapper, CoreKitPagedHelperInterface coreKitPagedHelper, ABCoreKitClient aBCoreKitClient) {
 			this.mABCoreKitClient = aBCoreKitClient;
 			this.mCoreKitPagedHelper = coreKitPagedHelper;
 			this.mCoreKitBeanMapper = coreKitBeanMapper;
@@ -253,13 +236,13 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
 
 	public static class DefaultFactory extends ViewModelProvider.NewInstanceFactory {
 
-		private CoreKitBeanMapper mCoreKitBeanMapper;
-		private CoreKitPagedHelper mCoreKitPagedHelper;
+		private CoreKitBeanMapperInterface mCoreKitBeanMapper;
+		private CoreKitPagedHelperInterface mCoreKitPagedHelper;
 		private Context mContext;
 		private int apiType;
 		private String operationId;
 
-		public DefaultFactory(CoreKitBeanMapper coreKitBeanMapper, CoreKitPagedHelper coreKitPagedHelper, Context context, int apiType) {
+		public DefaultFactory(CoreKitBeanMapperInterface coreKitBeanMapper, CoreKitPagedHelperInterface coreKitPagedHelper, Context context, int apiType) {
 			this.mCoreKitBeanMapper = coreKitBeanMapper;
 			this.mCoreKitPagedHelper = coreKitPagedHelper;
 			this.mContext = context;

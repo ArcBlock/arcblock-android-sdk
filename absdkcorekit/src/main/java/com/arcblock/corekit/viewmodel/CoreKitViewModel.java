@@ -34,7 +34,8 @@ import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.rx2.Rx2Apollo;
 import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.utils.CoreKitBeanMapper;
+import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
+import com.arcblock.corekit.viewmodel.i.CoreKitInterface;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -63,14 +64,14 @@ public class CoreKitViewModel<T, D> extends ViewModel implements CoreKitInterfac
 
 	private ABCoreKitClient mABCoreKitClient;
 	private MutableLiveData<CoreKitBean<D>> mCoreKitBeanMutableLiveData = new MutableLiveData<>();
-	private CoreKitBeanMapper<T, D> mCoreKitBeanMapper;
+	private CoreKitBeanMapperInterface<T, D> mCoreKitBeanMapper;
 
-	public CoreKitViewModel(CoreKitBeanMapper<T, D> mapper, Context context, int apiType) {
+	public CoreKitViewModel(CoreKitBeanMapperInterface<T, D> mapper, Context context, int apiType) {
 		this.mCoreKitBeanMapper = mapper;
 		this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context, apiType);
 	}
 
-	public CoreKitViewModel(CoreKitBeanMapper<T, D> mapper, ABCoreKitClient aBCoreKitClient) {
+	public CoreKitViewModel(CoreKitBeanMapperInterface<T, D> mapper, ABCoreKitClient aBCoreKitClient) {
 		this.mCoreKitBeanMapper = mapper;
 		this.mABCoreKitClient = aBCoreKitClient;
 	}
@@ -129,12 +130,12 @@ public class CoreKitViewModel<T, D> extends ViewModel implements CoreKitInterfac
 
 	public static class CustomClientFactory extends ViewModelProvider.NewInstanceFactory {
 
-		private CoreKitBeanMapper mCoreKitBeanMapper;
+		private CoreKitBeanMapperInterface mCoreKitBeanMapper;
 		private ABCoreKitClient mABCoreKitClient;
 		private Query mQuery;
 
 
-		public CustomClientFactory(Query query, CoreKitBeanMapper coreKitBeanMapper, ABCoreKitClient aBCoreKitClient) {
+		public CustomClientFactory(Query query, CoreKitBeanMapperInterface coreKitBeanMapper, ABCoreKitClient aBCoreKitClient) {
 			this.mABCoreKitClient = aBCoreKitClient;
 			this.mCoreKitBeanMapper = coreKitBeanMapper;
 			this.mQuery = query;
@@ -153,12 +154,12 @@ public class CoreKitViewModel<T, D> extends ViewModel implements CoreKitInterfac
 
 	public static class DefaultFactory extends ViewModelProvider.NewInstanceFactory {
 
-		private CoreKitBeanMapper mCoreKitBeanMapper;
+		private CoreKitBeanMapperInterface mCoreKitBeanMapper;
 		private Context mContext;
 		private int apiType;
 		private Query mQuery;
 
-		public DefaultFactory(Query query, CoreKitBeanMapper coreKitBeanMapper, Context context, int apiType) {
+		public DefaultFactory(Query query, CoreKitBeanMapperInterface coreKitBeanMapper, Context context, int apiType) {
 			this.mCoreKitBeanMapper = coreKitBeanMapper;
 			this.mContext = context;
 			this.apiType = apiType;

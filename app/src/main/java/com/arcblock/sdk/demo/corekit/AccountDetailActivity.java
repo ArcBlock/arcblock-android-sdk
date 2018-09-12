@@ -35,7 +35,7 @@ import android.widget.TextView;
 import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.corekit.config.CoreKitConfig;
-import com.arcblock.corekit.utils.CoreKitBeanMapper;
+import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
@@ -84,7 +84,7 @@ public class AccountDetailActivity extends AppCompatActivity {
 
 
 		// init data mapper
-		CoreKitBeanMapper<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress> accountMapper = new CoreKitBeanMapper<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress>() {
+		CoreKitBeanMapperInterface<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress> accountMapper = new CoreKitBeanMapperInterface<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress>() {
 
 			@Override
 			public AccountByAddressQuery.AccountByAddress map(Response<AccountByAddressQuery.Data> dataResponse) {

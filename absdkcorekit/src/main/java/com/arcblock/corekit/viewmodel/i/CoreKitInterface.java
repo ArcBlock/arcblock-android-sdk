@@ -19,8 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.corekit.utils;
+package com.arcblock.corekit.viewmodel.i;
 
-public interface CoreKitBeanMapper<T,D> {
-	D map(T t);
+import com.apollographql.apollo.api.Query;
+
+public interface CoreKitInterface {
+	/**
+	 * do apollo query
+	 * @param query
+	 */
+	void doFinalQuery(Query query);
 }

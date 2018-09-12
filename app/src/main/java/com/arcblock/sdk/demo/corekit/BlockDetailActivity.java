@@ -35,7 +35,7 @@ import android.widget.TextView;
 
 import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.utils.CoreKitBeanMapper;
+import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
@@ -82,7 +82,7 @@ public class BlockDetailActivity extends AppCompatActivity {
 		initView();
 
 		// init data mapper
-		CoreKitBeanMapper<Response<BlockByHashQuery.Data>, BlockByHashQuery.BlockByHash> blockMapper = new CoreKitBeanMapper<Response<BlockByHashQuery.Data>, BlockByHashQuery.BlockByHash>() {
+		CoreKitBeanMapperInterface<Response<BlockByHashQuery.Data>, BlockByHashQuery.BlockByHash> blockMapper = new CoreKitBeanMapperInterface<Response<BlockByHashQuery.Data>, BlockByHashQuery.BlockByHash>() {
 
 			@Override
 			public BlockByHashQuery.BlockByHash map(Response<BlockByHashQuery.Data> dataResponse) {

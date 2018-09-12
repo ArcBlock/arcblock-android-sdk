@@ -34,7 +34,7 @@ import android.widget.TextView;
 
 import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.utils.CoreKitBeanMapper;
+import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
@@ -86,7 +86,7 @@ public class TransactionDetailActivity extends AppCompatActivity {
 		initView();
 
 		// init data mapper
-		CoreKitBeanMapper<Response<TransactionByHashQuery.Data>, TransactionByHashQuery.TransactionByHash> transactionMapper = new CoreKitBeanMapper<Response<TransactionByHashQuery.Data>, TransactionByHashQuery.TransactionByHash>() {
+		CoreKitBeanMapperInterface<Response<TransactionByHashQuery.Data>, TransactionByHashQuery.TransactionByHash> transactionMapper = new CoreKitBeanMapperInterface<Response<TransactionByHashQuery.Data>, TransactionByHashQuery.TransactionByHash>() {
 
 			@Override
 			public TransactionByHashQuery.TransactionByHash map(Response<TransactionByHashQuery.Data> dataResponse) {

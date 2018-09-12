@@ -10,7 +10,7 @@ import android.view.View;
 import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.corekit.config.CoreKitConfig;
-import com.arcblock.corekit.utils.CoreKitBeanMapper;
+import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
@@ -24,8 +24,8 @@ public class MultiQueryInOnePageActivity extends AppCompatActivity {
 	private JsonRecyclerView json_view_account;
 	private JsonRecyclerView json_view_block;
 
-	private CoreKitBeanMapper<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress> accountMapper;
-	private CoreKitBeanMapper<Response<BlockByHashQuery.Data>, BlockByHashQuery.BlockByHash> blockMapper;
+	private CoreKitBeanMapperInterface<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress> accountMapper;
+	private CoreKitBeanMapperInterface<Response<BlockByHashQuery.Data>, BlockByHashQuery.BlockByHash> blockMapper;
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,7 +59,7 @@ public class MultiQueryInOnePageActivity extends AppCompatActivity {
 
 	private void initData() {
 		// init data mapper
-		accountMapper = new CoreKitBeanMapper<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress>() {
+		accountMapper = new CoreKitBeanMapperInterface<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress>() {
 
 			@Override
 			public AccountByAddressQuery.AccountByAddress map(Response<AccountByAddressQuery.Data> dataResponse) {
@@ -69,7 +69,7 @@ public class MultiQueryInOnePageActivity extends AppCompatActivity {
 				return null;
 			}
 		};
-		blockMapper = new CoreKitBeanMapper<Response<BlockByHashQuery.Data>, BlockByHashQuery.BlockByHash>() {
+		blockMapper = new CoreKitBeanMapperInterface<Response<BlockByHashQuery.Data>, BlockByHashQuery.BlockByHash>() {
 
 			@Override
 			public BlockByHashQuery.BlockByHash map(Response<BlockByHashQuery.Data> dataResponse) {

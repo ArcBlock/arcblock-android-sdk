@@ -35,7 +35,7 @@ import android.widget.ProgressBar;
 
 import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.utils.CoreKitBeanMapper;
+import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
 import com.arcblock.corekit.viewmodel.CoreKitViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
@@ -83,7 +83,7 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
 		});
 
 		// init data mapper
-		CoreKitBeanMapper<Response<RichestAccountsQuery.Data>, RichestAccountsQuery.RichestAccounts> richestAccountsMapper = new CoreKitBeanMapper<Response<RichestAccountsQuery.Data>, RichestAccountsQuery.RichestAccounts>() {
+		CoreKitBeanMapperInterface<Response<RichestAccountsQuery.Data>, RichestAccountsQuery.RichestAccounts> richestAccountsMapper = new CoreKitBeanMapperInterface<Response<RichestAccountsQuery.Data>, RichestAccountsQuery.RichestAccounts>() {
 
 			@Override
 			public RichestAccountsQuery.RichestAccounts map(Response<RichestAccountsQuery.Data> dataResponse) {
