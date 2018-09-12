@@ -49,22 +49,22 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInterface {
+public class CoreKitPagedQueryViewModel<T, K> extends ViewModel implements CoreKitInterface {
 
-    public static CoreKitPagedViewModel getInstance(FragmentActivity activity, CoreKitPagedViewModel.CustomClientFactory factory) {
-        return ViewModelProviders.of(activity, factory).get(factory.getOperationId(), CoreKitPagedViewModel.class);
+    public static CoreKitPagedQueryViewModel getInstance(FragmentActivity activity, CoreKitPagedQueryViewModel.CustomClientFactory factory) {
+        return ViewModelProviders.of(activity, factory).get(factory.getOperationId(), CoreKitPagedQueryViewModel.class);
     }
 
-    public static CoreKitPagedViewModel getInstance(FragmentActivity activity, CoreKitPagedViewModel.DefaultFactory factory) {
-        return ViewModelProviders.of(activity, factory).get(factory.getOperationId(), CoreKitPagedViewModel.class);
+    public static CoreKitPagedQueryViewModel getInstance(FragmentActivity activity, CoreKitPagedQueryViewModel.DefaultFactory factory) {
+        return ViewModelProviders.of(activity, factory).get(factory.getOperationId(), CoreKitPagedQueryViewModel.class);
     }
 
-    public static CoreKitPagedViewModel getInstance(Fragment fragment, CoreKitPagedViewModel.CustomClientFactory factory) {
-        return ViewModelProviders.of(fragment, factory).get(factory.getOperationId(), CoreKitPagedViewModel.class);
+    public static CoreKitPagedQueryViewModel getInstance(Fragment fragment, CoreKitPagedQueryViewModel.CustomClientFactory factory) {
+        return ViewModelProviders.of(fragment, factory).get(factory.getOperationId(), CoreKitPagedQueryViewModel.class);
     }
 
-    public static CoreKitPagedViewModel getInstance(Fragment fragment, CoreKitPagedViewModel.DefaultFactory factory) {
-        return ViewModelProviders.of(fragment, factory).get(factory.getOperationId(), CoreKitPagedViewModel.class);
+    public static CoreKitPagedQueryViewModel getInstance(Fragment fragment, CoreKitPagedQueryViewModel.DefaultFactory factory) {
+        return ViewModelProviders.of(fragment, factory).get(factory.getOperationId(), CoreKitPagedQueryViewModel.class);
     }
 
     private ABCoreKitClient mABCoreKitClient;
@@ -74,14 +74,14 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
     private List<K> resultDatas = new ArrayList<>();
     private CoreKitPagedHelperInterface mCoreKitPagedHelper;
 
-    public CoreKitPagedViewModel(CoreKitBeanMapperInterface<Response<T>, List<K>> mapper, CoreKitPagedHelperInterface coreKitPagedHelper, Context context, int apiType) {
+    public CoreKitPagedQueryViewModel(CoreKitBeanMapperInterface<Response<T>, List<K>> mapper, CoreKitPagedHelperInterface coreKitPagedHelper, Context context, int apiType) {
         this.mCoreKitBeanMapper = mapper;
         this.mCoreKitPagedHelper = coreKitPagedHelper;
         this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context, apiType);
 
     }
 
-    public CoreKitPagedViewModel(CoreKitBeanMapperInterface<Response<T>, List<K>> mapper, CoreKitPagedHelperInterface coreKitPagedHelper, ABCoreKitClient aBCoreKitClient) {
+    public CoreKitPagedQueryViewModel(CoreKitBeanMapperInterface<Response<T>, List<K>> mapper, CoreKitPagedHelperInterface coreKitPagedHelper, ABCoreKitClient aBCoreKitClient) {
         this.mCoreKitBeanMapper = mapper;
         this.mCoreKitPagedHelper = coreKitPagedHelper;
         this.mABCoreKitClient = aBCoreKitClient;
@@ -230,7 +230,7 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
         @NonNull
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            return (T) new CoreKitPagedViewModel(mCoreKitBeanMapper, mCoreKitPagedHelper, mABCoreKitClient);
+            return (T) new CoreKitPagedQueryViewModel(mCoreKitBeanMapper, mCoreKitPagedHelper, mABCoreKitClient);
         }
     }
 
@@ -257,7 +257,7 @@ public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInt
         @NonNull
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            return (T) new CoreKitPagedViewModel(mCoreKitBeanMapper, mCoreKitPagedHelper, mContext, apiType);
+            return (T) new CoreKitPagedQueryViewModel(mCoreKitBeanMapper, mCoreKitPagedHelper, mContext, apiType);
         }
     }
 

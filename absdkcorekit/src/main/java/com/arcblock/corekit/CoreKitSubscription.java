@@ -27,16 +27,16 @@ import android.support.v4.app.FragmentActivity;
 
 import com.apollographql.apollo.api.Subscription;
 import com.arcblock.corekit.socket.CoreKitSocketStatusCallBack;
-import com.arcblock.corekit.viewmodel.CoreKitSubViewModel;
+import com.arcblock.corekit.viewmodel.CoreKitSubscriptionViewModel;
 import com.arcblock.corekit.viewmodel.i.CoreKitSubHelperInterface;
 
 /**
- * The CoreKitSubscription is used to make developer use CoreKitSubViewModel more easily.
+ * The CoreKitSubscription is used to make developer use CoreKitSubscriptionViewModel more easily.
  * Created by Nate on 2018/9/12
  **/
 public abstract class CoreKitSubscription<T extends Subscription.Data, D extends Subscription> implements CoreKitSubHelperInterface<T, D> {
 
-    private CoreKitSubViewModel<T, D> mCoreKitSubViewModel;
+    private CoreKitSubscriptionViewModel<T, D> mCoreKitSubscriptionViewModel;
 
     /**
      * The construct for activity and custom client
@@ -44,10 +44,10 @@ public abstract class CoreKitSubscription<T extends Subscription.Data, D extends
      * @param client
      */
     public CoreKitSubscription(FragmentActivity activity, ABCoreKitClient client) {
-        CoreKitSubViewModel.CustomClientFactory factory =
-                new CoreKitSubViewModel.CustomClientFactory(client, getSubscription(), getSubscriptionClass());
-        this.mCoreKitSubViewModel = CoreKitSubViewModel.getInstance(activity, factory);
-        this.mCoreKitSubViewModel.subscription();
+        CoreKitSubscriptionViewModel.CustomClientFactory factory =
+                new CoreKitSubscriptionViewModel.CustomClientFactory(client, getSubscription(), getSubscriptionClass());
+        this.mCoreKitSubscriptionViewModel = CoreKitSubscriptionViewModel.getInstance(activity, factory);
+        this.mCoreKitSubscriptionViewModel.subscription();
     }
 
     /**
@@ -57,10 +57,10 @@ public abstract class CoreKitSubscription<T extends Subscription.Data, D extends
      * @param apiType
      */
     public CoreKitSubscription(FragmentActivity activity, Context context, int apiType) {
-        CoreKitSubViewModel.DefaultFactory factory =
-                new CoreKitSubViewModel.DefaultFactory(context, apiType, getSubscription(), getSubscriptionClass());
-        this.mCoreKitSubViewModel = CoreKitSubViewModel.getInstance(activity, factory);
-        this.mCoreKitSubViewModel.subscription();
+        CoreKitSubscriptionViewModel.DefaultFactory factory =
+                new CoreKitSubscriptionViewModel.DefaultFactory(context, apiType, getSubscription(), getSubscriptionClass());
+        this.mCoreKitSubscriptionViewModel = CoreKitSubscriptionViewModel.getInstance(activity, factory);
+        this.mCoreKitSubscriptionViewModel.subscription();
     }
 
     /**
@@ -69,10 +69,10 @@ public abstract class CoreKitSubscription<T extends Subscription.Data, D extends
      * @param client
      */
     public CoreKitSubscription(Fragment fragment, ABCoreKitClient client) {
-        CoreKitSubViewModel.CustomClientFactory factory =
-                new CoreKitSubViewModel.CustomClientFactory(client, getSubscription(), getSubscriptionClass());
-        this.mCoreKitSubViewModel = CoreKitSubViewModel.getInstance(fragment, factory);
-        this.mCoreKitSubViewModel.subscription();
+        CoreKitSubscriptionViewModel.CustomClientFactory factory =
+                new CoreKitSubscriptionViewModel.CustomClientFactory(client, getSubscription(), getSubscriptionClass());
+        this.mCoreKitSubscriptionViewModel = CoreKitSubscriptionViewModel.getInstance(fragment, factory);
+        this.mCoreKitSubscriptionViewModel.subscription();
     }
 
     /**
@@ -82,23 +82,23 @@ public abstract class CoreKitSubscription<T extends Subscription.Data, D extends
      * @param apiType
      */
     public CoreKitSubscription(Fragment fragment, Context context, int apiType) {
-        CoreKitSubViewModel.DefaultFactory factory =
-                new CoreKitSubViewModel.DefaultFactory(context, apiType, getSubscription(), getSubscriptionClass());
-        this.mCoreKitSubViewModel = CoreKitSubViewModel.getInstance(fragment, factory);
-        this.mCoreKitSubViewModel.subscription();
+        CoreKitSubscriptionViewModel.DefaultFactory factory =
+                new CoreKitSubscriptionViewModel.DefaultFactory(context, apiType, getSubscription(), getSubscriptionClass());
+        this.mCoreKitSubscriptionViewModel = CoreKitSubscriptionViewModel.getInstance(fragment, factory);
+        this.mCoreKitSubscriptionViewModel.subscription();
     }
 
-    public void setCoreKitSubCallBack(CoreKitSubViewModel.CoreKitSubCallBack callBack) {
-        this.mCoreKitSubViewModel.setCoreKitSubCallBack(callBack);
+    public void setCoreKitSubCallBack(CoreKitSubscriptionViewModel.CoreKitSubCallBack callBack) {
+        this.mCoreKitSubscriptionViewModel.setCoreKitSubCallBack(callBack);
     }
 
 
     public void setCoreKitSocketStatusCallBack(CoreKitSocketStatusCallBack callBack) {
-        this.mCoreKitSubViewModel.setCoreKitSocketStatusCallBack(callBack);
+        this.mCoreKitSubscriptionViewModel.setCoreKitSocketStatusCallBack(callBack);
     }
 
     public void doManualReconnect() {
-        this.mCoreKitSubViewModel.doManualReconnect();
+        this.mCoreKitSubscriptionViewModel.doManualReconnect();
     }
 
 }

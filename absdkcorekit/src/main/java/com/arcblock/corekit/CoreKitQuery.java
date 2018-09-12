@@ -19,31 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.corekit.viewmodel.i;
+package com.arcblock.corekit;
 
-import com.apollographql.apollo.api.Query;
-import com.arcblock.corekit.viewmodel.CoreKitPagedQueryViewModel;
-
-public interface CoreKitPagedHelperInterface {
-
-    /**
-     * @return initial query object for page initial query
-     */
-    Query getInitialQuery();
-
-    /**
-     * @return loadMore query object for page loadMore query
-     */
-    Query getLoadMoreQuery();
-
-    /**
-     * @return refresh query object for page refresh query
-     */
-    Query getRefreshQuery();
-
-    /**
-     * this method is for {@link CoreKitPagedQueryViewModel#refresh()}
-     */
-    void setHasMoreForRefresh();
+/**
+*  The CoreKitQuery is used to make developer use CoreKitViewModel more easily.
+*  Created by Nate on 2018/9/12
+**/
+public class CoreKitQuery {
 
 }

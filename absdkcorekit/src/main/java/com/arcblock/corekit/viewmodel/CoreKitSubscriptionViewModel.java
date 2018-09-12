@@ -59,23 +59,23 @@ import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
-public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subscription> extends ViewModel {
+public class CoreKitSubscriptionViewModel<T, D extends com.apollographql.apollo.api.Subscription> extends ViewModel {
 
 
-    public static CoreKitSubViewModel getInstance(FragmentActivity activity, CustomClientFactory factory) {
-        return ViewModelProviders.of(activity, factory).get(factory.getGraphSub().operationId() + "$" + factory.getGraphSub().variables().valueMap().hashCode(), CoreKitSubViewModel.class);
+    public static CoreKitSubscriptionViewModel getInstance(FragmentActivity activity, CustomClientFactory factory) {
+        return ViewModelProviders.of(activity, factory).get(factory.getGraphSub().operationId() + "$" + factory.getGraphSub().variables().valueMap().hashCode(), CoreKitSubscriptionViewModel.class);
     }
 
-    public static CoreKitSubViewModel getInstance(FragmentActivity activity, DefaultFactory factory) {
-        return ViewModelProviders.of(activity, factory).get(factory.getGraphSub().operationId() + "$" + factory.getGraphSub().variables().valueMap().hashCode(), CoreKitSubViewModel.class);
+    public static CoreKitSubscriptionViewModel getInstance(FragmentActivity activity, DefaultFactory factory) {
+        return ViewModelProviders.of(activity, factory).get(factory.getGraphSub().operationId() + "$" + factory.getGraphSub().variables().valueMap().hashCode(), CoreKitSubscriptionViewModel.class);
     }
 
-    public static CoreKitSubViewModel getInstance(Fragment fragment, CustomClientFactory factory) {
-        return ViewModelProviders.of(fragment, factory).get(factory.getGraphSub().operationId() + "$" + factory.getGraphSub().variables().valueMap().hashCode(), CoreKitSubViewModel.class);
+    public static CoreKitSubscriptionViewModel getInstance(Fragment fragment, CustomClientFactory factory) {
+        return ViewModelProviders.of(fragment, factory).get(factory.getGraphSub().operationId() + "$" + factory.getGraphSub().variables().valueMap().hashCode(), CoreKitSubscriptionViewModel.class);
     }
 
-    public static CoreKitSubViewModel getInstance(Fragment fragment, DefaultFactory factory) {
-        return ViewModelProviders.of(fragment, factory).get(factory.getGraphSub().operationId() + "$" + factory.getGraphSub().variables().valueMap().hashCode(), CoreKitSubViewModel.class);
+    public static CoreKitSubscriptionViewModel getInstance(Fragment fragment, DefaultFactory factory) {
+        return ViewModelProviders.of(fragment, factory).get(factory.getGraphSub().operationId() + "$" + factory.getGraphSub().variables().valueMap().hashCode(), CoreKitSubscriptionViewModel.class);
     }
 
     private final ABCoreKitClient mABCoreKitClient;
@@ -91,7 +91,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
     private Boolean needOpen = true;
     private boolean isCleared = false;
 
-    public CoreKitSubViewModel(Context context, int apiType, D graphSub, Class<T> tClass) {
+    public CoreKitSubscriptionViewModel(Context context, int apiType, D graphSub, Class<T> tClass) {
         this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context, apiType);
         this.tClass = tClass;
         this.mGraphSub = graphSub;
@@ -102,7 +102,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
         this.mABCoreKitClient.getCoreKitSocket().onError(new InitIErrorCallback(this));
     }
 
-    public CoreKitSubViewModel(ABCoreKitClient aBCoreKitClient, D graphSub, Class<T> tClass) {
+    public CoreKitSubscriptionViewModel(ABCoreKitClient aBCoreKitClient, D graphSub, Class<T> tClass) {
         this.mABCoreKitClient = aBCoreKitClient;
         this.tClass = tClass;
         this.mGraphSub = graphSub;
@@ -134,7 +134,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
         mABCoreKitClient.doManualReconnect();
     }
 
-    public CoreKitSubViewModel<T, D> subscription() {
+    public CoreKitSubscriptionViewModel<T, D> subscription() {
         if (isSubed) {
             CoreKitLogUtils.e("The query Doc have been sub, can not set again");
             return this;
@@ -143,7 +143,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
         return doFinalSubscription();
     }
 
-    private CoreKitSubViewModel<T, D> doFinalSubscription() {
+    private CoreKitSubscriptionViewModel<T, D> doFinalSubscription() {
         makeFlow()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<CoreKitBean<T>>() {
@@ -283,7 +283,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
         @NonNull
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            return (T) new CoreKitSubViewModel(mABCoreKitClient, graphSub, tClass);
+            return (T) new CoreKitSubscriptionViewModel(mABCoreKitClient, graphSub, tClass);
         }
     }
 
@@ -308,7 +308,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
         @NonNull
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            return (T) new CoreKitSubViewModel(mContext, apiType, graphSub, tClass);
+            return (T) new CoreKitSubscriptionViewModel(mContext, apiType, graphSub, tClass);
         }
     }
 
@@ -318,11 +318,11 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 
     private static class InitISocketOpenCallback implements ISocketOpenCallback {
 
-        private WeakReference<CoreKitSubViewModel> ref;
+        private WeakReference<CoreKitSubscriptionViewModel> ref;
 
-        public InitISocketOpenCallback(CoreKitSubViewModel coreKitSubViewModel) {
-            if (coreKitSubViewModel != null) {
-                ref = new WeakReference<>(coreKitSubViewModel);
+        public InitISocketOpenCallback(CoreKitSubscriptionViewModel coreKitSubscriptionViewModel) {
+            if (coreKitSubscriptionViewModel != null) {
+                ref = new WeakReference<>(coreKitSubscriptionViewModel);
             }
         }
 
@@ -331,11 +331,11 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
             if (ref == null) {
                 return;
             }
-            CoreKitSubViewModel v = ref.get();
+            CoreKitSubscriptionViewModel v = ref.get();
             if (v == null || v.isCleared) {
                 return;
             }
-            CoreKitLogUtils.e("CoreKitSubViewModel********onOpen");
+            CoreKitLogUtils.e("CoreKitSubscriptionViewModel********onOpen");
             v.needOpen = false;
             v.initChannel();
             v.channel.initStatus();
@@ -347,11 +347,11 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 
     private static class InitISocketCloseCallback implements ISocketCloseCallback {
 
-        private WeakReference<CoreKitSubViewModel> ref;
+        private WeakReference<CoreKitSubscriptionViewModel> ref;
 
-        public InitISocketCloseCallback(CoreKitSubViewModel coreKitSubViewModel) {
-            if (coreKitSubViewModel != null) {
-                ref = new WeakReference<>(coreKitSubViewModel);
+        public InitISocketCloseCallback(CoreKitSubscriptionViewModel coreKitSubscriptionViewModel) {
+            if (coreKitSubscriptionViewModel != null) {
+                ref = new WeakReference<>(coreKitSubscriptionViewModel);
             }
         }
 
@@ -360,7 +360,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
             if (ref == null) {
                 return;
             }
-            CoreKitSubViewModel v = ref.get();
+            CoreKitSubscriptionViewModel v = ref.get();
             if (v == null) {
                 return;
             }
@@ -373,11 +373,11 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 
     private static class InitIErrorCallback implements IErrorCallback {
 
-        private WeakReference<CoreKitSubViewModel> ref;
+        private WeakReference<CoreKitSubscriptionViewModel> ref;
 
-        public InitIErrorCallback(CoreKitSubViewModel coreKitSubViewModel) {
-            if (coreKitSubViewModel != null) {
-                ref = new WeakReference<>(coreKitSubViewModel);
+        public InitIErrorCallback(CoreKitSubscriptionViewModel coreKitSubscriptionViewModel) {
+            if (coreKitSubscriptionViewModel != null) {
+                ref = new WeakReference<>(coreKitSubscriptionViewModel);
             }
         }
 
@@ -386,7 +386,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
             if (ref == null) {
                 return;
             }
-            CoreKitSubViewModel v = ref.get();
+            CoreKitSubscriptionViewModel v = ref.get();
             if (v == null) {
                 return;
             }
@@ -398,12 +398,12 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 
     private static class JoinIMessageCallback<T> implements IMessageCallback {
 
-        private WeakReference<CoreKitSubViewModel> ref;
+        private WeakReference<CoreKitSubscriptionViewModel> ref;
         private WeakReference<FlowableEmitter<CoreKitBean<T>>> refEmiiter;
 
-        public JoinIMessageCallback(CoreKitSubViewModel coreKitSubViewModel, FlowableEmitter<CoreKitBean<T>> emitter) {
-            if (coreKitSubViewModel != null) {
-                ref = new WeakReference<>(coreKitSubViewModel);
+        public JoinIMessageCallback(CoreKitSubscriptionViewModel coreKitSubscriptionViewModel, FlowableEmitter<CoreKitBean<T>> emitter) {
+            if (coreKitSubscriptionViewModel != null) {
+                ref = new WeakReference<>(coreKitSubscriptionViewModel);
             }
             if (emitter != null) {
                 refEmiiter = new WeakReference<>(emitter);
@@ -415,7 +415,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
             if (ref == null) {
                 return;
             }
-            CoreKitSubViewModel v = ref.get();
+            CoreKitSubscriptionViewModel v = ref.get();
             if (v == null) {
                 return;
             }
@@ -438,12 +438,12 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 
     private static class DocIMessageCallback<T> implements IMessageCallback {
 
-        private WeakReference<CoreKitSubViewModel> ref;
+        private WeakReference<CoreKitSubscriptionViewModel> ref;
         private WeakReference<FlowableEmitter<CoreKitBean<T>>> refEmiiter;
 
-        public DocIMessageCallback(CoreKitSubViewModel coreKitSubViewModel, FlowableEmitter<CoreKitBean<T>> emitter) {
-            if (coreKitSubViewModel != null) {
-                ref = new WeakReference<>(coreKitSubViewModel);
+        public DocIMessageCallback(CoreKitSubscriptionViewModel coreKitSubscriptionViewModel, FlowableEmitter<CoreKitBean<T>> emitter) {
+            if (coreKitSubscriptionViewModel != null) {
+                ref = new WeakReference<>(coreKitSubscriptionViewModel);
             }
             if (emitter != null) {
                 refEmiiter = new WeakReference<>(emitter);
@@ -455,7 +455,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
             if (ref == null) {
                 return;
             }
-            CoreKitSubViewModel v = ref.get();
+            CoreKitSubscriptionViewModel v = ref.get();
             if (v == null) {
                 return;
             }
@@ -477,13 +477,13 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
 
     private static class EventIMessageCallback<T> implements IMessageCallback {
 
-        private WeakReference<CoreKitSubViewModel> ref;
+        private WeakReference<CoreKitSubscriptionViewModel> ref;
         private WeakReference<FlowableEmitter<CoreKitBean<T>>> refEmiiter;
         private WeakReference<Class<T>> refTClass;
 
-        public EventIMessageCallback(CoreKitSubViewModel coreKitSubViewModel, FlowableEmitter<CoreKitBean<T>> emitter, Class<T> tClass) {
-            if (coreKitSubViewModel != null) {
-                ref = new WeakReference<>(coreKitSubViewModel);
+        public EventIMessageCallback(CoreKitSubscriptionViewModel coreKitSubscriptionViewModel, FlowableEmitter<CoreKitBean<T>> emitter, Class<T> tClass) {
+            if (coreKitSubscriptionViewModel != null) {
+                ref = new WeakReference<>(coreKitSubscriptionViewModel);
             }
             if (emitter != null) {
                 refEmiiter = new WeakReference<>(emitter);
@@ -498,7 +498,7 @@ public class CoreKitSubViewModel<T, D extends com.apollographql.apollo.api.Subsc
             if (ref == null) {
                 return;
             }
-            CoreKitSubViewModel v = ref.get();
+            CoreKitSubscriptionViewModel v = ref.get();
             if (v == null) {
                 return;
             }

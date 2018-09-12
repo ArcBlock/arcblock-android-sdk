@@ -30,8 +30,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.arcblock.corekit.ABCoreKitClient;
+import com.arcblock.corekit.CoreKitSubscription;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.viewmodel.CoreKitSubViewModel;
+import com.arcblock.corekit.viewmodel.CoreKitSubscriptionViewModel;
 import com.arcblock.sdk.demo.corekit.EthNewBlockSubscriptionActivity;
 import com.arcblock.sdk.demo.corekit.MultiQueryInOnePageActivity;
 import com.arcblock.sdk.demo.corekit.QueryBlocksByHeightActivity;
@@ -46,8 +48,6 @@ public class CoreKitFragment extends Fragment {
         CoreKitFragment fragment = new CoreKitFragment();
         return fragment;
     }
-
-    private CoreKitSubViewModel<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> mDataCoreKitSubViewModel;
 
     @Nullable
     @Override
@@ -120,22 +120,15 @@ public class CoreKitFragment extends Fragment {
     }
 
     private void initSub() {
-        NewBlockMinedSubscription newBlockMinedSubscription = new NewBlockMinedSubscription();
-
-        CoreKitSubViewModel.CustomClientFactory<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> factory =
-                new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), newBlockMinedSubscription, NewBlockMinedSubscription.Data.class);
-
-        mDataCoreKitSubViewModel = CoreKitSubViewModel.getInstance(this, factory);
-        mDataCoreKitSubViewModel
-                .subscription()
-                .setCoreKitSubCallBack(new CoreKitSubViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
-                    @Override
-                    public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
-                        if (coreKitBean != null && coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-                            Toast.makeText(getActivity(), "New Block Height:" + coreKitBean.getData().getNewBlockMined().getHeight(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+        EthNewBlockSubscription ethNewBlockSubscription = new EthNewBlockSubscription(this, DemoApplication.getInstance().abCoreKitClientEth());
+        ethNewBlockSubscription.setCoreKitSubCallBack(new CoreKitSubscriptionViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
+            @Override
+            public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
+                if (coreKitBean != null && coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+                    Toast.makeText(getActivity(), "New Block Height:" + coreKitBean.getData().getNewBlockMined().getHeight(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     @Override
@@ -143,4 +136,20 @@ public class CoreKitFragment extends Fragment {
         super.onDestroyView();
     }
 
+    private class EthNewBlockSubscription extends CoreKitSubscription<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> {
+
+        public EthNewBlockSubscription(Fragment fragment, ABCoreKitClient client) {
+            super(fragment, client);
+        }
+
+        @Override
+        public NewBlockMinedSubscription getSubscription() {
+            return new NewBlockMinedSubscription();
+        }
+
+        @Override
+        public Class<NewBlockMinedSubscription.Data> getSubscriptionClass() {
+            return NewBlockMinedSubscription.Data.class;
+        }
+    }
 }

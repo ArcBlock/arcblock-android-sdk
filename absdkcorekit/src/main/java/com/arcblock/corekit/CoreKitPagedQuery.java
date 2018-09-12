@@ -32,19 +32,19 @@ import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitPagedBean;
 import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
 import com.arcblock.corekit.viewmodel.i.CoreKitPagedHelperInterface;
-import com.arcblock.corekit.viewmodel.CoreKitPagedViewModel;
+import com.arcblock.corekit.viewmodel.CoreKitPagedQueryViewModel;
 
 import java.util.List;
 
 /**
-*  The CoreKitPagedQuery is used to make developer use CoreKitPagedViewModel more easily.
+*  The CoreKitPagedQuery is used to make developer use CoreKitPagedQueryViewModel more easily.
 *  Created by Nate on 2018/9/12
 **/
 public abstract class CoreKitPagedQuery<T extends Query.Data, D> implements CoreKitPagedHelperInterface, CoreKitBeanMapperInterface<Response<T>, List<D>> {
 
     private boolean hasMore = true;
     private String cursor;
-    private CoreKitPagedViewModel<T, D> coreKitPagedViewModel;
+    private CoreKitPagedQueryViewModel<T, D> mCoreKitPagedQueryViewModel;
     private LifecycleOwner mLifecycleOwner;
 
     /**
@@ -54,8 +54,8 @@ public abstract class CoreKitPagedQuery<T extends Query.Data, D> implements Core
      * @param client
      */
     public CoreKitPagedQuery(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
-        CoreKitPagedViewModel.CustomClientFactory factory = new CoreKitPagedViewModel.CustomClientFactory(this, this, client);
-        this.coreKitPagedViewModel = CoreKitPagedViewModel.getInstance(activity, factory);
+        CoreKitPagedQueryViewModel.CustomClientFactory factory = new CoreKitPagedQueryViewModel.CustomClientFactory(this, this, client);
+        this.mCoreKitPagedQueryViewModel = CoreKitPagedQueryViewModel.getInstance(activity, factory);
         this.mLifecycleOwner = lifecycleOwner;
     }
 
@@ -67,8 +67,8 @@ public abstract class CoreKitPagedQuery<T extends Query.Data, D> implements Core
      * @param apiType
      */
     public CoreKitPagedQuery(FragmentActivity activity, LifecycleOwner lifecycleOwner, Context context, int apiType) {
-        CoreKitPagedViewModel.DefaultFactory factory = new CoreKitPagedViewModel.DefaultFactory(this, this, context, apiType);
-        this.coreKitPagedViewModel = CoreKitPagedViewModel.getInstance(activity, factory);
+        CoreKitPagedQueryViewModel.DefaultFactory factory = new CoreKitPagedQueryViewModel.DefaultFactory(this, this, context, apiType);
+        this.mCoreKitPagedQueryViewModel = CoreKitPagedQueryViewModel.getInstance(activity, factory);
         this.mLifecycleOwner = lifecycleOwner;
     }
 
@@ -79,8 +79,8 @@ public abstract class CoreKitPagedQuery<T extends Query.Data, D> implements Core
      * @param client
      */
     public CoreKitPagedQuery(Fragment fragment, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
-        CoreKitPagedViewModel.CustomClientFactory factory = new CoreKitPagedViewModel.CustomClientFactory(this, this, client);
-        this.coreKitPagedViewModel = CoreKitPagedViewModel.getInstance(fragment, factory);
+        CoreKitPagedQueryViewModel.CustomClientFactory factory = new CoreKitPagedQueryViewModel.CustomClientFactory(this, this, client);
+        this.mCoreKitPagedQueryViewModel = CoreKitPagedQueryViewModel.getInstance(fragment, factory);
         this.mLifecycleOwner = lifecycleOwner;
     }
 
@@ -92,8 +92,8 @@ public abstract class CoreKitPagedQuery<T extends Query.Data, D> implements Core
      * @param apiType
      */
     public CoreKitPagedQuery(Fragment fragment, LifecycleOwner lifecycleOwner, Context context, int apiType) {
-        CoreKitPagedViewModel.DefaultFactory factory = new CoreKitPagedViewModel.DefaultFactory(this, this, context, apiType);
-        this.coreKitPagedViewModel = CoreKitPagedViewModel.getInstance(fragment, factory);
+        CoreKitPagedQueryViewModel.DefaultFactory factory = new CoreKitPagedQueryViewModel.DefaultFactory(this, this, context, apiType);
+        this.mCoreKitPagedQueryViewModel = CoreKitPagedQueryViewModel.getInstance(fragment, factory);
         this.mLifecycleOwner = lifecycleOwner;
     }
 
@@ -129,15 +129,15 @@ public abstract class CoreKitPagedQuery<T extends Query.Data, D> implements Core
     }
 
     public void refresh() {
-        this.coreKitPagedViewModel.refresh();
+        this.mCoreKitPagedQueryViewModel.refresh();
     }
 
     public void loadMore() {
-        this.coreKitPagedViewModel.loadMore();
+        this.mCoreKitPagedQueryViewModel.loadMore();
     }
 
     public void setObserve(Observer<CoreKitPagedBean<List<D>>> observe) {
-        this.coreKitPagedViewModel.getCleanQueryData().observe(mLifecycleOwner, observe);
+        this.mCoreKitPagedQueryViewModel.getCleanQueryData().observe(mLifecycleOwner, observe);
     }
 
 }

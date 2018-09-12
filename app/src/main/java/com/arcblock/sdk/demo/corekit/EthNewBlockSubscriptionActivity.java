@@ -34,7 +34,7 @@ import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.CoreKitSubscription;
 import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.corekit.socket.CoreKitSocketStatusCallBack;
-import com.arcblock.corekit.viewmodel.CoreKitSubViewModel;
+import com.arcblock.corekit.viewmodel.CoreKitSubscriptionViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.NewEthBlockTxsAdapter;
@@ -88,7 +88,7 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
         // init subscription
         ethNewBlockSubscription = new EthNewBlockSubscription(this, DemoApplication.getInstance().abCoreKitClientEth());
         // add data callback
-        ethNewBlockSubscription.setCoreKitSubCallBack(new CoreKitSubViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
+        ethNewBlockSubscription.setCoreKitSubCallBack(new CoreKitSubscriptionViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
             @Override
             public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
                 if (coreKitBean != null && coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
