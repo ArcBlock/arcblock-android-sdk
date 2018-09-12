@@ -50,7 +50,7 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
     private ListView transactions_lv;
     private NewEthBlockTxsAdapter mNewEthBlockTxsAdapter;
     private List<NewBlockMinedSubscription.Datum> mDatumList = new ArrayList<>();
-    private EthNewBlockSubscription ethNewBlockSubscription;
+    private NewBlockMinedSubscriptionHelper mNewBlockMinedSubscriptionHelper;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,16 +79,16 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
         connect_status_tv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ethNewBlockSubscription.doManualReconnect();
+                mNewBlockMinedSubscriptionHelper.doManualReconnect();
             }
         });
     }
 
     private void initData() {
         // init subscription
-        ethNewBlockSubscription = new EthNewBlockSubscription(this, DemoApplication.getInstance().abCoreKitClientEth());
+        mNewBlockMinedSubscriptionHelper = new NewBlockMinedSubscriptionHelper(this, DemoApplication.getInstance().abCoreKitClientEth());
         // add data callback
-        ethNewBlockSubscription.setCoreKitSubCallBack(new CoreKitSubscriptionViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
+        mNewBlockMinedSubscriptionHelper.setCoreKitSubCallBack(new CoreKitSubscriptionViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
             @Override
             public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
                 if (coreKitBean != null && coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
@@ -102,7 +102,7 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
             }
         });
         // add status callback
-        ethNewBlockSubscription.setCoreKitSocketStatusCallBack(new CoreKitSocketStatusCallBack() {
+        mNewBlockMinedSubscriptionHelper.setCoreKitSocketStatusCallBack(new CoreKitSocketStatusCallBack() {
             @Override
             public void onOpen() {
                 connect_status_tv.setVisibility(View.GONE);
@@ -133,9 +133,9 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
         }
     }
 
-    private class EthNewBlockSubscription extends CoreKitSubscription<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> {
+    private class NewBlockMinedSubscriptionHelper extends CoreKitSubscription<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> {
 
-        public EthNewBlockSubscription(FragmentActivity activity, ABCoreKitClient client) {
+        public NewBlockMinedSubscriptionHelper(FragmentActivity activity, ABCoreKitClient client) {
             super(activity, client);
         }
 

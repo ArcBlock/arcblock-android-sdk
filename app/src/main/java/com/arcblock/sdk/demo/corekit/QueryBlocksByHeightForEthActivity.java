@@ -61,7 +61,7 @@ public class QueryBlocksByHeightForEthActivity extends AppCompatActivity {
     ProgressBar progressBar;
 
     private List<BlocksByHeightQuery.Datum> mBlocks = new ArrayList<>();
-    private ETHBlocksByHeightPagedQuery mETHBlocksByHeightPagedQuery;
+    private BlocksByHeightQueryHelper mBlocksByHeightQueryHelper;
     private int startIndex = 10000;
     private int endIndex = 10011;
 
@@ -86,7 +86,7 @@ public class QueryBlocksByHeightForEthActivity extends AppCompatActivity {
                 mEthListBlocksAdapter.notifyDataSetChanged();
 
                 mEthListBlocksAdapter.setEnableLoadMore(false);
-                mETHBlocksByHeightPagedQuery.refresh();
+                mBlocksByHeightQueryHelper.refresh();
             }
         });
 
@@ -97,7 +97,7 @@ public class QueryBlocksByHeightForEthActivity extends AppCompatActivity {
         mEthListBlocksAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
             @Override
             public void onLoadMoreRequested() {
-                mETHBlocksByHeightPagedQuery.loadMore();
+                mBlocksByHeightQueryHelper.loadMore();
             }
         }, blocksRcv);
         // mEthListBlocksAdapter.openLoadAnimation(BaseQuickAdapter.SLIDEIN_LEFT);
@@ -115,8 +115,8 @@ public class QueryBlocksByHeightForEthActivity extends AppCompatActivity {
 
 
         // get data
-        mETHBlocksByHeightPagedQuery = new ETHBlocksByHeightPagedQuery(this, this, DemoApplication.getInstance().abCoreKitClientEth());
-        mETHBlocksByHeightPagedQuery.setObserve(new Observer<CoreKitPagedBean<List<BlocksByHeightQuery.Datum>>>() {
+        mBlocksByHeightQueryHelper = new BlocksByHeightQueryHelper(this, this, DemoApplication.getInstance().abCoreKitClientEth());
+        mBlocksByHeightQueryHelper.setObserve(new Observer<CoreKitPagedBean<List<BlocksByHeightQuery.Datum>>>() {
             @Override
             public void onChanged(@Nullable CoreKitPagedBean<List<BlocksByHeightQuery.Datum>> coreKitPagedBean) {
                 //1. handle return data
@@ -138,7 +138,7 @@ public class QueryBlocksByHeightForEthActivity extends AppCompatActivity {
                 content.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.GONE);
                 content.setRefreshing(false);
-                if (mETHBlocksByHeightPagedQuery.isHasMore()) {
+                if (mBlocksByHeightQueryHelper.isHasMore()) {
                     mEthListBlocksAdapter.setEnableLoadMore(true);
                     mEthListBlocksAdapter.loadMoreComplete();
                 } else {
@@ -159,9 +159,9 @@ public class QueryBlocksByHeightForEthActivity extends AppCompatActivity {
         }
     }
 
-    private class ETHBlocksByHeightPagedQuery extends CoreKitPagedQuery<BlocksByHeightQuery.Data, BlocksByHeightQuery.Datum> {
+    private class BlocksByHeightQueryHelper extends CoreKitPagedQuery<BlocksByHeightQuery.Data, BlocksByHeightQuery.Datum> {
 
-        public ETHBlocksByHeightPagedQuery(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
+        public BlocksByHeightQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
             super(activity, lifecycleOwner, client);
         }
 

@@ -120,8 +120,8 @@ public class CoreKitFragment extends Fragment {
     }
 
     private void initSub() {
-        EthNewBlockSubscription ethNewBlockSubscription = new EthNewBlockSubscription(this, DemoApplication.getInstance().abCoreKitClientEth());
-        ethNewBlockSubscription.setCoreKitSubCallBack(new CoreKitSubscriptionViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
+        NewBlockMinedSubscriptionHelper newBlockMinedSubscriptionHelper = new NewBlockMinedSubscriptionHelper(this, DemoApplication.getInstance().abCoreKitClientEth());
+        newBlockMinedSubscriptionHelper.setCoreKitSubCallBack(new CoreKitSubscriptionViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
             @Override
             public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
                 if (coreKitBean != null && coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
@@ -136,9 +136,9 @@ public class CoreKitFragment extends Fragment {
         super.onDestroyView();
     }
 
-    private class EthNewBlockSubscription extends CoreKitSubscription<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> {
+    private class NewBlockMinedSubscriptionHelper extends CoreKitSubscription<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> {
 
-        public EthNewBlockSubscription(Fragment fragment, ABCoreKitClient client) {
+        public NewBlockMinedSubscriptionHelper(Fragment fragment, ABCoreKitClient client) {
             super(fragment, client);
         }
 
