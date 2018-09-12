@@ -35,66 +35,66 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-	public static final String TAG = MainActivity.class.getSimpleName();
-	private MainAdapter mMainAdapter;
-	private List<String> titles = new ArrayList<>();
-	private TabLayout mTabLayout;
-	private ViewPager mViewPager;
+    public static final String TAG = MainActivity.class.getSimpleName();
+    private MainAdapter mMainAdapter;
+    private List<String> titles = new ArrayList<>();
+    private TabLayout mTabLayout;
+    private ViewPager mViewPager;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-		mViewPager = (ViewPager) findViewById(R.id.view_pager);
-		mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
+        mViewPager = (ViewPager) findViewById(R.id.view_pager);
+        mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
 //		mTabLayout.addTab(mTabLayout.newTab().setText(sTitle[0]));
 //		mTabLayout.addTab(mTabLayout.newTab().setText(sTitle[1]));
 //		mTabLayout.addTab(mTabLayout.newTab().setText(sTitle[2]));
 
-		mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-			@Override
-			public void onTabSelected(TabLayout.Tab tab) {
-				Log.i(TAG,"onTabSelected:"+tab.getText());
-			}
+        mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                Log.i(TAG, "onTabSelected:" + tab.getText());
+            }
 
-			@Override
-			public void onTabUnselected(TabLayout.Tab tab) {
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
 
-			}
+            }
 
-			@Override
-			public void onTabReselected(TabLayout.Tab tab) {
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
 
-			}
-		});
-		mTabLayout.setupWithViewPager(mViewPager);
-		List<Fragment> fragments = new ArrayList<>();
-		fragments.add(CoreKitFragment.newInstance());
-		//fragments.add(AccountFragment.newInstance());
-		//fragments.add(MessageFragment.newInstance());
+            }
+        });
+        mTabLayout.setupWithViewPager(mViewPager);
+        List<Fragment> fragments = new ArrayList<>();
+        fragments.add(CoreKitFragment.newInstance());
+        //fragments.add(AccountFragment.newInstance());
+        //fragments.add(MessageFragment.newInstance());
 
-		titles.add(getString(R.string.core_kit_tab));
-		//titles.add(getString(R.string.account_tab));
-		//titles.add(getString(R.string.message_tab));
+        titles.add(getString(R.string.core_kit_tab));
+        //titles.add(getString(R.string.account_tab));
+        //titles.add(getString(R.string.message_tab));
 
-		mMainAdapter = new MainAdapter(getSupportFragmentManager(),fragments, titles);
-		mViewPager.setAdapter(mMainAdapter);
-		mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-			@Override
-			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        mMainAdapter = new MainAdapter(getSupportFragmentManager(), fragments, titles);
+        mViewPager.setAdapter(mMainAdapter);
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
-			}
+            }
 
-			@Override
-			public void onPageSelected(int position) {
-				Log.i(TAG,"select page:"+position);
-			}
+            @Override
+            public void onPageSelected(int position) {
+                Log.i(TAG, "select page:" + position);
+            }
 
-			@Override
-			public void onPageScrollStateChanged(int state) {
+            @Override
+            public void onPageScrollStateChanged(int state) {
 
-			}
-		});
-	}
+            }
+        });
+    }
 }

@@ -33,207 +33,207 @@ import java.util.TimerTask;
 
 public class Push {
 
-	private class TimeoutHook {
+    private class TimeoutHook {
 
-		private ITimeoutCallback callback;
+        private ITimeoutCallback callback;
 
-		private final long ms;
+        private final long ms;
 
-		private TimerTask timerTask;
+        private TimerTask timerTask;
 
-		public TimeoutHook(final long ms) {
-			this.ms = ms;
-		}
+        public TimeoutHook(final long ms) {
+            this.ms = ms;
+        }
 
-		public ITimeoutCallback getCallback() {
-			return callback;
-		}
+        public ITimeoutCallback getCallback() {
+            return callback;
+        }
 
-		public long getMs() {
-			return ms;
-		}
+        public long getMs() {
+            return ms;
+        }
 
-		public TimerTask getTimerTask() {
-			return timerTask;
-		}
+        public TimerTask getTimerTask() {
+            return timerTask;
+        }
 
-		public boolean hasCallback() {
-			return this.callback != null;
-		}
+        public boolean hasCallback() {
+            return this.callback != null;
+        }
 
-		public void setCallback(final ITimeoutCallback callback) {
-			this.callback = callback;
-		}
+        public void setCallback(final ITimeoutCallback callback) {
+            this.callback = callback;
+        }
 
-		public void setTimerTask(final TimerTask timerTask) {
-			this.timerTask = timerTask;
-		}
-	}
+        public void setTimerTask(final TimerTask timerTask) {
+            this.timerTask = timerTask;
+        }
+    }
 
-	private Channel channel = null;
+    private Channel channel = null;
 
-	private String event = null;
+    private String event = null;
 
-	private JsonNode payload = null;
+    private JsonNode payload = null;
 
-	private final Map<String, List<IMessageCallback>> recHooks = new HashMap<>();
+    private final Map<String, List<IMessageCallback>> recHooks = new HashMap<>();
 
-	private CoreKitMsgBean receivedMsgBean = null;
+    private CoreKitMsgBean receivedMsgBean = null;
 
-	private String refEvent = null;
+    private String refEvent = null;
 
-	private boolean sent = false;
+    private boolean sent = false;
 
-	private final TimeoutHook timeoutHook;
+    private final TimeoutHook timeoutHook;
 
-	Push(final Channel channel, final String event, final JsonNode payload, final long timeout) {
-		this.channel = channel;
-		this.event = event;
-		this.payload = payload;
-		this.timeoutHook = new TimeoutHook(timeout);
-	}
+    Push(final Channel channel, final String event, final JsonNode payload, final long timeout) {
+        this.channel = channel;
+        this.event = event;
+        this.payload = payload;
+        this.timeoutHook = new TimeoutHook(timeout);
+    }
 
-	/**
-	 * Registers for notifications on status messages
-	 *
-	 * @param status   The message status to register callbacks on
-	 * @param callback The callback handler
-	 * @return This instance's self
-	 */
-	public Push receive(final String status, final IMessageCallback callback) {
-		if (this.receivedMsgBean != null) {
-			final String receivedStatus = this.receivedMsgBean.getResponseStatus();
-			if (receivedStatus != null && receivedStatus.equals(status)) {
-				callback.onMessage(this.receivedMsgBean);
-			}
-		}
-		try {
-			synchronized (recHooks) {
-				List<IMessageCallback> statusHooks = this.recHooks.get(status);
-				if (statusHooks == null) {
-					statusHooks = new ArrayList<>();
-					this.recHooks.put(status, statusHooks);
-				}
-				statusHooks.add(callback);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+    /**
+     * Registers for notifications on status messages
+     *
+     * @param status   The message status to register callbacks on
+     * @param callback The callback handler
+     * @return This instance's self
+     */
+    public Push receive(final String status, final IMessageCallback callback) {
+        if (this.receivedMsgBean != null) {
+            final String receivedStatus = this.receivedMsgBean.getResponseStatus();
+            if (receivedStatus != null && receivedStatus.equals(status)) {
+                callback.onMessage(this.receivedMsgBean);
+            }
+        }
+        try {
+            synchronized (recHooks) {
+                List<IMessageCallback> statusHooks = this.recHooks.get(status);
+                if (statusHooks == null) {
+                    statusHooks = new ArrayList<>();
+                    this.recHooks.put(status, statusHooks);
+                }
+                statusHooks.add(callback);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
-		return this;
-	}
+        return this;
+    }
 
-	/**
-	 * Registers for notification of message response timeout
-	 *
-	 * @param callback The callback handler called when timeout is reached
-	 * @return This instance's self
-	 */
-	public Push timeout(final ITimeoutCallback callback) {
-		if (this.timeoutHook.hasCallback()) {
-			throw new IllegalStateException("Only a single after hook can be applied to a Push");
-		}
+    /**
+     * Registers for notification of message response timeout
+     *
+     * @param callback The callback handler called when timeout is reached
+     * @return This instance's self
+     */
+    public Push timeout(final ITimeoutCallback callback) {
+        if (this.timeoutHook.hasCallback()) {
+            throw new IllegalStateException("Only a single after hook can be applied to a Push");
+        }
 
-		this.timeoutHook.setCallback(callback);
+        this.timeoutHook.setCallback(callback);
 
-		return this;
-	}
+        return this;
+    }
 
-	Channel getChannel() {
-		return channel;
-	}
+    Channel getChannel() {
+        return channel;
+    }
 
-	String getEvent() {
-		return event;
-	}
+    String getEvent() {
+        return event;
+    }
 
-	JsonNode getPayload() {
-		return payload;
-	}
+    JsonNode getPayload() {
+        return payload;
+    }
 
-	Map<String, List<IMessageCallback>> getRecHooks() {
-		return recHooks;
-	}
+    Map<String, List<IMessageCallback>> getRecHooks() {
+        return recHooks;
+    }
 
-	CoreKitMsgBean getReceivedMsgBean() {
-		return receivedMsgBean;
-	}
+    CoreKitMsgBean getReceivedMsgBean() {
+        return receivedMsgBean;
+    }
 
-	boolean isSent() {
-		return sent;
-	}
+    boolean isSent() {
+        return sent;
+    }
 
-	void send() throws IOException {
-		final String ref = channel.getSocket().makeRef();
-		CoreKitLogUtils.e("Push send, ref=" + ref);
+    void send() throws IOException {
+        final String ref = channel.getSocket().makeRef();
+        CoreKitLogUtils.e("Push send, ref=" + ref);
 
-		this.refEvent = CoreKitSocket.replyEventName(ref);
-		this.receivedMsgBean = null;
+        this.refEvent = CoreKitSocket.replyEventName(ref);
+        this.receivedMsgBean = null;
 
-		this.channel.on(this.refEvent, null, new IMessageCallback() {
-			@Override
-			public void onMessage(final CoreKitMsgBean msgBean) {
-				Push.this.receivedMsgBean = msgBean;
-				Push.this.matchReceive(receivedMsgBean.getResponseStatus(), msgBean);
-				Push.this.cancelRefEvent();
-				Push.this.cancelTimeout();
-			}
-		});
+        this.channel.on(this.refEvent, null, new IMessageCallback() {
+            @Override
+            public void onMessage(final CoreKitMsgBean msgBean) {
+                Push.this.receivedMsgBean = msgBean;
+                Push.this.matchReceive(receivedMsgBean.getResponseStatus(), msgBean);
+                Push.this.cancelRefEvent();
+                Push.this.cancelTimeout();
+            }
+        });
 
-		this.startTimeout();
-		this.sent = true;
-		final CoreKitMsgBean msgBean = new CoreKitMsgBean(this.channel.getTopic(), this.event, this.payload, ref);
-		this.channel.getSocket().push(msgBean);
-	}
+        this.startTimeout();
+        this.sent = true;
+        final CoreKitMsgBean msgBean = new CoreKitMsgBean(this.channel.getTopic(), this.event, this.payload, ref);
+        this.channel.getSocket().push(msgBean);
+    }
 
-	private void cancelRefEvent() {
-		this.channel.off(this.refEvent);
-	}
+    private void cancelRefEvent() {
+        this.channel.off(this.refEvent);
+    }
 
-	private void cancelTimeout() {
-		if (this.timeoutHook.getTimerTask()!=null) {
-			this.timeoutHook.getTimerTask().cancel();
-			this.timeoutHook.setTimerTask(null);
-		}
-	}
+    private void cancelTimeout() {
+        if (this.timeoutHook.getTimerTask() != null) {
+            this.timeoutHook.getTimerTask().cancel();
+            this.timeoutHook.setTimerTask(null);
+        }
+    }
 
-	private TimerTask createTimerTask() {
-		final Runnable callback = new Runnable() {
-			@Override
-			public void run() {
-				Push.this.cancelRefEvent();
-				if (Push.this.timeoutHook.hasCallback()) {
-					Push.this.timeoutHook.getCallback().onTimeout();
-				}
-			}
-		};
+    private TimerTask createTimerTask() {
+        final Runnable callback = new Runnable() {
+            @Override
+            public void run() {
+                Push.this.cancelRefEvent();
+                if (Push.this.timeoutHook.hasCallback()) {
+                    Push.this.timeoutHook.getCallback().onTimeout();
+                }
+            }
+        };
 
-		return new TimerTask() {
-			@Override
-			public void run() {
-				callback.run();
-			}
-		};
-	}
+        return new TimerTask() {
+            @Override
+            public void run() {
+                callback.run();
+            }
+        };
+    }
 
-	private void matchReceive(final String status, final CoreKitMsgBean envelope) {
-		try {
-			synchronized (recHooks) {
-				final List<IMessageCallback> statusCallbacks = this.recHooks.get(status);
-				if (statusCallbacks != null) {
-					for (final IMessageCallback callback : statusCallbacks) {
-						callback.onMessage(envelope);
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    private void matchReceive(final String status, final CoreKitMsgBean envelope) {
+        try {
+            synchronized (recHooks) {
+                final List<IMessageCallback> statusCallbacks = this.recHooks.get(status);
+                if (statusCallbacks != null) {
+                    for (final IMessageCallback callback : statusCallbacks) {
+                        callback.onMessage(envelope);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	private void startTimeout() {
-		this.timeoutHook.setTimerTask(createTimerTask());
-		this.channel.scheduleTask(this.timeoutHook.getTimerTask(), this.timeoutHook.getMs());
-	}
+    private void startTimeout() {
+        this.timeoutHook.setTimerTask(createTimerTask());
+        this.channel.scheduleTask(this.timeoutHook.getTimerTask(), this.timeoutHook.getMs());
+    }
 }

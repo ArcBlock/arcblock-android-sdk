@@ -22,38 +22,38 @@
 package com.arcblock.corekit.socket;
 
 public class Binding {
-	private final String event;
-	private IMessageCallback callback;
-	private final String subId;
+    private final String event;
+    private IMessageCallback callback;
+    private final String subId;
 
-	public Binding(final String event,final String subId, IMessageCallback callback) {
-		this.event = event;
-		this.subId = subId;
-		this.callback = callback;
-	}
+    public Binding(final String event, final String subId, IMessageCallback callback) {
+        this.event = event;
+        this.subId = subId;
+        this.callback = callback;
+    }
 
-	public String getEvent() {
-		return event;
-	}
+    public String getEvent() {
+        return event;
+    }
 
-	public String getSubId() {
-		return subId;
-	}
+    public String getSubId() {
+        return subId;
+    }
 
-	public IMessageCallback getCallback() {
-		return callback;
-	}
+    public IMessageCallback getCallback() {
+        return callback;
+    }
 
-	public void setCallback(IMessageCallback callback) {
-		this.callback = callback;
-	}
+    public void setCallback(IMessageCallback callback) {
+        this.callback = callback;
+    }
 
-	@Override
-	public String toString() {
-		return "Binding{" +
-				"event='" + event + '\'' +
-				"subId='" + subId + '\'' +
-				", callback=" + callback +
-				'}';
-	}
+    @Override
+    public String toString() {
+        return "Binding{" +
+                "event='" + event + '\'' +
+                "subId='" + subId + '\'' +
+                ", callback=" + callback +
+                '}';
+    }
 }

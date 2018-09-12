@@ -30,26 +30,26 @@ import android.view.ViewGroup;
 
 public class AccountFragment extends Fragment {
 
-	public static AccountFragment newInstance() {
-		AccountFragment fragment = new AccountFragment();
-		return fragment;
-	}
+    public static AccountFragment newInstance() {
+        AccountFragment fragment = new AccountFragment();
+        return fragment;
+    }
 
-	@Nullable
-	@Override
-	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.frag_account, null);
-		return view;
-	}
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.frag_account, null);
+        return view;
+    }
 
-	@Override
-	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-	}
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+    }
 
-	@Override
-	public void onDestroyView() {
-		super.onDestroyView();
-	}
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+    }
 
 }

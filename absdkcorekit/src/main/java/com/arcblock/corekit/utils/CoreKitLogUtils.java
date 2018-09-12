@@ -27,36 +27,36 @@ import com.arcblock.corekit.ABCoreKitClient;
 
 public class CoreKitLogUtils {
 
-	private static final String TAG = "CoreKitSocket";
+    private static final String TAG = "CoreKitSocket";
 
-	public static void v(String log) {
-		if (ABCoreKitClient.IS_DEBUG) {
-			Log.v(TAG, log);
-		}
-	}
+    public static void v(String log) {
+        if (ABCoreKitClient.IS_DEBUG) {
+            Log.v(TAG, log);
+        }
+    }
 
-	public static void d(String log) {
-		if (ABCoreKitClient.IS_DEBUG) {
-			Log.d(TAG, log);
-		}
-	}
+    public static void d(String log) {
+        if (ABCoreKitClient.IS_DEBUG) {
+            Log.d(TAG, log);
+        }
+    }
 
-	public static void i(String log) {
-		if (ABCoreKitClient.IS_DEBUG) {
-			Log.i(TAG, log);
-		}
-	}
+    public static void i(String log) {
+        if (ABCoreKitClient.IS_DEBUG) {
+            Log.i(TAG, log);
+        }
+    }
 
-	public static void w(String log) {
-		if (ABCoreKitClient.IS_DEBUG) {
-			Log.w(TAG, log);
-		}
-	}
+    public static void w(String log) {
+        if (ABCoreKitClient.IS_DEBUG) {
+            Log.w(TAG, log);
+        }
+    }
 
-	public static void e(String log) {
-		if (ABCoreKitClient.IS_DEBUG) {
-			Log.e(TAG, log);
-		}
-	}
+    public static void e(String log) {
+        if (ABCoreKitClient.IS_DEBUG) {
+            Log.e(TAG, log);
+        }
+    }
 
 }

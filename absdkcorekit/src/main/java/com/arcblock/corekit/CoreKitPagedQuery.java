@@ -47,30 +47,55 @@ public abstract class CoreKitPagedQuery<T extends Query.Data, D> implements Core
     private CoreKitPagedViewModel<T, D> coreKitPagedViewModel;
     private LifecycleOwner mLifecycleOwner;
 
+    /**
+     * The construct for activity and custom client
+     * @param activity
+     * @param lifecycleOwner
+     * @param client
+     */
     public CoreKitPagedQuery(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
         CoreKitPagedViewModel.CustomClientFactory factory = new CoreKitPagedViewModel.CustomClientFactory(this, this, client);
         this.coreKitPagedViewModel = CoreKitPagedViewModel.getInstance(activity, factory);
         this.mLifecycleOwner = lifecycleOwner;
     }
 
+    /**
+     * The construct for activity and default client
+     * @param activity
+     * @param lifecycleOwner
+     * @param context
+     * @param apiType
+     */
     public CoreKitPagedQuery(FragmentActivity activity, LifecycleOwner lifecycleOwner, Context context, int apiType) {
         CoreKitPagedViewModel.DefaultFactory factory = new CoreKitPagedViewModel.DefaultFactory(this, this, context, apiType);
         this.coreKitPagedViewModel = CoreKitPagedViewModel.getInstance(activity, factory);
         this.mLifecycleOwner = lifecycleOwner;
     }
 
+    /**
+     * The construct for fragment and custom client
+     * @param fragment
+     * @param lifecycleOwner
+     * @param client
+     */
     public CoreKitPagedQuery(Fragment fragment, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
         CoreKitPagedViewModel.CustomClientFactory factory = new CoreKitPagedViewModel.CustomClientFactory(this, this, client);
         this.coreKitPagedViewModel = CoreKitPagedViewModel.getInstance(fragment, factory);
         this.mLifecycleOwner = lifecycleOwner;
     }
 
+    /**
+     * The construct for fragment and default client
+     * @param fragment
+     * @param lifecycleOwner
+     * @param context
+     * @param apiType
+     */
     public CoreKitPagedQuery(Fragment fragment, LifecycleOwner lifecycleOwner, Context context, int apiType) {
         CoreKitPagedViewModel.DefaultFactory factory = new CoreKitPagedViewModel.DefaultFactory(this, this, context, apiType);
         this.coreKitPagedViewModel = CoreKitPagedViewModel.getInstance(fragment, factory);
         this.mLifecycleOwner = lifecycleOwner;
     }
-
 
     /**
      * @return is page have next

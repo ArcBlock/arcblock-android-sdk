@@ -39,7 +39,7 @@ public class BaseViewHolder {
     private View mConvertView;
 
     private BaseViewHolder(Context context, ViewGroup parent, int layoutId,
-						   int position) {
+                           int position) {
         this.mViews = new SparseArray<View>();
         this.mConvertView = LayoutInflater.from(context).inflate(layoutId,
                 parent, false);
@@ -48,7 +48,7 @@ public class BaseViewHolder {
     }
 
     public static BaseViewHolder get(Context context, ViewGroup parent,
-									 int layoutId, int position, View convertView) {
+                                     int layoutId, int position, View convertView) {
         if (convertView == null) {
             return new BaseViewHolder(context, parent, layoutId, position);
         } else {

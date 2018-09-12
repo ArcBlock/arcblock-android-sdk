@@ -51,215 +51,215 @@ import io.reactivex.schedulers.Schedulers;
 
 public class CoreKitPagedViewModel<T, K> extends ViewModel implements CoreKitInterface {
 
-	public static CoreKitPagedViewModel getInstance(FragmentActivity activity, CoreKitPagedViewModel.CustomClientFactory factory) {
-		return ViewModelProviders.of(activity, factory).get(factory.getOperationId(), CoreKitPagedViewModel.class);
-	}
+    public static CoreKitPagedViewModel getInstance(FragmentActivity activity, CoreKitPagedViewModel.CustomClientFactory factory) {
+        return ViewModelProviders.of(activity, factory).get(factory.getOperationId(), CoreKitPagedViewModel.class);
+    }
 
-	public static CoreKitPagedViewModel getInstance(FragmentActivity activity, CoreKitPagedViewModel.DefaultFactory factory) {
-		return ViewModelProviders.of(activity, factory).get(factory.getOperationId(), CoreKitPagedViewModel.class);
-	}
+    public static CoreKitPagedViewModel getInstance(FragmentActivity activity, CoreKitPagedViewModel.DefaultFactory factory) {
+        return ViewModelProviders.of(activity, factory).get(factory.getOperationId(), CoreKitPagedViewModel.class);
+    }
 
-	public static CoreKitPagedViewModel getInstance(Fragment fragment, CoreKitPagedViewModel.CustomClientFactory factory) {
-		return ViewModelProviders.of(fragment, factory).get(factory.getOperationId(), CoreKitPagedViewModel.class);
-	}
+    public static CoreKitPagedViewModel getInstance(Fragment fragment, CoreKitPagedViewModel.CustomClientFactory factory) {
+        return ViewModelProviders.of(fragment, factory).get(factory.getOperationId(), CoreKitPagedViewModel.class);
+    }
 
-	public static CoreKitPagedViewModel getInstance(Fragment fragment, CoreKitPagedViewModel.DefaultFactory factory) {
-		return ViewModelProviders.of(fragment, factory).get(factory.getOperationId(), CoreKitPagedViewModel.class);
-	}
+    public static CoreKitPagedViewModel getInstance(Fragment fragment, CoreKitPagedViewModel.DefaultFactory factory) {
+        return ViewModelProviders.of(fragment, factory).get(factory.getOperationId(), CoreKitPagedViewModel.class);
+    }
 
-	private ABCoreKitClient mABCoreKitClient;
-	private MutableLiveData<CoreKitPagedBean<List<K>>> mCleanDatasMutableLiveData = new MutableLiveData<>();
-	private CoreKitBeanMapperInterface<Response<T>, List<K>> mCoreKitBeanMapper;
-	private boolean isLoading;
-	private List<K> resultDatas = new ArrayList<>();
-	private CoreKitPagedHelperInterface mCoreKitPagedHelper;
+    private ABCoreKitClient mABCoreKitClient;
+    private MutableLiveData<CoreKitPagedBean<List<K>>> mCleanDatasMutableLiveData = new MutableLiveData<>();
+    private CoreKitBeanMapperInterface<Response<T>, List<K>> mCoreKitBeanMapper;
+    private boolean isLoading;
+    private List<K> resultDatas = new ArrayList<>();
+    private CoreKitPagedHelperInterface mCoreKitPagedHelper;
 
-	public CoreKitPagedViewModel(CoreKitBeanMapperInterface<Response<T>, List<K>> mapper, CoreKitPagedHelperInterface coreKitPagedHelper, Context context, int apiType) {
-		this.mCoreKitBeanMapper = mapper;
-		this.mCoreKitPagedHelper = coreKitPagedHelper;
-		this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context, apiType);
+    public CoreKitPagedViewModel(CoreKitBeanMapperInterface<Response<T>, List<K>> mapper, CoreKitPagedHelperInterface coreKitPagedHelper, Context context, int apiType) {
+        this.mCoreKitBeanMapper = mapper;
+        this.mCoreKitPagedHelper = coreKitPagedHelper;
+        this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context, apiType);
 
-	}
+    }
 
-	public CoreKitPagedViewModel(CoreKitBeanMapperInterface<Response<T>, List<K>> mapper, CoreKitPagedHelperInterface coreKitPagedHelper, ABCoreKitClient aBCoreKitClient) {
-		this.mCoreKitBeanMapper = mapper;
-		this.mCoreKitPagedHelper = coreKitPagedHelper;
-		this.mABCoreKitClient = aBCoreKitClient;
-	}
+    public CoreKitPagedViewModel(CoreKitBeanMapperInterface<Response<T>, List<K>> mapper, CoreKitPagedHelperInterface coreKitPagedHelper, ABCoreKitClient aBCoreKitClient) {
+        this.mCoreKitBeanMapper = mapper;
+        this.mCoreKitPagedHelper = coreKitPagedHelper;
+        this.mABCoreKitClient = aBCoreKitClient;
+    }
 
-	/**
-	 * @return a livedata object with CoreKitPagedBean and have no repeat data
-	 */
-	public MutableLiveData<CoreKitPagedBean<List<K>>> getCleanQueryData() {
-		if (mCoreKitPagedHelper == null) {
-			throw new RuntimeException("CoreKitPagedHelperInterface must be init.");
-		}
-		doFinalQuery(mCoreKitPagedHelper.getInitialQuery());
-		return mCleanDatasMutableLiveData;
-	}
+    /**
+     * @return a livedata object with CoreKitPagedBean and have no repeat data
+     */
+    public MutableLiveData<CoreKitPagedBean<List<K>>> getCleanQueryData() {
+        if (mCoreKitPagedHelper == null) {
+            throw new RuntimeException("CoreKitPagedHelperInterface must be init.");
+        }
+        doFinalQuery(mCoreKitPagedHelper.getInitialQuery());
+        return mCleanDatasMutableLiveData;
+    }
 
-	/**
-	 * fetch data by this method
-	 */
-	@Override
-	public void doFinalQuery(Query query) {
-		if (mCoreKitPagedHelper == null && query == null) {
-			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The query is empty."));
-		}
-		Rx2Apollo.from(mABCoreKitClient.query(query).watcher())
-				.subscribeOn(Schedulers.io())
-				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe(new Observer<Response<T>>() {
-					@Override
-					public void onSubscribe(Disposable d) {
+    /**
+     * fetch data by this method
+     */
+    @Override
+    public void doFinalQuery(Query query) {
+        if (mCoreKitPagedHelper == null && query == null) {
+            mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The query is empty."));
+        }
+        Rx2Apollo.from(mABCoreKitClient.query(query).watcher())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Response<T>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
 
-					}
+                    }
 
-					@Override
-					public void onNext(Response<T> t) {
-						handleData(t);
-						isLoading = false;
-					}
+                    @Override
+                    public void onNext(Response<T> t) {
+                        handleData(t);
+                        isLoading = false;
+                    }
 
-					@Override
-					public void onError(Throwable e) {
-						isLoading = false;
-						mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, e.toString()));
-					}
+                    @Override
+                    public void onError(Throwable e) {
+                        isLoading = false;
+                        mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, e.toString()));
+                    }
 
-					@Override
-					public void onComplete() {
+                    @Override
+                    public void onComplete() {
 
-					}
-				});
-	}
+                    }
+                });
+    }
 
-	/**
-	 * handle response t to the data which are we want.
-	 *
-	 * @param t
-	 */
-	private synchronized void handleData(Response<T> t) {
-		if (t != null) {
-			List<K> temp = mCoreKitBeanMapper.map(t);
-			if (temp == null) {
-				mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty."));
-				return;
-			}
-			// handle list for repeated data
-			for (int i = 0; i < temp.size(); i++) {
-				if (isNotInBlocks(temp.get(i))) {
-					resultDatas.add(temp.get(i));
-				}
-			}
-			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(resultDatas, CoreKitBean.SUCCESS_CODE, ""));
-		} else {
-			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty."));
-		}
-	}
+    /**
+     * handle response t to the data which are we want.
+     *
+     * @param t
+     */
+    private synchronized void handleData(Response<T> t) {
+        if (t != null) {
+            List<K> temp = mCoreKitBeanMapper.map(t);
+            if (temp == null) {
+                mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty."));
+                return;
+            }
+            // handle list for repeated data
+            for (int i = 0; i < temp.size(); i++) {
+                if (isNotInBlocks(temp.get(i))) {
+                    resultDatas.add(temp.get(i));
+                }
+            }
+            mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(resultDatas, CoreKitBean.SUCCESS_CODE, ""));
+        } else {
+            mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The result is empty."));
+        }
+    }
 
-	/**
-	 * load next page data
-	 */
-	public void loadMore() {
-		if (isLoading) {
-			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do loadMore when loading."));
-			return;
-		}
-		if (mCoreKitPagedHelper == null) {
-			throw new RuntimeException("CoreKitPagedHelperInterface must be init.");
-		}
-		isLoading = true;
-		doFinalQuery(mCoreKitPagedHelper.getLoadMoreQuery());
-	}
+    /**
+     * load next page data
+     */
+    public void loadMore() {
+        if (isLoading) {
+            mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do loadMore when loading."));
+            return;
+        }
+        if (mCoreKitPagedHelper == null) {
+            throw new RuntimeException("CoreKitPagedHelperInterface must be init.");
+        }
+        isLoading = true;
+        doFinalQuery(mCoreKitPagedHelper.getLoadMoreQuery());
+    }
 
-	/**
-	 * do refresh
-	 * reset query pageInput
-	 * reset page
-	 */
-	public void refresh() {
-		if (isLoading) {
-			mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do refresh when loading."));
-			return;
-		}
-		if (mCoreKitPagedHelper == null) {
-			throw new RuntimeException("CoreKitPagedHelperInterface must be init.");
-		}
-		resultDatas.clear();
-		isLoading = true;
-		mCoreKitPagedHelper.setHasMoreForRefresh();
-		doFinalQuery(mCoreKitPagedHelper.getRefreshQuery());
-	}
+    /**
+     * do refresh
+     * reset query pageInput
+     * reset page
+     */
+    public void refresh() {
+        if (isLoading) {
+            mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "Cannot do refresh when loading."));
+            return;
+        }
+        if (mCoreKitPagedHelper == null) {
+            throw new RuntimeException("CoreKitPagedHelperInterface must be init.");
+        }
+        resultDatas.clear();
+        isLoading = true;
+        mCoreKitPagedHelper.setHasMoreForRefresh();
+        doFinalQuery(mCoreKitPagedHelper.getRefreshQuery());
+    }
 
-	/**
-	 * @param k
-	 * @return if the item k is not in the listDatas
-	 */
-	private boolean isNotInBlocks(K k) {
-		for (int i = 0; i < resultDatas.size(); i++) {
-			if (k.equals(resultDatas.get(i))) {
-				return false;
-			}
-		}
-		return true;
-	}
+    /**
+     * @param k
+     * @return if the item k is not in the listDatas
+     */
+    private boolean isNotInBlocks(K k) {
+        for (int i = 0; i < resultDatas.size(); i++) {
+            if (k.equals(resultDatas.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-	/**
-	 * custom client factory
-	 * developer can set a custom ABCoreKitClient by this Factory
-	 */
-	public static class CustomClientFactory extends ViewModelProvider.NewInstanceFactory {
+    /**
+     * custom client factory
+     * developer can set a custom ABCoreKitClient by this Factory
+     */
+    public static class CustomClientFactory extends ViewModelProvider.NewInstanceFactory {
 
-		private CoreKitBeanMapperInterface mCoreKitBeanMapper;
-		private CoreKitPagedHelperInterface mCoreKitPagedHelper;
-		private ABCoreKitClient mABCoreKitClient;
-		private String operationId;
+        private CoreKitBeanMapperInterface mCoreKitBeanMapper;
+        private CoreKitPagedHelperInterface mCoreKitPagedHelper;
+        private ABCoreKitClient mABCoreKitClient;
+        private String operationId;
 
-		public CustomClientFactory(CoreKitBeanMapperInterface coreKitBeanMapper, CoreKitPagedHelperInterface coreKitPagedHelper, ABCoreKitClient aBCoreKitClient) {
-			this.mABCoreKitClient = aBCoreKitClient;
-			this.mCoreKitPagedHelper = coreKitPagedHelper;
-			this.mCoreKitBeanMapper = coreKitBeanMapper;
-			this.operationId = mCoreKitPagedHelper != null && mCoreKitPagedHelper.getInitialQuery() != null ? mCoreKitPagedHelper.getInitialQuery().operationId() : UUID.randomUUID().toString();
-		}
+        public CustomClientFactory(CoreKitBeanMapperInterface coreKitBeanMapper, CoreKitPagedHelperInterface coreKitPagedHelper, ABCoreKitClient aBCoreKitClient) {
+            this.mABCoreKitClient = aBCoreKitClient;
+            this.mCoreKitPagedHelper = coreKitPagedHelper;
+            this.mCoreKitBeanMapper = coreKitBeanMapper;
+            this.operationId = mCoreKitPagedHelper != null && mCoreKitPagedHelper.getInitialQuery() != null ? mCoreKitPagedHelper.getInitialQuery().operationId() : UUID.randomUUID().toString();
+        }
 
-		public String getOperationId() {
-			return operationId;
-		}
+        public String getOperationId() {
+            return operationId;
+        }
 
-		@NonNull
-		@Override
-		public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-			return (T) new CoreKitPagedViewModel(mCoreKitBeanMapper, mCoreKitPagedHelper, mABCoreKitClient);
-		}
-	}
+        @NonNull
+        @Override
+        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+            return (T) new CoreKitPagedViewModel(mCoreKitBeanMapper, mCoreKitPagedHelper, mABCoreKitClient);
+        }
+    }
 
-	public static class DefaultFactory extends ViewModelProvider.NewInstanceFactory {
+    public static class DefaultFactory extends ViewModelProvider.NewInstanceFactory {
 
-		private CoreKitBeanMapperInterface mCoreKitBeanMapper;
-		private CoreKitPagedHelperInterface mCoreKitPagedHelper;
-		private Context mContext;
-		private int apiType;
-		private String operationId;
+        private CoreKitBeanMapperInterface mCoreKitBeanMapper;
+        private CoreKitPagedHelperInterface mCoreKitPagedHelper;
+        private Context mContext;
+        private int apiType;
+        private String operationId;
 
-		public DefaultFactory(CoreKitBeanMapperInterface coreKitBeanMapper, CoreKitPagedHelperInterface coreKitPagedHelper, Context context, int apiType) {
-			this.mCoreKitBeanMapper = coreKitBeanMapper;
-			this.mCoreKitPagedHelper = coreKitPagedHelper;
-			this.mContext = context;
-			this.apiType = apiType;
-			this.operationId = mCoreKitPagedHelper != null && mCoreKitPagedHelper.getInitialQuery() != null ? mCoreKitPagedHelper.getInitialQuery().operationId() : UUID.randomUUID().toString();
-		}
+        public DefaultFactory(CoreKitBeanMapperInterface coreKitBeanMapper, CoreKitPagedHelperInterface coreKitPagedHelper, Context context, int apiType) {
+            this.mCoreKitBeanMapper = coreKitBeanMapper;
+            this.mCoreKitPagedHelper = coreKitPagedHelper;
+            this.mContext = context;
+            this.apiType = apiType;
+            this.operationId = mCoreKitPagedHelper != null && mCoreKitPagedHelper.getInitialQuery() != null ? mCoreKitPagedHelper.getInitialQuery().operationId() : UUID.randomUUID().toString();
+        }
 
-		public String getOperationId() {
-			return operationId;
-		}
+        public String getOperationId() {
+            return operationId;
+        }
 
-		@NonNull
-		@Override
-		public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-			return (T) new CoreKitPagedViewModel(mCoreKitBeanMapper, mCoreKitPagedHelper, mContext, apiType);
-		}
-	}
+        @NonNull
+        @Override
+        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+            return (T) new CoreKitPagedViewModel(mCoreKitBeanMapper, mCoreKitPagedHelper, mContext, apiType);
+        }
+    }
 
 
 }

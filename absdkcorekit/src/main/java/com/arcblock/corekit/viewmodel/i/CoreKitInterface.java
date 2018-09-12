@@ -24,9 +24,10 @@ package com.arcblock.corekit.viewmodel.i;
 import com.apollographql.apollo.api.Query;
 
 public interface CoreKitInterface {
-	/**
-	 * do apollo query
-	 * @param query
-	 */
-	void doFinalQuery(Query query);
+    /**
+     * do apollo query
+     *
+     * @param query
+     */
+    void doFinalQuery(Query query);
 }

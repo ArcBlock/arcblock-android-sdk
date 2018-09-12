@@ -26,24 +26,24 @@ import com.arcblock.corekit.viewmodel.CoreKitPagedViewModel;
 
 public interface CoreKitPagedHelperInterface {
 
-	/**
-	 * @return initial query object for page initial query
-	 */
-	Query getInitialQuery();
-
-	/**
-	 * @return loadMore query object for page loadMore query
-	 */
-	Query getLoadMoreQuery();
-
-	/**
-	 * @return refresh query object for page refresh query
-	 */
-	Query getRefreshQuery();
-
-	/**
-	 * this method is for {@link CoreKitPagedViewModel#refresh()}
+    /**
+     * @return initial query object for page initial query
      */
-	void setHasMoreForRefresh();
+    Query getInitialQuery();
+
+    /**
+     * @return loadMore query object for page loadMore query
+     */
+    Query getLoadMoreQuery();
+
+    /**
+     * @return refresh query object for page refresh query
+     */
+    Query getRefreshQuery();
+
+    /**
+     * this method is for {@link CoreKitPagedViewModel#refresh()}
+     */
+    void setHasMoreForRefresh();
 
 }

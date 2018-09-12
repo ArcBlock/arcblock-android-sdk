@@ -28,35 +28,35 @@ import java.util.List;
 
 public class CoreKitDiffUtil<T> extends DiffUtil.Callback {
 
-	private List<T> oldList;
-	private List<T> newList;
+    private List<T> oldList;
+    private List<T> newList;
 
 
-	public CoreKitDiffUtil(List<T> oldList, List<T> newList) {
-		this.oldList = oldList;
-		this.newList = newList;
-	}
+    public CoreKitDiffUtil(List<T> oldList, List<T> newList) {
+        this.oldList = oldList;
+        this.newList = newList;
+    }
 
-	@Override
-	public int getOldListSize() {
-		return oldList == null ? 0 : oldList.size();
-	}
+    @Override
+    public int getOldListSize() {
+        return oldList == null ? 0 : oldList.size();
+    }
 
-	@Override
-	public int getNewListSize() {
-		return newList == null ? 0 : newList.size();
-	}
+    @Override
+    public int getNewListSize() {
+        return newList == null ? 0 : newList.size();
+    }
 
-	@Override
-	public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-		boolean flag = (oldList.get(oldItemPosition)).equals(newList.get(newItemPosition));
-		Log.e("areItemsTheSame=>", "areItemsTheSame=>" + flag);
-		return flag;
-	}
+    @Override
+    public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+        boolean flag = (oldList.get(oldItemPosition)).equals(newList.get(newItemPosition));
+        Log.e("areItemsTheSame=>", "areItemsTheSame=>" + flag);
+        return flag;
+    }
 
-	@Override
-	public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-		boolean flag = (oldList.get(oldItemPosition)).equals(newList.get(newItemPosition));
-		return flag;
-	}
+    @Override
+    public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+        boolean flag = (oldList.get(oldItemPosition)).equals(newList.get(newItemPosition));
+        return flag;
+    }
 }

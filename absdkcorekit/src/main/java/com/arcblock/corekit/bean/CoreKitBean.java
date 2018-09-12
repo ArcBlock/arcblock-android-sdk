@@ -21,46 +21,46 @@
  */
 package com.arcblock.corekit.bean;
 
-public class CoreKitBean<T>{
+public class CoreKitBean<T> {
 
-	public static final int SUCCESS_CODE = 0;
-	public static final int FAIL_CODE = 1;
+    public static final int SUCCESS_CODE = 0;
+    public static final int FAIL_CODE = 1;
 
-	private T data;
-	private int status;
-	private String errorMessage;
+    private T data;
+    private int status;
+    private String errorMessage;
 
-	public CoreKitBean() {
+    public CoreKitBean() {
 
-	}
+    }
 
-	public CoreKitBean(T data, int status, String errorMessage) {
-		this.data = data;
-		this.status = status;
-		this.errorMessage = errorMessage;
-	}
+    public CoreKitBean(T data, int status, String errorMessage) {
+        this.data = data;
+        this.status = status;
+        this.errorMessage = errorMessage;
+    }
 
-	public T getData() {
-		return data;
-	}
+    public T getData() {
+        return data;
+    }
 
-	public void setData(T data) {
-		this.data = data;
-	}
+    public void setData(T data) {
+        this.data = data;
+    }
 
-	public int getStatus() {
-		return status;
-	}
+    public int getStatus() {
+        return status;
+    }
 
-	public void setStatus(int status) {
-		this.status = status;
-	}
+    public void setStatus(int status) {
+        this.status = status;
+    }
 
-	public String getErrorMessage() {
-		return errorMessage;
-	}
+    public String getErrorMessage() {
+        return errorMessage;
+    }
 
-	public void setErrorMessage(String errorMessage) {
-		this.errorMessage = errorMessage;
-	}
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
 }

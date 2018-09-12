@@ -32,12 +32,12 @@ import java.util.List;
 
 public class BlockDetailTransactionsAdapter extends CustomBaseAdapter<BlockByHashQuery.Datum> {
 
-	public BlockDetailTransactionsAdapter(Context context, int resource, List<BlockByHashQuery.Datum> list) {
-		super(context, resource, list);
-	}
+    public BlockDetailTransactionsAdapter(Context context, int resource, List<BlockByHashQuery.Datum> list) {
+        super(context, resource, list);
+    }
 
-	@Override
-	public void setConvert(BaseViewHolder viewHolder, BlockByHashQuery.Datum item) {
-		viewHolder.setTextView(R.id.item_tv, item.getHash());
-	}
+    @Override
+    public void setConvert(BaseViewHolder viewHolder, BlockByHashQuery.Datum item) {
+        viewHolder.setTextView(R.id.item_tv, item.getHash());
+    }
 }

@@ -21,6 +21,6 @@
  */
 package com.arcblock.corekit.viewmodel.i;
 
-public interface CoreKitBeanMapperInterface<T,D> {
-	D map(T dataResponse);
+public interface CoreKitBeanMapperInterface<T, D> {
+    D map(T dataResponse);
 }

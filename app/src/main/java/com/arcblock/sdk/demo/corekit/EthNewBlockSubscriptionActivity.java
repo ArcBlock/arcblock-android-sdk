@@ -23,12 +23,15 @@ package com.arcblock.sdk.demo.corekit;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.arcblock.corekit.ABCoreKitClient;
+import com.arcblock.corekit.CoreKitSubscription;
 import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.corekit.socket.CoreKitSocketStatusCallBack;
 import com.arcblock.corekit.viewmodel.CoreKitSubViewModel;
@@ -36,123 +39,114 @@ import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.NewEthBlockTxsAdapter;
 import com.arcblock.sdk.demo.eth.NewBlockMinedSubscription;
-import com.arcblock.sdk.demo.eth.NewContractCreatedSubscription;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
 
-	private TextView block_height_tv;
-	private TextView connect_status_tv;
-	private ListView transactions_lv;
-	private CoreKitSubViewModel<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> mDataCoreKitSubViewModel;
-	private CoreKitSubViewModel<NewContractCreatedSubscription.Data, NewBlockMinedSubscription> mDataCoreKitSubViewModelForNewContract;
-	private NewEthBlockTxsAdapter mNewEthBlockTxsAdapter;
-	private List<NewBlockMinedSubscription.Datum> mDatumList = new ArrayList<>();
+    private TextView block_height_tv;
+    private TextView connect_status_tv;
+    private ListView transactions_lv;
+    private NewEthBlockTxsAdapter mNewEthBlockTxsAdapter;
+    private List<NewBlockMinedSubscription.Datum> mDatumList = new ArrayList<>();
+    private EthNewBlockSubscription ethNewBlockSubscription;
 
-	@Override
-	protected void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_eth_new_block_subscription);
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_eth_new_block_subscription);
 
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setTitle("Eth Block Subscription");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Eth Block Subscription");
 
-		initView();
-		initData();
-	}
+        initView();
+        initData();
+    }
 
-	private void initView() {
-		block_height_tv = findViewById(R.id.block_height_tv);
-		connect_status_tv = findViewById(R.id.connect_status_tv);
-		transactions_lv = findViewById(R.id.transactions_lv);
-		mNewEthBlockTxsAdapter = new NewEthBlockTxsAdapter(this, R.layout.item_eth_new_block_sub, mDatumList);
-		transactions_lv.setAdapter(mNewEthBlockTxsAdapter);
-		block_height_tv.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				//initData2();
-			}
-		});
-		connect_status_tv.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				mDataCoreKitSubViewModel.doManualReconnect();
-			}
-		});
-	}
+    private void initView() {
+        block_height_tv = findViewById(R.id.block_height_tv);
+        connect_status_tv = findViewById(R.id.connect_status_tv);
+        transactions_lv = findViewById(R.id.transactions_lv);
+        mNewEthBlockTxsAdapter = new NewEthBlockTxsAdapter(this, R.layout.item_eth_new_block_sub, mDatumList);
+        transactions_lv.setAdapter(mNewEthBlockTxsAdapter);
+        block_height_tv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //initData2();
+            }
+        });
+        connect_status_tv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ethNewBlockSubscription.doManualReconnect();
+            }
+        });
+    }
 
-	private void initData() {
+    private void initData() {
+        // init subscription
+        ethNewBlockSubscription = new EthNewBlockSubscription(this, DemoApplication.getInstance().abCoreKitClientEth());
+        // add data callback
+        ethNewBlockSubscription.setCoreKitSubCallBack(new CoreKitSubViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
+            @Override
+            public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
+                if (coreKitBean != null && coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+                    block_height_tv.setText(coreKitBean.getData().getNewBlockMined().getHeight() + "");
+                    if (coreKitBean.getData().getNewBlockMined().getTransactions().getData() != null) {
+                        mDatumList.clear();
+                        mDatumList.addAll(coreKitBean.getData().getNewBlockMined().getTransactions().getData());
+                        mNewEthBlockTxsAdapter.notifyDataSetChanged();
+                    }
+                }
+            }
+        });
+        // add status callback
+        ethNewBlockSubscription.setCoreKitSocketStatusCallBack(new CoreKitSocketStatusCallBack() {
+            @Override
+            public void onOpen() {
+                connect_status_tv.setVisibility(View.GONE);
+            }
 
-		NewBlockMinedSubscription newBlockMinedSubscription = new NewBlockMinedSubscription();
+            @Override
+            public void onClose() {
+                connect_status_tv.setVisibility(View.VISIBLE);
+                connect_status_tv.setText("connect close");
+            }
 
-		CoreKitSubViewModel.CustomClientFactory<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> factory =
-				new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), newBlockMinedSubscription, NewBlockMinedSubscription.Data.class);
+            @Override
+            public void onError() {
+                connect_status_tv.setVisibility(View.VISIBLE);
+                connect_status_tv.setText("connect error");
+            }
+        });
+    }
 
-		mDataCoreKitSubViewModel = CoreKitSubViewModel.getInstance(this, factory);
-		mDataCoreKitSubViewModel.subscription()
-				.setCoreKitSubCallBack(new CoreKitSubViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
-					@Override
-					public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
-						if (coreKitBean != null && coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-							block_height_tv.setText(coreKitBean.getData().getNewBlockMined().getHeight() + "");
-							if (coreKitBean.getData().getNewBlockMined().getTransactions().getData() != null) {
-								mDatumList.clear();
-								mDatumList.addAll(coreKitBean.getData().getNewBlockMined().getTransactions().getData());
-								mNewEthBlockTxsAdapter.notifyDataSetChanged();
-							}
-						}
-					}
-				});
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home://返回键的id
+                this.onBackPressed();
+                return false;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
-		mDataCoreKitSubViewModel.setCoreKitSocketStatusCallBack(new CoreKitSocketStatusCallBack() {
-			@Override
-			public void onOpen() {
-				connect_status_tv.setVisibility(View.GONE);
-			}
+    private class EthNewBlockSubscription extends CoreKitSubscription<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> {
 
-			@Override
-			public void onClose() {
-				connect_status_tv.setVisibility(View.VISIBLE);
-				connect_status_tv.setText("connect close");
-			}
+        public EthNewBlockSubscription(FragmentActivity activity, ABCoreKitClient client) {
+            super(activity, client);
+        }
 
-			@Override
-			public void onError() {
-				connect_status_tv.setVisibility(View.VISIBLE);
-				connect_status_tv.setText("connect error");
-			}
-		});
-	}
+        @Override
+        public NewBlockMinedSubscription getSubscription() {
+            return new NewBlockMinedSubscription();
+        }
 
-	private void initData2() {
-
-		NewContractCreatedSubscription newContractCreatedSubscription = new NewContractCreatedSubscription();
-
-		CoreKitSubViewModel.CustomClientFactory<NewContractCreatedSubscription.Data, NewContractCreatedSubscription> factory =
-				new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), newContractCreatedSubscription, NewContractCreatedSubscription.Data.class);
-
-		mDataCoreKitSubViewModelForNewContract = CoreKitSubViewModel.getInstance(this, factory);
-		mDataCoreKitSubViewModelForNewContract.subscription()
-				.setCoreKitSubCallBack(new CoreKitSubViewModel.CoreKitSubCallBack<NewContractCreatedSubscription.Data>() {
-					@Override
-					public void onNewData(CoreKitBean<NewContractCreatedSubscription.Data> coreKitBean) {
-						if (coreKitBean != null && coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-
-						}
-					}
-				});
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home://返回键的id
-				this.onBackPressed();
-				return false;
-			default:
-				return super.onOptionsItemSelected(item);
-		}
-	}
+        @Override
+        public Class<NewBlockMinedSubscription.Data> getSubscriptionClass() {
+            return NewBlockMinedSubscription.Data.class;
+        }
+    }
 }
