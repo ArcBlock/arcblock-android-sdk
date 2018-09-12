@@ -29,7 +29,6 @@ import com.apollographql.apollo.response.CustomTypeValue;
 import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.config.CoreKitConfig;
 import com.arcblock.sdk.demo.btc.type.CustomType;
-import com.facebook.stetho.Stetho;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -38,8 +37,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 import timber.log.Timber;
 
 public class DemoApplication extends Application {
@@ -47,7 +44,6 @@ public class DemoApplication extends Application {
     public static DemoApplication INSTANCE = null;
     private ABCoreKitClient mABCoreClientBtc;
     private ABCoreKitClient mABCoreClientEth;
-    private SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public static DemoApplication getInstance() {
         return INSTANCE;
@@ -58,10 +54,10 @@ public class DemoApplication extends Application {
         super.onCreate();
         INSTANCE = this;
 
+        // debuger mode
         // set abcorekitclient is_debug
         ABCoreKitClient.IS_DEBUG = true;
-
-        Stetho.initializeWithDefaults(this);
+        // for abcorekitclient okhttp
         Timber.plant(new Timber.DebugTree());
 
         initBtcClient();
@@ -69,19 +65,6 @@ public class DemoApplication extends Application {
     }
 
     private void initBtcClient() {
-        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
-            @Override
-            public void log(String message) {
-                Timber.tag("ABCorekit-Okhttp-Btc").d(message);
-            }
-        });
-
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .addInterceptor(loggingInterceptor)
-                .build();
-
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-
         CustomTypeAdapter dateCustomTypeAdapter = new CustomTypeAdapter<Date>() {
             @Override
             public Date decode(CustomTypeValue value) {
@@ -105,28 +88,14 @@ public class DemoApplication extends Application {
 
         mABCoreClientBtc = ABCoreKitClient.builder(this, CoreKitConfig.ApiType.API_TYPE_BTC)
                 .addCustomTypeAdapter(CustomType.DATETIME, dateCustomTypeAdapter)
-                .setOkHttpClient(okHttpClient)
+                .setOpenOkHttpLog(true)
                 .setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK)
                 .build();
     }
 
     private void initEthClient() {
-        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
-            @Override
-            public void log(String message) {
-                Timber.tag("ABCorekit-Okhttp-Eth").d(message);
-            }
-        });
-
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .addInterceptor(loggingInterceptor)
-                .build();
-
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-
-
         mABCoreClientEth = ABCoreKitClient.builder(this, CoreKitConfig.ApiType.API_TYPE_ETH)
-                .setOkHttpClient(okHttpClient)
+                .setOpenOkHttpLog(true)
                 .setOpenSocket(true)
                 .setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK)
                 .build();

@@ -66,6 +66,8 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import timber.log.Timber;
 
 import static com.apollographql.apollo.fetcher.ApolloResponseFetchers.CACHE_FIRST;
 
@@ -76,19 +78,28 @@ public class ABCoreKitClient {
     private static final String SQL_CACHE_NAME = "arcblock_core_kit_db";
     private OkHttpClient mOkHttpClient;
     private CoreKitSocket mCoreKitSocket;
-    private CoreKitConfig.ApiType apiType;
-    private ScalarTypeAdapters scalarTypeAdapters = null;
+    private ScalarTypeAdapters scalarTypeAdapters;
     private List<CoreKitSocketStatusCallBack> mCoreKitSocketStatusCallBacks = new ArrayList<>();
 
     private ABCoreKitClient(Builder builder) {
-        apiType = builder.apiType;
         OkHttpClient.Builder okHttpClientBuilder;
         if (builder.mOkHttpClient == null) {
             okHttpClientBuilder = new OkHttpClient.Builder();
         } else {
             okHttpClientBuilder = builder.mOkHttpClient.newBuilder();
         }
-        mOkHttpClient = okHttpClientBuilder.build();
+        if (builder.openOkHttpLog) {
+            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
+                @Override
+                public void log(String message) {
+                    Timber.tag("ABCorekitClient-OkHttp").d(message);
+                }
+            });
+            mOkHttpClient = okHttpClientBuilder.addInterceptor(loggingInterceptor).build();
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        } else {
+            mOkHttpClient = okHttpClientBuilder.build();
+        }
         if (builder.openSocket) {
             initCoreKitSocket();
         }
@@ -139,6 +150,7 @@ public class ABCoreKitClient {
         private String dbName;
         private CoreKitConfig.ApiType apiType;
         private boolean openSocket;
+        private boolean openOkHttpLog;
 
         private Builder(Context context, CoreKitConfig.ApiType apiType) {
             this.mContext = context;
@@ -177,6 +189,11 @@ public class ABCoreKitClient {
 
         public Builder setOpenSocket(boolean openSocket) {
             this.openSocket = openSocket;
+            return this;
+        }
+
+        public Builder setOpenOkHttpLog(boolean openOkHttpLog) {
+            this.openOkHttpLog = openOkHttpLog;
             return this;
         }
 
@@ -355,7 +372,7 @@ public class ABCoreKitClient {
     public static ABCoreKitClient defaultInstance(Context context, CoreKitConfig.ApiType apiType) {
         if (apiType == CoreKitConfig.ApiType.API_TYPE_BTC) {
             if (mABCoreKitClientBtc == null) {
-                mABCoreKitClientBtc = ABCoreKitClient.builder(context, CoreKitConfig.ApiType.API_TYPE_BTC).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();
+                mABCoreKitClientBtc = ABCoreKitClient.builder(context, CoreKitConfig.ApiType.API_TYPE_BTC).setOpenOkHttpLog(true).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();
             }
             return mABCoreKitClientBtc;
         } else {

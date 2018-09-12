@@ -17,10 +17,6 @@ Absdkcorekit Library 是在 [apollo-android](https://github.com/apollographql/ap
 
 ``` groovy
 buildscript {
-  repositories {
-    // ...
-    maven { url "http://android-docs.arcblock.io/release" }
-  }
   dependencies {
     //...
     classpath 'com.apollographql.apollo:apollo-gradle-plugin:1.0.0-alpha'
@@ -42,7 +38,7 @@ apply plugin: 'com.apollographql.android'
 
 //......
 dependencies {
-  // x.x.x => tag version
+  // x.x.x => release version
   def absdkcorekitversion = "x.x.x"
   implementation("com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"){
 	transitive = true
@@ -59,6 +55,17 @@ dependencies {
 3. 编译你的项目，编译成功之后，你会在 `build` 目录下找到自动编译生成的 `Java` 代码，你可以在示例项目的 `arcblock-android-sdk/app/build/generated/source/apollo/` 目录下看到生成的代码，你不需要修改这些自动生成的代码。
 
 #### 3. 实现普通的 Query 功能
+
+
+1. 自定义一个类继承自 CoreKitQuery 抽象类，需要实现两个部分：
+	- 和当前使用相匹配的构造方法，匹配条件取决于是在 FragmentActivity 中还是 Fragment 中使用的此 Query 和 当前传入的是自定义的 ABCoreKitClient 还是默认的 ABCoreKitClient 。
+	- 
+
+
+
+
+
+
 1. 首先，设置一个 `CoreKitBeanMapper` 对象，并你利用上一步生成的代码创建一个 `Query` 对象，如：
 
 	```java
