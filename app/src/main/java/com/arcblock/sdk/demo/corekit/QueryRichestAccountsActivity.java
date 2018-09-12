@@ -21,10 +21,12 @@
  */
 package com.arcblock.sdk.demo.corekit;
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -33,10 +35,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.api.Response;
+import com.arcblock.corekit.ABCoreKitClient;
+import com.arcblock.corekit.CoreKitQuery;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.viewmodel.CoreKitViewModel;
-import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
+import com.arcblock.corekit.viewmodel.CoreKitQueryViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.RichestAccountsAdapter;
@@ -54,7 +58,7 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
     ProgressBar progressBar;
     List<RichestAccountsQuery.Datum> mAccounts = new ArrayList<>();
 
-    private CoreKitViewModel<Response<RichestAccountsQuery.Data>, RichestAccountsQuery.RichestAccounts> mRichestAccountsQueryViewModel;
+    private CoreKitQueryViewModel<Response<RichestAccountsQuery.Data>, RichestAccountsQuery.RichestAccounts> mRichestAccountsQueryViewModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,23 +86,10 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
             }
         });
 
-        // init data mapper
-        CoreKitBeanMapperInterface<Response<RichestAccountsQuery.Data>, RichestAccountsQuery.RichestAccounts> richestAccountsMapper = new CoreKitBeanMapperInterface<Response<RichestAccountsQuery.Data>, RichestAccountsQuery.RichestAccounts>() {
 
-            @Override
-            public RichestAccountsQuery.RichestAccounts map(Response<RichestAccountsQuery.Data> dataResponse) {
-                if (dataResponse != null) {
-                    return dataResponse.data().getRichestAccounts();
-                }
-                return null;
-            }
-        };
-        // init a query
-        RichestAccountsQuery query = RichestAccountsQuery.builder().build();
-        // init the ViewModel with CustomClientFactory
-        CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(query, richestAccountsMapper, DemoApplication.getInstance().abCoreKitClientBtc());
-        mRichestAccountsQueryViewModel = CoreKitViewModel.getInstance(this, factory);
-        mRichestAccountsQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<RichestAccountsQuery.RichestAccounts>>() {
+        // init RichestAccountsQueryHelper and get data
+        RichestAccountsQueryHelper richestAccountsQueryHelper = new RichestAccountsQueryHelper(this, this, DemoApplication.getInstance().abCoreKitClientBtc());
+        richestAccountsQueryHelper.setObserve(new Observer<CoreKitBean<RichestAccountsQuery.RichestAccounts>>() {
             @Override
             public void onChanged(@Nullable CoreKitBean<RichestAccountsQuery.RichestAccounts> coreKitBean) {
                 progressBar.setVisibility(View.GONE);
@@ -124,6 +115,29 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
                 return false;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * RichestAccountsQueryHelper for RichestAccountsQuery
+     */
+    private class RichestAccountsQueryHelper extends CoreKitQuery<RichestAccountsQuery.Data, RichestAccountsQuery.RichestAccounts> {
+
+        public RichestAccountsQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
+            super(activity, lifecycleOwner, client);
+        }
+
+        @Override
+        public RichestAccountsQuery.RichestAccounts map(Response<RichestAccountsQuery.Data> dataResponse) {
+            if (dataResponse != null) {
+                return dataResponse.data().getRichestAccounts();
+            }
+            return null;
+        }
+
+        @Override
+        public Query getQuery() {
+            return RichestAccountsQuery.builder().build();
         }
     }
 }

@@ -21,10 +21,12 @@
  */
 package com.arcblock.sdk.demo.corekit;
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -33,10 +35,11 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.api.Response;
+import com.arcblock.corekit.ABCoreKitClient;
+import com.arcblock.corekit.CoreKitQuery;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.viewmodel.CoreKitViewModel;
-import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.BlockDetailTransactionsAdapter;
@@ -65,8 +68,6 @@ public class BlockDetailActivity extends AppCompatActivity {
     private BlockDetailTransactionsAdapter mBlockDetailTransactionsAdapter;
     private List<BlockByHashQuery.Datum> mDatumList = new ArrayList<>();
 
-    private CoreKitViewModel<Response<BlockByHashQuery.Data>, BlockByHashQuery.BlockByHash> mBlockByHashQueryViewModel;
-
     private SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Override
@@ -81,23 +82,9 @@ public class BlockDetailActivity extends AppCompatActivity {
 
         initView();
 
-        // init data mapper
-        CoreKitBeanMapperInterface<Response<BlockByHashQuery.Data>, BlockByHashQuery.BlockByHash> blockMapper = new CoreKitBeanMapperInterface<Response<BlockByHashQuery.Data>, BlockByHashQuery.BlockByHash>() {
-
-            @Override
-            public BlockByHashQuery.BlockByHash map(Response<BlockByHashQuery.Data> dataResponse) {
-                if (dataResponse != null) {
-                    return dataResponse.data().getBlockByHash();
-                }
-                return null;
-            }
-        };
-        // init a query
-        BlockByHashQuery query = BlockByHashQuery.builder().hash(blockHash).build();
-        // init the ViewModel with CustomClientFactory
-        CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(query, blockMapper, DemoApplication.getInstance().abCoreKitClientBtc());
-        mBlockByHashQueryViewModel = CoreKitViewModel.getInstance(this, factory);
-        mBlockByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<BlockByHashQuery.BlockByHash>>() {
+        // init BlockByHashQueryHelper and get data
+        BlockByHashQueryHelper blockByHashQueryHelper = new BlockByHashQueryHelper(this,this,DemoApplication.getInstance().abCoreKitClientBtc());
+        blockByHashQueryHelper.setObserve(new Observer<CoreKitBean<BlockByHashQuery.BlockByHash>>() {
             @Override
             public void onChanged(@Nullable CoreKitBean<BlockByHashQuery.BlockByHash> coreKitBean) {
                 if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
@@ -174,6 +161,26 @@ public class BlockDetailActivity extends AppCompatActivity {
                 return false;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private class BlockByHashQueryHelper extends CoreKitQuery<BlockByHashQuery.Data,BlockByHashQuery.BlockByHash>{
+
+        public BlockByHashQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
+            super(activity, lifecycleOwner, client);
+        }
+
+        @Override
+        public BlockByHashQuery.BlockByHash map(Response<BlockByHashQuery.Data> dataResponse) {
+            if (dataResponse != null) {
+                return dataResponse.data().getBlockByHash();
+            }
+            return null;
+        }
+
+        @Override
+        public Query getQuery() {
+            return BlockByHashQuery.builder().hash(blockHash).build();
         }
     }
 }

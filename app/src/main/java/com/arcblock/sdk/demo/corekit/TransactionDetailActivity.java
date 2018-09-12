@@ -21,10 +21,12 @@
  */
 package com.arcblock.sdk.demo.corekit;
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,10 +34,12 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.api.Response;
+import com.arcblock.corekit.ABCoreKitClient;
+import com.arcblock.corekit.CoreKitQuery;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.viewmodel.CoreKitViewModel;
-import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
+import com.arcblock.corekit.viewmodel.CoreKitQueryViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.TsInputsAdapter;
@@ -71,7 +75,7 @@ public class TransactionDetailActivity extends AppCompatActivity {
     private List<TransactionByHashQuery.Datum1> inputs = new ArrayList<>();
     private List<TransactionByHashQuery.Datum> outputs = new ArrayList<>();
 
-    private CoreKitViewModel<Response<TransactionByHashQuery.Data>, TransactionByHashQuery.TransactionByHash> mTransactionByHashQueryViewModel;
+    private CoreKitQueryViewModel<Response<TransactionByHashQuery.Data>, TransactionByHashQuery.TransactionByHash> mTransactionByHashQueryViewModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,23 +89,10 @@ public class TransactionDetailActivity extends AppCompatActivity {
 
         initView();
 
-        // init data mapper
-        CoreKitBeanMapperInterface<Response<TransactionByHashQuery.Data>, TransactionByHashQuery.TransactionByHash> transactionMapper = new CoreKitBeanMapperInterface<Response<TransactionByHashQuery.Data>, TransactionByHashQuery.TransactionByHash>() {
 
-            @Override
-            public TransactionByHashQuery.TransactionByHash map(Response<TransactionByHashQuery.Data> dataResponse) {
-                if (dataResponse != null) {
-                    return dataResponse.data().getTransactionByHash();
-                }
-                return null;
-            }
-        };
-        // init a query
-        TransactionByHashQuery query = TransactionByHashQuery.builder().hash(transactionHash).build();
-        // init the ViewModel with CustomClientFactory
-        CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(query, transactionMapper, DemoApplication.getInstance().abCoreKitClientBtc());
-        mTransactionByHashQueryViewModel = CoreKitViewModel.getInstance(this, factory);
-        mTransactionByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<TransactionByHashQuery.TransactionByHash>>() {
+        // init TransactionByHashQueryHelper and get data
+        TransactionByHashQueryHelper transactionByHashQueryHelper = new TransactionByHashQueryHelper(this, this, DemoApplication.getInstance().abCoreKitClientBtc());
+        transactionByHashQueryHelper.setObserve(new Observer<CoreKitBean<TransactionByHashQuery.TransactionByHash>>() {
             @Override
             public void onChanged(@Nullable CoreKitBean<TransactionByHashQuery.TransactionByHash> coreKitBean) {
                 if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
@@ -223,6 +214,29 @@ public class TransactionDetailActivity extends AppCompatActivity {
                 return false;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * TransactionByHashQueryHelper for TransactionByHashQuery
+     */
+    private class TransactionByHashQueryHelper extends CoreKitQuery<TransactionByHashQuery.Data, TransactionByHashQuery.TransactionByHash> {
+
+        public TransactionByHashQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
+            super(activity, lifecycleOwner, client);
+        }
+
+        @Override
+        public TransactionByHashQuery.TransactionByHash map(Response<TransactionByHashQuery.Data> dataResponse) {
+            if (dataResponse != null) {
+                return dataResponse.data().getTransactionByHash();
+            }
+            return null;
+        }
+
+        @Override
+        public Query getQuery() {
+            return TransactionByHashQuery.builder().hash(transactionHash).build();
         }
     }
 

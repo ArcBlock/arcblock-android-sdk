@@ -21,10 +21,12 @@
  */
 package com.arcblock.sdk.demo.corekit;
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,11 +34,11 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.api.Response;
+import com.arcblock.corekit.ABCoreKitClient;
+import com.arcblock.corekit.CoreKitQuery;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.config.CoreKitConfig;
-import com.arcblock.corekit.viewmodel.CoreKitViewModel;
-import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.TsReceiverAdapter;
@@ -66,8 +68,6 @@ public class AccountDetailActivity extends AppCompatActivity {
     private List<AccountByAddressQuery.Datum1> sents = new ArrayList<>();
     private List<AccountByAddressQuery.Datum> receives = new ArrayList<>();
 
-    private CoreKitViewModel<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress> mAccountByAddressViewModel;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,24 +82,9 @@ public class AccountDetailActivity extends AppCompatActivity {
 
         address_tv.setText(address);
 
-
-        // init data mapper
-        CoreKitBeanMapperInterface<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress> accountMapper = new CoreKitBeanMapperInterface<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress>() {
-
-            @Override
-            public AccountByAddressQuery.AccountByAddress map(Response<AccountByAddressQuery.Data> dataResponse) {
-                if (dataResponse != null) {
-                    return dataResponse.data().getAccountByAddress();
-                }
-                return null;
-            }
-        };
-        // init a query
-        AccountByAddressQuery query = AccountByAddressQuery.builder().address(address).build();
-        // init the ViewModel with DefaultFactory
-        CoreKitViewModel.DefaultFactory factory = new CoreKitViewModel.DefaultFactory(query, accountMapper, DemoApplication.getInstance(), CoreKitConfig.API_TYPE_BTC);
-        mAccountByAddressViewModel = CoreKitViewModel.getInstance(this, factory);
-        mAccountByAddressViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<AccountByAddressQuery.AccountByAddress>>() {
+        // init AccountByAddressQueryHelper and get data
+        AccountByAddressQueryHelper accountByAddressQueryHelper = new AccountByAddressQueryHelper(this, this, DemoApplication.getInstance().abCoreKitClientBtc());
+        accountByAddressQueryHelper.setObserve(new Observer<CoreKitBean<AccountByAddressQuery.AccountByAddress>>() {
             @Override
             public void onChanged(@Nullable CoreKitBean<AccountByAddressQuery.AccountByAddress> coreKitBean) {
                 if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
@@ -122,7 +107,6 @@ public class AccountDetailActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 
     private void initView() {
@@ -203,5 +187,30 @@ public class AccountDetailActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    /**
+     * AccountByAddressQueryHelper for AccountByAddressQuery
+     */
+    private class AccountByAddressQueryHelper extends CoreKitQuery<AccountByAddressQuery.Data, AccountByAddressQuery.AccountByAddress> {
+
+        public AccountByAddressQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
+            super(activity, lifecycleOwner, client);
+        }
+
+        @Override
+        public AccountByAddressQuery.AccountByAddress map(Response<AccountByAddressQuery.Data> dataResponse) {
+            if (dataResponse != null) {
+                return dataResponse.data().getAccountByAddress();
+            }
+            return null;
+        }
+
+        @Override
+        public Query getQuery() {
+            return AccountByAddressQuery.builder().address(address).build();
+        }
+
+
     }
 }

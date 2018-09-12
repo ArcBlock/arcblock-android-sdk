@@ -1,17 +1,21 @@
 package com.arcblock.sdk.demo.corekit;
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.Observer;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.api.Response;
+import com.arcblock.corekit.ABCoreKitClient;
+import com.arcblock.corekit.CoreKitQuery;
 import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.corekit.config.CoreKitConfig;
-import com.arcblock.corekit.viewmodel.CoreKitViewModel;
-import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.btc.AccountByAddressQuery;
@@ -24,9 +28,6 @@ public class MultiQueryInOnePageActivity extends AppCompatActivity {
     private JsonRecyclerView json_view_account;
     private JsonRecyclerView json_view_block;
 
-    private CoreKitBeanMapperInterface<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress> accountMapper;
-    private CoreKitBeanMapperInterface<Response<BlockByHashQuery.Data>, BlockByHashQuery.BlockByHash> blockMapper;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,7 +37,6 @@ public class MultiQueryInOnePageActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(R.string.multi_query_in_one_page);
 
         initView();
-        initData();
     }
 
     private void initView() {
@@ -57,37 +57,10 @@ public class MultiQueryInOnePageActivity extends AppCompatActivity {
         });
     }
 
-    private void initData() {
-        // init data mapper
-        accountMapper = new CoreKitBeanMapperInterface<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress>() {
-
-            @Override
-            public AccountByAddressQuery.AccountByAddress map(Response<AccountByAddressQuery.Data> dataResponse) {
-                if (dataResponse != null) {
-                    return dataResponse.data().getAccountByAddress();
-                }
-                return null;
-            }
-        };
-        blockMapper = new CoreKitBeanMapperInterface<Response<BlockByHashQuery.Data>, BlockByHashQuery.BlockByHash>() {
-
-            @Override
-            public BlockByHashQuery.BlockByHash map(Response<BlockByHashQuery.Data> dataResponse) {
-                if (dataResponse != null) {
-                    return dataResponse.data().getBlockByHash();
-                }
-                return null;
-            }
-        };
-    }
-
     private void queryAccountDetail() {
-        AccountByAddressQuery query = AccountByAddressQuery.builder().address("1M5MZ9hM19MetHBtB7a7DzULbf9hDuiX9r").build();
-
-        CoreKitViewModel.DefaultFactory factoryAccount = new CoreKitViewModel.DefaultFactory(query, accountMapper, DemoApplication.getInstance(), CoreKitConfig.API_TYPE_BTC);
-        CoreKitViewModel<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress> mAccountByAddressViewModel = CoreKitViewModel.getInstance(this, factoryAccount);
-
-        mAccountByAddressViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<AccountByAddressQuery.AccountByAddress>>() {
+        // init AccountByAddressQueryHelper and get data
+        AccountByAddressQueryHelper accountByAddressQueryHelper = new AccountByAddressQueryHelper(this, this, DemoApplication.getInstance(), CoreKitConfig.API_TYPE_BTC);
+        accountByAddressQueryHelper.setObserve(new Observer<CoreKitBean<AccountByAddressQuery.AccountByAddress>>() {
             @Override
             public void onChanged(@Nullable CoreKitBean<AccountByAddressQuery.AccountByAddress> coreKitBean) {
                 json_view_account.bindJson(new Gson().toJson(coreKitBean));
@@ -96,18 +69,14 @@ public class MultiQueryInOnePageActivity extends AppCompatActivity {
     }
 
     private void queryBlockDetail() {
-        BlockByHashQuery query = BlockByHashQuery.builder().hash("00000000000000000018438255d3b4c13eb1fe44024a9dfb0de83d598e5e42c6").build();
-
-        CoreKitViewModel.CustomClientFactory factoryBlock = new CoreKitViewModel.CustomClientFactory(query, blockMapper, DemoApplication.getInstance().abCoreKitClientBtc());
-        CoreKitViewModel<Response<BlockByHashQuery.Data>, BlockByHashQuery.BlockByHash> mBlockByHashQueryViewModel = CoreKitViewModel.getInstance(this, factoryBlock);
-
-        mBlockByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<BlockByHashQuery.BlockByHash>>() {
+        // init BlockByHashQueryHelper and get data
+        BlockByHashQueryHelper blockByHashQueryHelper = new BlockByHashQueryHelper(this, this, DemoApplication.getInstance().abCoreKitClientBtc());
+        blockByHashQueryHelper.setObserve(new Observer<CoreKitBean<BlockByHashQuery.BlockByHash>>() {
             @Override
             public void onChanged(@Nullable CoreKitBean<BlockByHashQuery.BlockByHash> coreKitBean) {
                 json_view_block.bindJson(new Gson().toJson(coreKitBean));
             }
         });
-
     }
 
     @Override
@@ -120,4 +89,51 @@ public class MultiQueryInOnePageActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    /**
+     * AccountByAddressQueryHelper for AccountByAddressQuery
+     */
+    private class AccountByAddressQueryHelper extends CoreKitQuery<AccountByAddressQuery.Data, AccountByAddressQuery.AccountByAddress> {
+
+        public AccountByAddressQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, Context context, int apiType) {
+            super(activity, lifecycleOwner, context, apiType);
+        }
+
+        @Override
+        public AccountByAddressQuery.AccountByAddress map(Response<AccountByAddressQuery.Data> dataResponse) {
+            if (dataResponse != null) {
+                return dataResponse.data().getAccountByAddress();
+            }
+            return null;
+        }
+
+        @Override
+        public Query getQuery() {
+            return AccountByAddressQuery.builder().address("1M5MZ9hM19MetHBtB7a7DzULbf9hDuiX9r").build();
+        }
+    }
+
+    /**
+     * BlockByHashQueryHelper for BlockByHashQuery
+     */
+    private class BlockByHashQueryHelper extends CoreKitQuery<BlockByHashQuery.Data, BlockByHashQuery.BlockByHash> {
+
+        public BlockByHashQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
+            super(activity, lifecycleOwner, client);
+        }
+
+        @Override
+        public BlockByHashQuery.BlockByHash map(Response<BlockByHashQuery.Data> dataResponse) {
+            if (dataResponse != null) {
+                return dataResponse.data().getBlockByHash();
+            }
+            return null;
+        }
+
+        @Override
+        public Query getQuery() {
+            return BlockByHashQuery.builder().hash("00000000000000000018438255d3b4c13eb1fe44024a9dfb0de83d598e5e42c6").build();
+        }
+    }
+
 }

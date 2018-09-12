@@ -37,7 +37,6 @@ import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.corekit.bean.CoreKitPagedBean;
 import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
-import com.arcblock.corekit.viewmodel.i.CoreKitInterface;
 import com.arcblock.corekit.viewmodel.i.CoreKitPagedHelperInterface;
 
 import java.util.ArrayList;
@@ -49,7 +48,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class CoreKitPagedQueryViewModel<T, K> extends ViewModel implements CoreKitInterface {
+public class CoreKitPagedQueryViewModel<T, K> extends ViewModel {
 
     public static CoreKitPagedQueryViewModel getInstance(FragmentActivity activity, CoreKitPagedQueryViewModel.CustomClientFactory factory) {
         return ViewModelProviders.of(activity, factory).get(factory.getOperationId(), CoreKitPagedQueryViewModel.class);
@@ -101,8 +100,7 @@ public class CoreKitPagedQueryViewModel<T, K> extends ViewModel implements CoreK
     /**
      * fetch data by this method
      */
-    @Override
-    public void doFinalQuery(Query query) {
+    private void doFinalQuery(Query query) {
         if (mCoreKitPagedHelper == null && query == null) {
             mCleanDatasMutableLiveData.postValue(new CoreKitPagedBean(null, CoreKitBean.FAIL_CODE, "The query is empty."));
         }

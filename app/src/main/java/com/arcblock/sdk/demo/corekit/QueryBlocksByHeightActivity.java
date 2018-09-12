@@ -62,7 +62,7 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
     ProgressBar progressBar;
 
     private List<BlocksByHeightQuery.Datum> mBlocks = new ArrayList<>();
-    private BtcBlocksByHeightPagedQuery mBlocksByHeightPagedQuery;
+    private BlocksByHeightQueryHelper mBlocksByHeightQueryHelper;
     private int startIndex = 448244;
     private int endIndex = 448344;
 
@@ -87,7 +87,7 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
                 mListBlocksAdapter.notifyDataSetChanged();
 
                 mListBlocksAdapter.setEnableLoadMore(false);
-                mBlocksByHeightPagedQuery.refresh();
+                mBlocksByHeightQueryHelper.refresh();
             }
         });
 
@@ -98,7 +98,7 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
         mListBlocksAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
             @Override
             public void onLoadMoreRequested() {
-                mBlocksByHeightPagedQuery.loadMore();
+                mBlocksByHeightQueryHelper.loadMore();
             }
         }, feedRecyclerView);
 
@@ -117,8 +117,8 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
 
 
         // get data
-        mBlocksByHeightPagedQuery = new BtcBlocksByHeightPagedQuery(this, this, DemoApplication.getInstance().abCoreKitClientBtc());
-        mBlocksByHeightPagedQuery.setObserve(new Observer<CoreKitPagedBean<List<BlocksByHeightQuery.Datum>>>() {
+        mBlocksByHeightQueryHelper = new BlocksByHeightQueryHelper(this, this, DemoApplication.getInstance().abCoreKitClientBtc());
+        mBlocksByHeightQueryHelper.setObserve(new Observer<CoreKitPagedBean<List<BlocksByHeightQuery.Datum>>>() {
             @Override
             public void onChanged(@Nullable CoreKitPagedBean<List<BlocksByHeightQuery.Datum>> coreKitPagedBean) {
                 //1. handle return data
@@ -141,7 +141,7 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
                 content.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.GONE);
                 content.setRefreshing(false);
-                if (mBlocksByHeightPagedQuery.isHasMore()) {
+                if (mBlocksByHeightQueryHelper.isHasMore()) {
                     mListBlocksAdapter.setEnableLoadMore(true);
                     mListBlocksAdapter.loadMoreComplete();
                 } else {
@@ -163,9 +163,9 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
     }
 
 
-    private class BtcBlocksByHeightPagedQuery extends CoreKitPagedQuery<BlocksByHeightQuery.Data, BlocksByHeightQuery.Datum> {
+    private class BlocksByHeightQueryHelper extends CoreKitPagedQuery<BlocksByHeightQuery.Data, BlocksByHeightQuery.Datum> {
 
-        public BtcBlocksByHeightPagedQuery(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
+        public BlocksByHeightQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
             super(activity, lifecycleOwner, client);
         }
 
