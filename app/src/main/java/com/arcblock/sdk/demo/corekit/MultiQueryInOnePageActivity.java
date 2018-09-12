@@ -59,7 +59,7 @@ public class MultiQueryInOnePageActivity extends AppCompatActivity {
 
     private void queryAccountDetail() {
         // init AccountByAddressQueryHelper and get data
-        AccountByAddressQueryHelper accountByAddressQueryHelper = new AccountByAddressQueryHelper(this, this, DemoApplication.getInstance(), CoreKitConfig.API_TYPE_BTC);
+        AccountByAddressQueryHelper accountByAddressQueryHelper = new AccountByAddressQueryHelper(this, this, DemoApplication.getInstance(), CoreKitConfig.ApiType.API_TYPE_BTC);
         accountByAddressQueryHelper.setObserve(new Observer<CoreKitBean<AccountByAddressQuery.AccountByAddress>>() {
             @Override
             public void onChanged(@Nullable CoreKitBean<AccountByAddressQuery.AccountByAddress> coreKitBean) {
@@ -95,7 +95,7 @@ public class MultiQueryInOnePageActivity extends AppCompatActivity {
      */
     private class AccountByAddressQueryHelper extends CoreKitQuery<AccountByAddressQuery.Data, AccountByAddressQuery.AccountByAddress> {
 
-        public AccountByAddressQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, Context context, int apiType) {
+        public AccountByAddressQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, Context context, CoreKitConfig.ApiType apiType) {
             super(activity, lifecycleOwner, context, apiType);
         }
 

@@ -23,9 +23,6 @@ package com.arcblock.corekit.config;
 
 public class CoreKitConfig {
 
-    public static final int API_TYPE_BTC = 0;
-    public static final int API_TYPE_ETH = 1;
-
     public static final String BASE_URL_BTC = "https://ocap.arcblock.io/api/btc";
     public static final String BASE_URL_ETH = "https://ocap.arcblock.io/api/eth";
 
@@ -36,11 +33,19 @@ public class CoreKitConfig {
      * @param type
      * @return api url by type
      */
-    public static String getApiUrl(int type) {
-        if (type == API_TYPE_BTC) {
+    public static String getApiUrl(ApiType type) {
+        if (type == ApiType.API_TYPE_BTC) {
             return BASE_URL_BTC;
         } else {
             return BASE_URL_ETH;
         }
+    }
+
+    /**
+     *  Api type for different endpoint
+     */
+    public enum ApiType {
+        API_TYPE_BTC,
+        API_TYPE_ETH
     }
 }

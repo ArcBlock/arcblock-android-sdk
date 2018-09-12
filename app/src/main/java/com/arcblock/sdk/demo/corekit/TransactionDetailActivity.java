@@ -28,11 +28,13 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.api.Response;
@@ -149,11 +151,15 @@ public class TransactionDetailActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (position < inputs.size()) {
-                    Intent intent = new Intent(TransactionDetailActivity.this, AccountDetailActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putString(AccountDetailActivity.ADDRESS_KEY, inputs.get(position).getAccount());
-                    intent.putExtras(bundle);
-                    startActivity(intent);
+                    if (TextUtils.isEmpty(inputs.get(position).getAccount())) {
+                        Toast.makeText(TransactionDetailActivity.this, "CoinBase", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Intent intent = new Intent(TransactionDetailActivity.this, AccountDetailActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putString(AccountDetailActivity.ADDRESS_KEY, inputs.get(position).getAccount());
+                        intent.putExtras(bundle);
+                        startActivity(intent);
+                    }
                 }
             }
         });
@@ -164,11 +170,15 @@ public class TransactionDetailActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (position < outputs.size()) {
-                    Intent intent = new Intent(TransactionDetailActivity.this, AccountDetailActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putString(AccountDetailActivity.ADDRESS_KEY, outputs.get(position).getAccount());
-                    intent.putExtras(bundle);
-                    startActivity(intent);
+                    if (TextUtils.isEmpty(outputs.get(position).getAccount())) {
+                        Toast.makeText(TransactionDetailActivity.this, "Account is empty", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Intent intent = new Intent(TransactionDetailActivity.this, AccountDetailActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putString(AccountDetailActivity.ADDRESS_KEY, outputs.get(position).getAccount());
+                        intent.putExtras(bundle);
+                        startActivity(intent);
+                    }
                 }
             }
         });

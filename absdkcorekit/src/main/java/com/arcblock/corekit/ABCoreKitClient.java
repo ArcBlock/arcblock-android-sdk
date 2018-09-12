@@ -76,7 +76,7 @@ public class ABCoreKitClient {
     private static final String SQL_CACHE_NAME = "arcblock_core_kit_db";
     private OkHttpClient mOkHttpClient;
     private CoreKitSocket mCoreKitSocket;
-    private int apiType;
+    private CoreKitConfig.ApiType apiType;
     private ScalarTypeAdapters scalarTypeAdapters = null;
     private List<CoreKitSocketStatusCallBack> mCoreKitSocketStatusCallBacks = new ArrayList<>();
 
@@ -137,10 +137,10 @@ public class ABCoreKitClient {
         private ResponseFetcher mDefaultResponseFetcher = CACHE_FIRST;
         private Context mContext;
         private String dbName;
-        private int apiType;
+        private CoreKitConfig.ApiType apiType;
         private boolean openSocket;
 
-        private Builder(Context context, int apiType) {
+        private Builder(Context context, CoreKitConfig.ApiType apiType) {
             this.mContext = context;
             this.apiType = apiType;
         }
@@ -219,7 +219,7 @@ public class ABCoreKitClient {
         }
     }
 
-    public static Builder builder(Context context, int apiType) {
+    public static Builder builder(Context context, CoreKitConfig.ApiType apiType) {
         return new Builder(context, apiType);
     }
 
@@ -352,15 +352,15 @@ public class ABCoreKitClient {
     public static ABCoreKitClient mABCoreKitClientEth;
     public static ABCoreKitClient mABCoreKitClientBtc;
 
-    public static ABCoreKitClient defaultInstance(Context context, int apiType) {
-        if (apiType == CoreKitConfig.API_TYPE_BTC) {
+    public static ABCoreKitClient defaultInstance(Context context, CoreKitConfig.ApiType apiType) {
+        if (apiType == CoreKitConfig.ApiType.API_TYPE_BTC) {
             if (mABCoreKitClientBtc == null) {
-                mABCoreKitClientBtc = ABCoreKitClient.builder(context, CoreKitConfig.API_TYPE_BTC).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();
+                mABCoreKitClientBtc = ABCoreKitClient.builder(context, CoreKitConfig.ApiType.API_TYPE_BTC).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();
             }
             return mABCoreKitClientBtc;
         } else {
             if (mABCoreKitClientEth == null) {
-                mABCoreKitClientEth = ABCoreKitClient.builder(context, CoreKitConfig.API_TYPE_ETH).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();
+                mABCoreKitClientEth = ABCoreKitClient.builder(context, CoreKitConfig.ApiType.API_TYPE_ETH).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();
             }
             return mABCoreKitClientEth;
         }

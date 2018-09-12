@@ -36,6 +36,7 @@ import com.apollographql.apollo.rx2.Rx2Apollo;
 import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.corekit.bean.CoreKitPagedBean;
+import com.arcblock.corekit.config.CoreKitConfig;
 import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
 import com.arcblock.corekit.viewmodel.i.CoreKitPagedHelperInterface;
 
@@ -73,7 +74,7 @@ public class CoreKitPagedQueryViewModel<T, K> extends ViewModel {
     private List<K> resultDatas = new ArrayList<>();
     private CoreKitPagedHelperInterface mCoreKitPagedHelper;
 
-    public CoreKitPagedQueryViewModel(CoreKitBeanMapperInterface<Response<T>, List<K>> mapper, CoreKitPagedHelperInterface coreKitPagedHelper, Context context, int apiType) {
+    public CoreKitPagedQueryViewModel(CoreKitBeanMapperInterface<Response<T>, List<K>> mapper, CoreKitPagedHelperInterface coreKitPagedHelper, Context context, CoreKitConfig.ApiType apiType) {
         this.mCoreKitBeanMapper = mapper;
         this.mCoreKitPagedHelper = coreKitPagedHelper;
         this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context, apiType);
@@ -237,10 +238,10 @@ public class CoreKitPagedQueryViewModel<T, K> extends ViewModel {
         private CoreKitBeanMapperInterface mCoreKitBeanMapper;
         private CoreKitPagedHelperInterface mCoreKitPagedHelper;
         private Context mContext;
-        private int apiType;
+        private CoreKitConfig.ApiType apiType;
         private String operationId;
 
-        public DefaultFactory(CoreKitBeanMapperInterface coreKitBeanMapper, CoreKitPagedHelperInterface coreKitPagedHelper, Context context, int apiType) {
+        public DefaultFactory(CoreKitBeanMapperInterface coreKitBeanMapper, CoreKitPagedHelperInterface coreKitPagedHelper, Context context, CoreKitConfig.ApiType apiType) {
             this.mCoreKitBeanMapper = coreKitBeanMapper;
             this.mCoreKitPagedHelper = coreKitPagedHelper;
             this.mContext = context;

@@ -103,7 +103,7 @@ public class DemoApplication extends Application {
             }
         };
 
-        mABCoreClientBtc = ABCoreKitClient.builder(this, CoreKitConfig.API_TYPE_BTC)
+        mABCoreClientBtc = ABCoreKitClient.builder(this, CoreKitConfig.ApiType.API_TYPE_BTC)
                 .addCustomTypeAdapter(CustomType.DATETIME, dateCustomTypeAdapter)
                 .setOkHttpClient(okHttpClient)
                 .setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK)
@@ -125,7 +125,7 @@ public class DemoApplication extends Application {
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
 
-        mABCoreClientEth = ABCoreKitClient.builder(this, CoreKitConfig.API_TYPE_ETH)
+        mABCoreClientEth = ABCoreKitClient.builder(this, CoreKitConfig.ApiType.API_TYPE_ETH)
                 .setOkHttpClient(okHttpClient)
                 .setOpenSocket(true)
                 .setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK)

@@ -30,6 +30,7 @@ import android.support.v4.app.FragmentActivity;
 import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.bean.CoreKitPagedBean;
+import com.arcblock.corekit.config.CoreKitConfig;
 import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
 import com.arcblock.corekit.viewmodel.i.CoreKitPagedHelperInterface;
 import com.arcblock.corekit.viewmodel.CoreKitPagedQueryViewModel;
@@ -66,7 +67,7 @@ public abstract class CoreKitPagedQuery<T extends Query.Data, D> implements Core
      * @param context
      * @param apiType
      */
-    public CoreKitPagedQuery(FragmentActivity activity, LifecycleOwner lifecycleOwner, Context context, int apiType) {
+    public CoreKitPagedQuery(FragmentActivity activity, LifecycleOwner lifecycleOwner, Context context, CoreKitConfig.ApiType apiType) {
         CoreKitPagedQueryViewModel.DefaultFactory factory = new CoreKitPagedQueryViewModel.DefaultFactory(this, this, context, apiType);
         this.mCoreKitPagedQueryViewModel = CoreKitPagedQueryViewModel.getInstance(activity, factory);
         this.mLifecycleOwner = lifecycleOwner;
@@ -91,7 +92,7 @@ public abstract class CoreKitPagedQuery<T extends Query.Data, D> implements Core
      * @param context
      * @param apiType
      */
-    public CoreKitPagedQuery(Fragment fragment, LifecycleOwner lifecycleOwner, Context context, int apiType) {
+    public CoreKitPagedQuery(Fragment fragment, LifecycleOwner lifecycleOwner, Context context, CoreKitConfig.ApiType apiType) {
         CoreKitPagedQueryViewModel.DefaultFactory factory = new CoreKitPagedQueryViewModel.DefaultFactory(this, this, context, apiType);
         this.mCoreKitPagedQueryViewModel = CoreKitPagedQueryViewModel.getInstance(fragment, factory);
         this.mLifecycleOwner = lifecycleOwner;

@@ -33,6 +33,7 @@ import android.text.TextUtils;
 import com.apollographql.apollo.subscription.OperationClientMessage;
 import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.bean.CoreKitBean;
+import com.arcblock.corekit.config.CoreKitConfig;
 import com.arcblock.corekit.socket.Binding;
 import com.arcblock.corekit.socket.Channel;
 import com.arcblock.corekit.socket.ChannelState;
@@ -91,7 +92,7 @@ public class CoreKitSubscriptionViewModel<T, D extends com.apollographql.apollo.
     private Boolean needOpen = true;
     private boolean isCleared = false;
 
-    public CoreKitSubscriptionViewModel(Context context, int apiType, D graphSub, Class<T> tClass) {
+    public CoreKitSubscriptionViewModel(Context context, CoreKitConfig.ApiType apiType, D graphSub, Class<T> tClass) {
         this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context, apiType);
         this.tClass = tClass;
         this.mGraphSub = graphSub;
@@ -290,11 +291,11 @@ public class CoreKitSubscriptionViewModel<T, D extends com.apollographql.apollo.
     public static class DefaultFactory<T, D extends com.apollographql.apollo.api.Subscription> extends ViewModelProvider.NewInstanceFactory {
 
         private Context mContext;
-        private int apiType;
+        private CoreKitConfig.ApiType apiType;
         private Class<T> tClass;
         private D graphSub;
 
-        public DefaultFactory(Context context, int apiType, D graphSub, Class<T> tClass) {
+        public DefaultFactory(Context context, CoreKitConfig.ApiType apiType, D graphSub, Class<T> tClass) {
             this.mContext = context;
             this.apiType = apiType;
             this.tClass = tClass;

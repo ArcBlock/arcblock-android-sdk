@@ -26,6 +26,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
 import com.apollographql.apollo.api.Subscription;
+import com.arcblock.corekit.config.CoreKitConfig;
 import com.arcblock.corekit.socket.CoreKitSocketStatusCallBack;
 import com.arcblock.corekit.viewmodel.CoreKitSubscriptionViewModel;
 import com.arcblock.corekit.viewmodel.i.CoreKitSubHelperInterface;
@@ -56,7 +57,7 @@ public abstract class CoreKitSubscription<T extends Subscription.Data, D extends
      * @param context
      * @param apiType
      */
-    public CoreKitSubscription(FragmentActivity activity, Context context, int apiType) {
+    public CoreKitSubscription(FragmentActivity activity, Context context, CoreKitConfig.ApiType apiType) {
         CoreKitSubscriptionViewModel.DefaultFactory factory =
                 new CoreKitSubscriptionViewModel.DefaultFactory(context, apiType, getSubscription(), getSubscriptionClass());
         this.mCoreKitSubscriptionViewModel = CoreKitSubscriptionViewModel.getInstance(activity, factory);
@@ -81,7 +82,7 @@ public abstract class CoreKitSubscription<T extends Subscription.Data, D extends
      * @param context
      * @param apiType
      */
-    public CoreKitSubscription(Fragment fragment, Context context, int apiType) {
+    public CoreKitSubscription(Fragment fragment, Context context, CoreKitConfig.ApiType apiType) {
         CoreKitSubscriptionViewModel.DefaultFactory factory =
                 new CoreKitSubscriptionViewModel.DefaultFactory(context, apiType, getSubscription(), getSubscriptionClass());
         this.mCoreKitSubscriptionViewModel = CoreKitSubscriptionViewModel.getInstance(fragment, factory);

@@ -34,6 +34,7 @@ import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.rx2.Rx2Apollo;
 import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.bean.CoreKitBean;
+import com.arcblock.corekit.config.CoreKitConfig;
 import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
 
 import io.reactivex.Observer;
@@ -65,7 +66,7 @@ public class CoreKitQueryViewModel<T, D> extends ViewModel {
     private MutableLiveData<CoreKitBean<D>> mCoreKitBeanMutableLiveData = new MutableLiveData<>();
     private CoreKitBeanMapperInterface<T, D> mCoreKitBeanMapper;
 
-    public CoreKitQueryViewModel(CoreKitBeanMapperInterface<T, D> mapper, Context context, int apiType) {
+    public CoreKitQueryViewModel(CoreKitBeanMapperInterface<T, D> mapper, Context context, CoreKitConfig.ApiType apiType) {
         this.mCoreKitBeanMapper = mapper;
         this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context, apiType);
     }
@@ -149,10 +150,10 @@ public class CoreKitQueryViewModel<T, D> extends ViewModel {
 
         private CoreKitBeanMapperInterface mCoreKitBeanMapper;
         private Context mContext;
-        private int apiType;
+        private CoreKitConfig.ApiType apiType;
         private Query mQuery;
 
-        public DefaultFactory(Query query, CoreKitBeanMapperInterface coreKitBeanMapper, Context context, int apiType) {
+        public DefaultFactory(Query query, CoreKitBeanMapperInterface coreKitBeanMapper, Context context, CoreKitConfig.ApiType apiType) {
             this.mCoreKitBeanMapper = coreKitBeanMapper;
             this.mContext = context;
             this.apiType = apiType;

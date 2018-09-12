@@ -142,7 +142,7 @@ public class CoreKitSocket {
             isOpening = false;
             CoreKitLogUtils.e("WebSocket connection error " + t.toString() + " thread name=>" + Thread.currentThread().getName());
             try {
-                //TODO if there are multiple errorCallbacks do we really want to trigger
+                //if there are multiple errorCallbacks do we really want to trigger
                 //the same channel error callbacks multiple times?
                 triggerChannelError();
                 for (final IErrorCallback callback : errorCallbacks) {
