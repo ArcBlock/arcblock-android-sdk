@@ -9,7 +9,7 @@ ArcBlock Android SDK 目前提供了 `Absdkcorekit Library` ，未来还将提�
 
 ## Absdkcorekit Library
 
-Absdkcorekit Library 是在 [apollo-android](https://github.com/apollographql/apollo-android) 的基础上封装的 `Data` 层核心库，我们引入了 Android 最新发布的 `Architecture Components` ，把其中的 `LiveData` 和 `ViewModel` 与 `apollo-android Library` 结合封装成 `CoreKitViewModel` 。
+Absdkcorekit Library 是在 [apollo-android](https://github.com/apollographql/apollo-android) 的基础上封装的 `Data` 层核心库，我们引入了 Android 最新发布的 `Architecture Components` ，把其中的 `LiveData` 和 `ViewModel` 与 `apollo-android Library` 结合封装成 `CoreKitQueryViewModel`, `CoreKitPagedQueryViewModel`, `CoreKitSubscriptionViewModel`。
 
 #### 1. 引入 Absdkcorekit Library
 
@@ -56,9 +56,9 @@ dependencies {
 
 #### 3. 实现普通的查询功能
 
-1. 首先，自定义一个类继承自 CoreKitQuery 抽象类，需要实现两个部分：
-	- **构造方法：** 实现和当前使用相匹配的构造方法，匹配条件取决于是在 FragmentActivity 中还是 Fragment 中使用的此 Query 和 当前传入的是自定义的 ABCoreKitClient 还是默认的 ABCoreKitClient
-	- **map(...) 方法：** 该方法是实现 CoreKitBeanMapperInterface 的一个方法，供 CoreKitQueryViewModel 内部使用，用于将返回的 Response map 成最终想得到的数据格式
+1. 首先，自定义一个类继承自 CoreKitQuery 抽象类，需要实现三个部分：
+	- **构造方法：** 实现和当前使用相匹配的构造方法，匹配条件取决于是在 FragmentActivity 中还是 Fragment 中使用的此 query 以及当前传入的是自定义的 ABCoreKitClient 还是默认的 ABCoreKitClient
+	- **map(...) 方法：** 该方法是 CoreKitBeanMapperInterface 接口的具体实现，供 CoreKitQueryViewModel 内部使用，用于将 response 转换成最终想得到的数据格式
 	- **getQuery() 方法：** 初始化并返回一个当前的 Query 对象，用于实现具体的业务查询
 
 	示例代码：
@@ -90,15 +90,15 @@ dependencies {
 
 	> 这边的命名建议以对应的 `Query`, `Mutaition`, `Subscription` 具体类名称加上 `-Helper` 结尾，比如上面 AccountByAddressQuery 对应的为 AccountByAddressQueryHelper
 
-2. 第二步，创建一个 `xxxHelper` 查询类的对象，并设置 Observe 对象，请求并获取数据
+2. 第二步，创建一个 `xxxHelper` 查询帮助类的对象，并设置 Observe 对象
 
-	- 创建 `xxxHelper` 查询类的对象：
+	- 创建 `xxxHelper` 类对象：
 	
 		```java
 		AccountByAddressQueryHelper accountByAddressQueryHelper = new AccountByAddressQueryHelper(this, this, DemoApplication.getInstance().abCoreKitClientBtc());
 		```
 
-		这里的构造函数上文已经提过，有4种不同的实现可以选择，具体根据自己的代码选择即可。
+		这里的构造函数上文已经提过，有4种不同的实现可以选择。
 
 	- 设置 Observe 对象：
 	
@@ -116,16 +116,16 @@ dependencies {
 			});
 		```
 
-	> Note：整个过程你无需关心内存释放问题，这要归功于我们在内部使用了 `ViewModel` 组件
-
 #### 4. 实现分页查询功能
 
 1. 首先，自定义一个类继承自 CoreKitPagedQuery 抽象类，需要实现五个部分：
-	- **构造方法：** 实现和当前使用相匹配的构造方法，匹配条件取决于是在 FragmentActivity 中还是 Fragment 中使用的此 Query 和 当前传入的是自定义的 ABCoreKitClient 还是默认的 ABCoreKitClient
-	- **map(...) 方法：** 该方法是实现 CoreKitBeanMapperInterface 的一个方法，供 CoreKitQueryViewModel 内部使用，用于将返回的 Response map 成最终想得到的数据格式
+	- **构造方法：** 实现和当前使用相匹配的构造方法，匹配条件取决于是在 FragmentActivity 中还是 Fragment 中使用的此 paged query 以及当前传入的是自定义的 ABCoreKitClient 还是默认的 ABCoreKitClient
+	- **map(...) 方法：** 该方法是 CoreKitBeanMapperInterface 接口的具体实现，供 CoreKitPagedQueryViewModel 内部使用，用于将 Response 转换成最终想得到的数据格式
+		
 		> 这里不同于普通查询的地方是，在分页查询的 map(...) 方法中，需要手动地设置 `setHasMore(boolean hasMore)` 和 `setCursor(String cursor)`，这两个参数是底层判断是否进行分页请求的依据
+		
 	- **getInitialQuery() 方法：** 初始化并返回一个分页查询的初始的 Query 对象
-	- **getLoadMoreQuery() 方法：** 初始化并返回一个分页查询查询更多的 Query 对象
+	- **getLoadMoreQuery() 方法：** 初始化并返回一个查询更多的 Query 对象
 	- **getRefreshQuery() 方法：** 初始化并返回一个分页查询刷新查询的 Query 对象，一般情况下此 Query 对象与 getInitialQuery() 返回的相同
 
 	示例代码：
@@ -178,15 +178,15 @@ dependencies {
 
 	> 这边的命名建议以对应的 `Query`, `Mutaition`, `Subscription` 具体类名称加上 `-Helper` 结尾，比如上面 BlocksByHeightQuery 对应的为 BlocksByHeightQueryHelper
 
-2. 第二步，创建一个 `xxxHelper` 查询类的对象，并设置 Observe 对象，请求并获取数据
+2. 第二步，创建一个 `xxxHelper` 查询帮助类的对象，并设置 Observe 对象，请求并获取数据
 
-	- 创建 xxxHelper 查询类的对象：
+	- 创建 `xxxHelper` 类对象：
 	
 		```java
 		mBlocksByHeightQueryHelper = new BlocksByHeightQueryHelper(this, this, DemoApplication.getInstance().abCoreKitClientBtc());
 		```
 
-		这里的构造函数上文已经提过，有4种不同的实现可以选择，具体根据自己的代码选择即可。
+		这里的构造函数上文已经提过，有4种不同的实现可以选择。
 	
 	- 设置 Observe 对象：
 
@@ -215,7 +215,7 @@ dependencies {
 		mBlocksByHeightQueryHelper.loadMore();
 		```
 
-#### 5. 实现数据订阅
+#### 5. 实现数据订阅功能
 
 1. 首先，在 ABCoreClient 初始化的时候打开 socket 开关:
 
@@ -229,7 +229,7 @@ dependencies {
 
 2. 第二步，自定义一个类继承自 CoreKitSubscription 抽象类，需要实现三个部分：
 
-	- **构造方法：** 实现和当前使用相匹配的构造方法，匹配条件取决于是在 FragmentActivity 中还是 Fragment 中使用的此 Query 和 当前传入的是自定义的 ABCoreKitClient 还是默认的 ABCoreKitClient
+	- **构造方法：** 实现和当前使用相匹配的构造方法，匹配条件取决于是在 FragmentActivity 中还是 Fragment 中使用的此 Subscription 和 当前传入的是自定义的 ABCoreKitClient 还是默认的 ABCoreKitClient
 	- **getSubscription() 方法：** 初始化并返回一个具体的 Subscription 对象
 	- **getResultDataClass() 方法：** 返回最终期望的 Data 类的 Class，供 CoreKitSubscriptionViewModel 中 json 解析使用
 
@@ -259,7 +259,15 @@ dependencies {
 
 	> 这边的命名建议以对应的 `Query`, `Mutaition`, `Subscription` 具体类名称加上 `-Helper` 结尾，比如上面 NewBlockMinedSubscription 对应的为 NewBlockMinedSubscriptionHelper
 
-3. 第三步，设置 CoreKitSubCallBack 与 CoreKitSocketStatusCallBack
+3. 第三步，创建一个 `xxxHelper` 类的对象并设置 CoreKitSubCallBack 与 CoreKitSocketStatusCallBack
+    
+	- 创建 `xxxHelper` 类对象
+
+		```java
+		mNewBlockMinedSubscriptionHelper = new NewBlockMinedSubscriptionHelper(this, DemoApplication.getInstance().abCoreKitClientEth());
+		```
+
+		这里的构造函数上文已经提过，有4种不同的实现可以选择。
 
 	- 设置 CoreKitSubCallBack
 
@@ -334,14 +342,15 @@ dependencies {
 		```
 		
 2. `ABCoreKitClient` 初始化：
+	
 	在主进程的 `Application onCreate` 方法中初始化一个全局单例的 `ABCoreKitClient` 对象：
 	
 	```java
-	mABCoreClient = ABCoreKitClient.builder(this)
-		.addCustomTypeAdapter(CustomType.DATETIME, dateCustomTypeAdapter)
-		.setOkHttpClient(okHttpClient)
-		.setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK)
-		.build();
+	mABCoreClientBtc = ABCoreKitClient.builder(this, CoreKitConfig.ApiType.API_TYPE_BTC)
+                    .addCustomTypeAdapter(CustomType.DATETIME, dateCustomTypeAdapter)
+                    .setOpenOkHttpLog(true)
+                    .setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK)
+                    .build();
 	```
 	
 	在初始化的时候，你可以传入自定义的 `okHttpClient` ，`CustomTypeAdapter` ，`ResponseFetcher` 等参数。
