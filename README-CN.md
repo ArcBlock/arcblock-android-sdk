@@ -56,7 +56,7 @@ dependencies {
 
 #### 3. 实现普通的查询功能
 
-1. 首先，自定义一个类继承自 CoreKitQuery 抽象类，需要实现三个部分：
+1. 首先，自定义一个类继承自 `CoreKitQuery` 抽象类，需要实现三个部分：
 	- **构造方法：** 实现和当前使用相匹配的构造方法，匹配条件取决于是在 FragmentActivity 中还是 Fragment 中使用的此 query 以及当前传入的是自定义的 ABCoreKitClient 还是默认的 ABCoreKitClient
 	- **map(...) 方法：** 该方法是 CoreKitBeanMapperInterface 接口的具体实现，供 CoreKitQueryViewModel 内部使用，用于将 response 转换成最终想得到的数据格式
 	- **getQuery() 方法：** 初始化并返回一个当前的 Query 对象，用于实现具体的业务查询
@@ -118,7 +118,7 @@ dependencies {
 
 #### 4. 实现分页查询功能
 
-1. 首先，自定义一个类继承自 CoreKitPagedQuery 抽象类，需要实现五个部分：
+1. 首先，自定义一个类继承自 `CoreKitPagedQuery` 抽象类，需要实现五个部分：
 	- **构造方法：** 实现和当前使用相匹配的构造方法，匹配条件取决于是在 FragmentActivity 中还是 Fragment 中使用的此 paged query 以及当前传入的是自定义的 ABCoreKitClient 还是默认的 ABCoreKitClient
 	- **map(...) 方法：** 该方法是 CoreKitBeanMapperInterface 接口的具体实现，供 CoreKitPagedQueryViewModel 内部使用，用于将 Response 转换成最终想得到的数据格式
 		
@@ -226,8 +226,8 @@ dependencies {
 			.xxxx
 			.build();
 	```
-
-2. 第二步，自定义一个类继承自 CoreKitSubscription 抽象类，需要实现三个部分：
+`
+2. 第二步，自定义一个类继承自 `CoreKitSubscription` 抽象类，需要实现三个部分：
 
 	- **构造方法：** 实现和当前使用相匹配的构造方法，匹配条件取决于是在 FragmentActivity 中还是 Fragment 中使用的此 Subscription 和 当前传入的是自定义的 ABCoreKitClient 还是默认的 ABCoreKitClient
 	- **getSubscription() 方法：** 初始化并返回一个具体的 Subscription 对象

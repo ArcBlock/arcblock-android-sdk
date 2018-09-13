@@ -55,7 +55,7 @@ dependencies {
 
 #### 3. Implement common query function
 
-1. First, to customize a class inherited from the CoreKitQuery abstract class, you need to implement three parts:
+1. First, to customize a class inherited from the `CoreKitQuery` abstract class, you need to implement three parts:
 	- **Constructor:** Implement a constructor that matches the current usage, depending on whether the Query is used in FragmentActivity or Fragment and whether the currently passed in is a custom ABCoreKitClient or the default ABCoreKitClient
 	- **map(...) method:** The method for CoreKitBeanMapperInterface interface implementation, provide CoreKitQueryViewModel internal use, is used to return the Response into the final desired data format
 	- **getQuery() method:** Initialize and return a current Query object to implement a concrete business Query
@@ -117,7 +117,7 @@ dependencies {
 	
 #### 4. Implement paged Query function
 
-1. First, to customize a class inherited from the CoreKitPagedQuery abstract class, you need to implement five parts:
+1. First, to customize a class inherited from the `CoreKitPagedQuery` abstract class, you need to implement five parts:
 	- **Constructor:** Implement a constructor that matches the current usage, depending on whether the paged query is used in FragmentActivity or Fragment and whether the currently passed in is a custom ABCoreKitClient or the default ABCoreKitClient
 	- **map(...) method:** The method for CoreKitBeanMapperInterface interface implementation, provide CoreKitPagedQueryViewModel internal use, is used to return the Response into the final desired data format
 		
@@ -226,7 +226,7 @@ dependencies {
 			.build();
 	```
 
-2. The second step, customize a class to inherit from the CoreKitSubscription abstract class, and you need to implement three sections:
+2. The second step, customize a class to inherit from the `CoreKitSubscription` abstract class, and you need to implement three sections:
 
 	- **Constructor:** Implement a constructor that matches the current usage, depending on whether the subscription is used in FragmentActivity or Fragment and whether the currently passed in is a custom ABCoreKitClient or the default ABCoreKitClient
 	- **getSubscription() method:** Initialize and return a Subscription object
@@ -266,7 +266,7 @@ dependencies {
 		mNewBlockMinedSubscriptionHelper = new NewBlockMinedSubscriptionHelper(this, DemoApplication.getInstance().abCoreKitClientEth());
 		```
 
-		这里的构造函数上文已经提过，有4种不同的实现可以选择。
+		As mentioned above, there are four different implementations to choose from.
 
 	- Set the CoreKitSubCallBack
 
