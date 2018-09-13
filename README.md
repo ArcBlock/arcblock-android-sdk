@@ -37,7 +37,7 @@ apply plugin: 'com.apollographql.android'
 
 //......
 dependencies {
-  // x.x.x => tag version
+  // x.x.x => release version
   def absdkcorekitversion = "x.x.x" 
   implementation("com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"){
 	transitive = true

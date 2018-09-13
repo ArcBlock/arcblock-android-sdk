@@ -46,7 +46,7 @@ public abstract class CoreKitSubscription<T extends Subscription.Data, D extends
      */
     public CoreKitSubscription(FragmentActivity activity, ABCoreKitClient client) {
         CoreKitSubscriptionViewModel.CustomClientFactory factory =
-                new CoreKitSubscriptionViewModel.CustomClientFactory(client, getSubscription(), getSubscriptionClass());
+                new CoreKitSubscriptionViewModel.CustomClientFactory(client, getSubscription(), getResultDataClass());
         this.mCoreKitSubscriptionViewModel = CoreKitSubscriptionViewModel.getInstance(activity, factory);
         this.mCoreKitSubscriptionViewModel.subscription();
     }
@@ -59,7 +59,7 @@ public abstract class CoreKitSubscription<T extends Subscription.Data, D extends
      */
     public CoreKitSubscription(FragmentActivity activity, Context context, CoreKitConfig.ApiType apiType) {
         CoreKitSubscriptionViewModel.DefaultFactory factory =
-                new CoreKitSubscriptionViewModel.DefaultFactory(context, apiType, getSubscription(), getSubscriptionClass());
+                new CoreKitSubscriptionViewModel.DefaultFactory(context, apiType, getSubscription(), getResultDataClass());
         this.mCoreKitSubscriptionViewModel = CoreKitSubscriptionViewModel.getInstance(activity, factory);
         this.mCoreKitSubscriptionViewModel.subscription();
     }
@@ -71,7 +71,7 @@ public abstract class CoreKitSubscription<T extends Subscription.Data, D extends
      */
     public CoreKitSubscription(Fragment fragment, ABCoreKitClient client) {
         CoreKitSubscriptionViewModel.CustomClientFactory factory =
-                new CoreKitSubscriptionViewModel.CustomClientFactory(client, getSubscription(), getSubscriptionClass());
+                new CoreKitSubscriptionViewModel.CustomClientFactory(client, getSubscription(), getResultDataClass());
         this.mCoreKitSubscriptionViewModel = CoreKitSubscriptionViewModel.getInstance(fragment, factory);
         this.mCoreKitSubscriptionViewModel.subscription();
     }
@@ -84,7 +84,7 @@ public abstract class CoreKitSubscription<T extends Subscription.Data, D extends
      */
     public CoreKitSubscription(Fragment fragment, Context context, CoreKitConfig.ApiType apiType) {
         CoreKitSubscriptionViewModel.DefaultFactory factory =
-                new CoreKitSubscriptionViewModel.DefaultFactory(context, apiType, getSubscription(), getSubscriptionClass());
+                new CoreKitSubscriptionViewModel.DefaultFactory(context, apiType, getSubscription(), getResultDataClass());
         this.mCoreKitSubscriptionViewModel = CoreKitSubscriptionViewModel.getInstance(fragment, factory);
         this.mCoreKitSubscriptionViewModel.subscription();
     }
