@@ -58,7 +58,7 @@ dependencies {
 
 1. 首先，自定义一个类继承自 CoreKitQuery 抽象类，需要实现两个部分：
 	- **构造方法：** 实现和当前使用相匹配的构造方法，匹配条件取决于是在 FragmentActivity 中还是 Fragment 中使用的此 Query 和 当前传入的是自定义的 ABCoreKitClient 还是默认的 ABCoreKitClient
-	- **map(...) 方法：** 该方法是实现 CoreKitBeanMapperInterface 的一个方法，供 CoreKitQueryViewModel 内部使用，用于将返回的 Response map 成最终想得到的数据格式
+	- **map(...) 方法：** 该方法是实现 CoreKitBeanMapperInterface 的一个方法，供 CoreKitQueryViewModel 内部使用，用于将返回的 Response map 成最终想得到的数据格式
 	- **getQuery() 方法：** 初始化并返回一个当前的 Query 对象，用于实现具体的业务查询
 
 	示例代码：
@@ -90,15 +90,15 @@ dependencies {
 
 	> 这边的命名建议以对应的 `Query`, `Mutaition`, `Subscription` 具体类名称加上 `-Helper` 结尾，比如上面 AccountByAddressQuery 对应的为 AccountByAddressQueryHelper
 
-2. 第二步，创建一个 `xxxHelper` 查询类的对象，并设置 Observe 对象，请求并获取数据
+2. 第二步，创建一个 `xxxHelper` 查询类的对象，并设置 Observe 对象，请求并获取数据
 
-	- 创建 `xxxHelper` 查询类的对象：
+	- 创建 `xxxHelper` 查询类的对象：
 	
 		```java
 		AccountByAddressQueryHelper accountByAddressQueryHelper = new AccountByAddressQueryHelper(this, this, DemoApplication.getInstance().abCoreKitClientBtc());
 		```
 
-		这里的构造函数上文已经提过，有4种不同的实现可以选择，具体根据自己的代码选择即可。
+		这里的构造函数上文已经提过，有4种不同的实现可以选择，具体根据自己的代码选择即可。
 
 	- 设置 Observe 对象：
 	
@@ -122,11 +122,11 @@ dependencies {
 
 1. 首先，自定义一个类继承自 CoreKitPagedQuery 抽象类，需要实现五个部分：
 	- **构造方法：** 实现和当前使用相匹配的构造方法，匹配条件取决于是在 FragmentActivity 中还是 Fragment 中使用的此 Query 和 当前传入的是自定义的 ABCoreKitClient 还是默认的 ABCoreKitClient
-	- **map(...) 方法：** 该方法是实现 CoreKitBeanMapperInterface 的一个方法，供 CoreKitQueryViewModel 内部使用，用于将返回的 Response map 成最终想得到的数据格式
+	- **map(...) 方法：** 该方法是实现 CoreKitBeanMapperInterface 的一个方法，供 CoreKitQueryViewModel 内部使用，用于将返回的 Response map 成最终想得到的数据格式
 		> 这里不同于普通查询的地方是，在分页查询的 map(...) 方法中，需要手动地设置 `setHasMore(boolean hasMore)` 和 `setCursor(String cursor)`，这两个参数是底层判断是否进行分页请求的依据
 	- **getInitialQuery() 方法：** 初始化并返回一个分页查询的初始的 Query 对象
-	- **getLoadMoreQuery() 方法：** 初始化并返回一个分页查询查询更多的 Query 对象
-	- **getRefreshQuery() 方法：** 初始化并返回一个分页查询刷新查询的 Query 对象，一般情况下此 Query 对象与 getInitialQuery() 返回的相同
+	- **getLoadMoreQuery() 方法：** 初始化并返回一个分页查询查询更多的 Query 对象
+	- **getRefreshQuery() 方法：** 初始化并返回一个分页查询刷新查询的 Query 对象，一般情况下此 Query 对象与 getInitialQuery() 返回的相同
 
 	示例代码：
 
@@ -178,15 +178,15 @@ dependencies {
 
 	> 这边的命名建议以对应的 `Query`, `Mutaition`, `Subscription` 具体类名称加上 `-Helper` 结尾，比如上面 BlocksByHeightQuery 对应的为 BlocksByHeightQueryHelper
 
-2. 第二步，创建一个 `xxxHelper` 查询类的对象，并设置 Observe 对象，请求并获取数据
+2. 第二步，创建一个 `xxxHelper` 查询类的对象，并设置 Observe 对象，请求并获取数据
 
-	- 创建 xxxHelper 查询类的对象：
+	- 创建 xxxHelper 查询类的对象：
 	
 		```java
 		mBlocksByHeightQueryHelper = new BlocksByHeightQueryHelper(this, this, DemoApplication.getInstance().abCoreKitClientBtc());
 		```
 
-		这里的构造函数上文已经提过，有4种不同的实现可以选择，具体根据自己的代码选择即可。
+		这里的构造函数上文已经提过，有4种不同的实现可以选择，具体根据自己的代码选择即可。
 	
 	- 设置 Observe 对象：
 
@@ -209,7 +209,7 @@ dependencies {
 		mBlocksByHeightQueryHelper.refresh();
 		```
 
-	- 调用 loadMore 方法加载下一页数据
+	- 调用 loadMore 方法加载下一页数据
 
 		```java
 		mBlocksByHeightQueryHelper.loadMore();
@@ -231,7 +231,7 @@ dependencies {
 
 	- **构造方法：** 实现和当前使用相匹配的构造方法，匹配条件取决于是在 FragmentActivity 中还是 Fragment 中使用的此 Query 和 当前传入的是自定义的 ABCoreKitClient 还是默认的 ABCoreKitClient
 	- **getSubscription() 方法：** 初始化并返回一个具体的 Subscription 对象
-	- **getResultDataClass() 方法：** 返回最终期望的 Data 类的 Class，供 CoreKitSubscriptionViewModel 中 json 解析使用
+	- **getResultDataClass() 方法：** 返回最终期望的 Data 类的 Class，供 CoreKitSubscriptionViewModel 中 json 解析使用
 
 	示例代码：
 
