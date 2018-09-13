@@ -1,3 +1,6 @@
+## 0.2.1 (September 12, 2018)
+  - optimize sdk usage
+
 ## 0.1.11 (August 23, 2018)
   - update readme for new init mode
 

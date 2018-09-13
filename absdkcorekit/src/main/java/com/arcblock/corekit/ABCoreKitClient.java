@@ -66,305 +66,322 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import timber.log.Timber;
 
 import static com.apollographql.apollo.fetcher.ApolloResponseFetchers.CACHE_FIRST;
 
 public class ABCoreKitClient {
 
-	public static boolean IS_DEBUG = false;
-	private ApolloClient mApolloClient;
-	private static final String SQL_CACHE_NAME = "arcblock_core_kit_db";
-	private OkHttpClient mOkHttpClient;
-	private CoreKitSocket mCoreKitSocket;
-	private int apiType;
-	private ScalarTypeAdapters scalarTypeAdapters = null;
-	private List<CoreKitSocketStatusCallBack> mCoreKitSocketStatusCallBacks = new ArrayList<>();
+    public static boolean IS_DEBUG = false;
+    private ApolloClient mApolloClient;
+    private static final String SQL_CACHE_NAME = "arcblock_core_kit_db";
+    private OkHttpClient mOkHttpClient;
+    private CoreKitSocket mCoreKitSocket;
+    private ScalarTypeAdapters scalarTypeAdapters;
+    private List<CoreKitSocketStatusCallBack> mCoreKitSocketStatusCallBacks = new ArrayList<>();
 
-	private ABCoreKitClient(Builder builder) {
-		apiType = builder.apiType;
-		OkHttpClient.Builder okHttpClientBuilder;
-		if (builder.mOkHttpClient == null) {
-			okHttpClientBuilder = new OkHttpClient.Builder();
-		} else {
-			okHttpClientBuilder = builder.mOkHttpClient.newBuilder();
-		}
-		mOkHttpClient = okHttpClientBuilder.build();
-		if (builder.openSocket) {
-			initCoreKitSocket();
-		}
-		ApolloClient.Builder apolloClientBuilder = ApolloClient.builder()
-				.serverUrl(CoreKitConfig.getApiUrl(builder.apiType))
-				.okHttpClient(mOkHttpClient)
-				.normalizedCache(builder.mNormalizedCacheFactory, builder.mResolver);
-		for (ScalarType scalarType : builder.customTypeAdapters.keySet()) {
-			apolloClientBuilder.addCustomTypeAdapter(scalarType, builder.customTypeAdapters.get(scalarType));
-		}
+    private ABCoreKitClient(Builder builder) {
+        OkHttpClient.Builder okHttpClientBuilder;
+        if (builder.mOkHttpClient == null) {
+            okHttpClientBuilder = new OkHttpClient.Builder();
+        } else {
+            okHttpClientBuilder = builder.mOkHttpClient.newBuilder();
+        }
+        if (builder.openOkHttpLog) {
+            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
+                @Override
+                public void log(String message) {
+                    Timber.tag("ABCorekitClient-OkHttp").d(message);
+                }
+            });
+            mOkHttpClient = okHttpClientBuilder.addInterceptor(loggingInterceptor).build();
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        } else {
+            mOkHttpClient = okHttpClientBuilder.build();
+        }
+        if (builder.openSocket) {
+            initCoreKitSocket();
+        }
+        ApolloClient.Builder apolloClientBuilder = ApolloClient.builder()
+                .serverUrl(CoreKitConfig.getApiUrl(builder.apiType))
+                .okHttpClient(mOkHttpClient)
+                .normalizedCache(builder.mNormalizedCacheFactory, builder.mResolver);
+        for (ScalarType scalarType : builder.customTypeAdapters.keySet()) {
+            apolloClientBuilder.addCustomTypeAdapter(scalarType, builder.customTypeAdapters.get(scalarType));
+        }
 
-		scalarTypeAdapters = new ScalarTypeAdapters(builder.customTypeAdapters);
+        scalarTypeAdapters = new ScalarTypeAdapters(builder.customTypeAdapters);
 
-		if (builder.mDispatcher != null) {
-			apolloClientBuilder.dispatcher(builder.mDispatcher);
-		}
-		if (builder.mDefaultResponseFetcher != null) {
-			apolloClientBuilder.defaultResponseFetcher(builder.mDefaultResponseFetcher);
-		}
-		mApolloClient = apolloClientBuilder.build();
-	}
+        if (builder.mDispatcher != null) {
+            apolloClientBuilder.dispatcher(builder.mDispatcher);
+        }
+        if (builder.mDefaultResponseFetcher != null) {
+            apolloClientBuilder.defaultResponseFetcher(builder.mDefaultResponseFetcher);
+        }
+        mApolloClient = apolloClientBuilder.build();
+    }
 
-	public ScalarTypeAdapters getScalarTypeAdapters() {
-		return scalarTypeAdapters;
-	}
+    public ScalarTypeAdapters getScalarTypeAdapters() {
+        return scalarTypeAdapters;
+    }
 
-	public void addSocketStatusCallBack(CoreKitSocketStatusCallBack socketStatusCallBack) {
-		if (socketStatusCallBack != null && mCoreKitSocketStatusCallBacks.indexOf(socketStatusCallBack) == -1) {
-			mCoreKitSocketStatusCallBacks.add(socketStatusCallBack);
-		}
-	}
+    public void addSocketStatusCallBack(CoreKitSocketStatusCallBack socketStatusCallBack) {
+        if (socketStatusCallBack != null && mCoreKitSocketStatusCallBacks.indexOf(socketStatusCallBack) == -1) {
+            mCoreKitSocketStatusCallBacks.add(socketStatusCallBack);
+        }
+    }
 
-	public void doManualReconnect() {
-		if (mCoreKitSocket != null && !mCoreKitSocket.isConnected() && !mCoreKitSocket.isOpening()) {
-			mCoreKitSocket.manualReconnect();
-		}
-	}
+    public void doManualReconnect() {
+        if (mCoreKitSocket != null && !mCoreKitSocket.isConnected() && !mCoreKitSocket.isOpening()) {
+            mCoreKitSocket.manualReconnect();
+        }
+    }
 
-	public static class Builder {
+    public static class Builder {
 
-		private NormalizedCacheFactory mNormalizedCacheFactory;
-		private CacheKeyResolver mResolver;
-		private Map<ScalarType, CustomTypeAdapter> customTypeAdapters = new LinkedHashMap<>();
-		private Executor mDispatcher;
-		private OkHttpClient mOkHttpClient;
-		private ResponseFetcher mDefaultResponseFetcher = CACHE_FIRST;
-		private Context mContext;
-		private String dbName;
-		private int apiType;
-		private boolean openSocket;
+        private NormalizedCacheFactory mNormalizedCacheFactory;
+        private CacheKeyResolver mResolver;
+        private Map<ScalarType, CustomTypeAdapter> customTypeAdapters = new LinkedHashMap<>();
+        private Executor mDispatcher;
+        private OkHttpClient mOkHttpClient;
+        private ResponseFetcher mDefaultResponseFetcher = CACHE_FIRST;
+        private Context mContext;
+        private String dbName;
+        private CoreKitConfig.ApiType apiType;
+        private boolean openSocket;
+        private boolean openOkHttpLog;
 
-		private Builder(Context context, int apiType) {
-			this.mContext = context;
-			this.apiType = apiType;
-		}
+        private Builder(Context context, CoreKitConfig.ApiType apiType) {
+            this.mContext = context;
+            this.apiType = apiType;
+        }
 
-		public Builder setNormalizedCacheFactory(NormalizedCacheFactory normalizedCacheFactory) {
-			mNormalizedCacheFactory = normalizedCacheFactory;
-			return this;
-		}
+        public Builder setNormalizedCacheFactory(NormalizedCacheFactory normalizedCacheFactory) {
+            mNormalizedCacheFactory = normalizedCacheFactory;
+            return this;
+        }
 
-		public Builder setResolver(CacheKeyResolver resolver) {
-			mResolver = resolver;
-			return this;
-		}
+        public Builder setResolver(CacheKeyResolver resolver) {
+            mResolver = resolver;
+            return this;
+        }
 
-		public Builder setDispatcher(Executor dispatcher) {
-			mDispatcher = dispatcher;
-			return this;
-		}
+        public Builder setDispatcher(Executor dispatcher) {
+            mDispatcher = dispatcher;
+            return this;
+        }
 
-		public Builder setOkHttpClient(OkHttpClient okHttpClient) {
-			mOkHttpClient = okHttpClient;
-			return this;
-		}
+        public Builder setOkHttpClient(OkHttpClient okHttpClient) {
+            mOkHttpClient = okHttpClient;
+            return this;
+        }
 
-		public Builder setDefaultResponseFetcher(ResponseFetcher defaultResponseFetcher) {
-			mDefaultResponseFetcher = defaultResponseFetcher;
-			return this;
-		}
+        public Builder setDefaultResponseFetcher(ResponseFetcher defaultResponseFetcher) {
+            mDefaultResponseFetcher = defaultResponseFetcher;
+            return this;
+        }
 
-		public Builder setDbName(String dbName) {
-			this.dbName = dbName;
-			return this;
-		}
+        public Builder setDbName(String dbName) {
+            this.dbName = dbName;
+            return this;
+        }
 
-		public Builder setOpenSocket(boolean openSocket) {
-			this.openSocket = openSocket;
-			return this;
-		}
+        public Builder setOpenSocket(boolean openSocket) {
+            this.openSocket = openSocket;
+            return this;
+        }
 
-		public <T> Builder addCustomTypeAdapter(@NotNull ScalarType scalarType,
-												@NotNull final CustomTypeAdapter<T> customTypeAdapter) {
-			customTypeAdapters.put(scalarType, customTypeAdapter);
-			return this;
-		}
+        public Builder setOpenOkHttpLog(boolean openOkHttpLog) {
+            this.openOkHttpLog = openOkHttpLog;
+            return this;
+        }
 
-		public ABCoreKitClient build() {
-			if (mNormalizedCacheFactory == null) {
-				ApolloSqlHelper appSyncSqlHelper = ApolloSqlHelper.create(mContext, TextUtils.isEmpty(dbName) ? SQL_CACHE_NAME : dbName);
-				mNormalizedCacheFactory = new SqlNormalizedCacheFactory(appSyncSqlHelper);
-			}
+        public <T> Builder addCustomTypeAdapter(@NotNull ScalarType scalarType,
+                                                @NotNull final CustomTypeAdapter<T> customTypeAdapter) {
+            customTypeAdapters.put(scalarType, customTypeAdapter);
+            return this;
+        }
 
-			if (mResolver == null) {
-				mResolver = new CacheKeyResolver() {
-					@Nonnull
-					@Override
-					public CacheKey fromFieldRecordSet(@Nonnull ResponseField field, @Nonnull Map<String, Object> recordSet) {
-						return formatCacheKey((String) recordSet.get("id"));
-					}
+        public ABCoreKitClient build() {
+            if (mNormalizedCacheFactory == null) {
+                ApolloSqlHelper appSyncSqlHelper = ApolloSqlHelper.create(mContext, TextUtils.isEmpty(dbName) ? SQL_CACHE_NAME : dbName);
+                mNormalizedCacheFactory = new SqlNormalizedCacheFactory(appSyncSqlHelper);
+            }
 
-					@Nonnull
-					@Override
-					public CacheKey fromFieldArguments(@Nonnull ResponseField field, @Nonnull Operation.Variables variables) {
-						return formatCacheKey((String) field.resolveArgument("cursor", variables));
-					}
+            if (mResolver == null) {
+                mResolver = new CacheKeyResolver() {
+                    @Nonnull
+                    @Override
+                    public CacheKey fromFieldRecordSet(@Nonnull ResponseField field, @Nonnull Map<String, Object> recordSet) {
+                        return formatCacheKey((String) recordSet.get("id"));
+                    }
 
-					private CacheKey formatCacheKey(String id) {
-						if (id == null || id.isEmpty()) {
-							return CacheKey.NO_KEY;
-						} else {
-							return CacheKey.from(id);
-						}
-					}
-				};
-			}
-			return new ABCoreKitClient(this);
-		}
-	}
+                    @Nonnull
+                    @Override
+                    public CacheKey fromFieldArguments(@Nonnull ResponseField field, @Nonnull Operation.Variables variables) {
+                        return formatCacheKey((String) field.resolveArgument("cursor", variables));
+                    }
 
-	public static Builder builder(Context context, int apiType) {
-		return new Builder(context, apiType);
-	}
+                    private CacheKey formatCacheKey(String id) {
+                        if (id == null || id.isEmpty()) {
+                            return CacheKey.NO_KEY;
+                        } else {
+                            return CacheKey.from(id);
+                        }
+                    }
+                };
+            }
+            return new ABCoreKitClient(this);
+        }
+    }
 
-	public <D extends Query.Data, T, V extends Query.Variables> ApolloQueryCall<T> query(@Nonnull Query<D, T, V> query) {
-		return mApolloClient.query(query);
-	}
+    public static Builder builder(Context context, CoreKitConfig.ApiType apiType) {
+        return new Builder(context, apiType);
+    }
 
-	public <D extends Mutation.Data, T, V extends Mutation.Variables> ApolloMutationCall<T> mutate(@Nonnull Mutation<D, T, V> mutation) {
-		return mApolloClient.mutate(mutation);
-	}
+    public <D extends Query.Data, T, V extends Query.Variables> ApolloQueryCall<T> query(@Nonnull Query<D, T, V> query) {
+        return mApolloClient.query(query);
+    }
 
-	public <D extends Mutation.Data, T, V extends Mutation.Variables> ApolloMutationCall<T> mutate(@Nonnull Mutation<D, T, V> mutation, @Nonnull D withOptimisticUpdates) {
-		return mApolloClient.mutate(mutation, withOptimisticUpdates);
-	}
+    public <D extends Mutation.Data, T, V extends Mutation.Variables> ApolloMutationCall<T> mutate(@Nonnull Mutation<D, T, V> mutation) {
+        return mApolloClient.mutate(mutation);
+    }
 
-	public <D extends Subscription.Data, T, V extends Subscription.Variables> ApolloSubscriptionCall<T> subscribe(@Nonnull Subscription<D, T, V> subscription) {
-		return mApolloClient.subscribe(subscription);
-	}
+    public <D extends Mutation.Data, T, V extends Mutation.Variables> ApolloMutationCall<T> mutate(@Nonnull Mutation<D, T, V> mutation, @Nonnull D withOptimisticUpdates) {
+        return mApolloClient.mutate(mutation, withOptimisticUpdates);
+    }
 
-	private void initCoreKitSocket() {
-		CoreKitLogUtils.e("initCoreKitSocket=>" + Thread.currentThread().getName());
-		if (mCoreKitSocket == null) {
-			// sub url set by apiType
-			mCoreKitSocket = new CoreKitSocket(CoreKitConfig.SUBSCRIPTION_BASE_URL_ETH, mOkHttpClient);
-		}
+    public <D extends Subscription.Data, T, V extends Subscription.Variables> ApolloSubscriptionCall<T> subscribe(@Nonnull Subscription<D, T, V> subscription) {
+        return mApolloClient.subscribe(subscription);
+    }
 
-		synchronized (this) {
-			if (!mCoreKitSocket.isConnected() && !mCoreKitSocket.isOpening()) {
-				mCoreKitSocket.setOpening(true);
-				mCoreKitSocket.onOpen(new ISocketOpenCallback() {
-					@Override
-					public void onOpen() {
-						Observable.just(1)
-								.subscribeOn(AndroidSchedulers.mainThread())
-								.subscribe(new Observer<Integer>() {
-									@Override
-									public void onSubscribe(Disposable d) {
+    private void initCoreKitSocket() {
+        CoreKitLogUtils.e("initCoreKitSocket=>" + Thread.currentThread().getName());
+        if (mCoreKitSocket == null) {
+            // sub url set by apiType
+            mCoreKitSocket = new CoreKitSocket(CoreKitConfig.SUBSCRIPTION_BASE_URL_ETH, mOkHttpClient);
+        }
 
-									}
+        synchronized (this) {
+            if (!mCoreKitSocket.isConnected() && !mCoreKitSocket.isOpening()) {
+                mCoreKitSocket.setOpening(true);
+                mCoreKitSocket.onOpen(new ISocketOpenCallback() {
+                    @Override
+                    public void onOpen() {
+                        Observable.just(1)
+                                .subscribeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Observer<Integer>() {
+                                    @Override
+                                    public void onSubscribe(Disposable d) {
 
-									@Override
-									public void onNext(Integer integer) {
-										for (CoreKitSocketStatusCallBack callBack : mCoreKitSocketStatusCallBacks) {
-											callBack.onOpen();
-										}
-									}
+                                    }
 
-									@Override
-									public void onError(Throwable e) {
+                                    @Override
+                                    public void onNext(Integer integer) {
+                                        for (CoreKitSocketStatusCallBack callBack : mCoreKitSocketStatusCallBacks) {
+                                            callBack.onOpen();
+                                        }
+                                    }
 
-									}
+                                    @Override
+                                    public void onError(Throwable e) {
 
-									@Override
-									public void onComplete() {
+                                    }
 
-									}
-								});
+                                    @Override
+                                    public void onComplete() {
 
-					}
-				}).onClose(new ISocketCloseCallback() {
-					@Override
-					public void onClose() {
-						Observable.just(1)
-								.subscribeOn(AndroidSchedulers.mainThread())
-								.subscribe(new Observer<Integer>() {
-									@Override
-									public void onSubscribe(Disposable d) {
+                                    }
+                                });
 
-									}
+                    }
+                }).onClose(new ISocketCloseCallback() {
+                    @Override
+                    public void onClose() {
+                        Observable.just(1)
+                                .subscribeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Observer<Integer>() {
+                                    @Override
+                                    public void onSubscribe(Disposable d) {
 
-									@Override
-									public void onNext(Integer integer) {
-										for (CoreKitSocketStatusCallBack callBack : mCoreKitSocketStatusCallBacks) {
-											callBack.onClose();
-										}
-									}
+                                    }
 
-									@Override
-									public void onError(Throwable e) {
+                                    @Override
+                                    public void onNext(Integer integer) {
+                                        for (CoreKitSocketStatusCallBack callBack : mCoreKitSocketStatusCallBacks) {
+                                            callBack.onClose();
+                                        }
+                                    }
 
-									}
+                                    @Override
+                                    public void onError(Throwable e) {
 
-									@Override
-									public void onComplete() {
+                                    }
 
-									}
-								});
-					}
-				}).onError(new IErrorCallback() {
-					@Override
-					public void onError(final String reason) {
-						Observable.just(1)
-								.subscribeOn(AndroidSchedulers.mainThread())
-								.subscribe(new Observer<Integer>() {
-									@Override
-									public void onSubscribe(Disposable d) {
+                                    @Override
+                                    public void onComplete() {
 
-									}
+                                    }
+                                });
+                    }
+                }).onError(new IErrorCallback() {
+                    @Override
+                    public void onError(final String reason) {
+                        Observable.just(1)
+                                .subscribeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Observer<Integer>() {
+                                    @Override
+                                    public void onSubscribe(Disposable d) {
 
-									@Override
-									public void onNext(Integer integer) {
-										for (CoreKitSocketStatusCallBack callBack : mCoreKitSocketStatusCallBacks) {
-											callBack.onError();
-										}
-									}
+                                    }
 
-									@Override
-									public void onError(Throwable e) {
+                                    @Override
+                                    public void onNext(Integer integer) {
+                                        for (CoreKitSocketStatusCallBack callBack : mCoreKitSocketStatusCallBacks) {
+                                            callBack.onError();
+                                        }
+                                    }
 
-									}
+                                    @Override
+                                    public void onError(Throwable e) {
 
-									@Override
-									public void onComplete() {
+                                    }
 
-									}
-								});
-					}
-				}).connect();
-			}
-		}
-	}
+                                    @Override
+                                    public void onComplete() {
 
-	public CoreKitSocket getCoreKitSocket() {
-		if (mCoreKitSocket == null) {
-			throw new RuntimeException("The mCoreKitSocket can not be null.");
-		}
-		return mCoreKitSocket;
-	}
+                                    }
+                                });
+                    }
+                }).connect();
+            }
+        }
+    }
 
-	public static ABCoreKitClient mABCoreKitClientEth;
-	public static ABCoreKitClient mABCoreKitClientBtc;
+    public CoreKitSocket getCoreKitSocket() {
+        if (mCoreKitSocket == null) {
+            throw new RuntimeException("The mCoreKitSocket can not be null.");
+        }
+        return mCoreKitSocket;
+    }
 
-	public static ABCoreKitClient defaultInstance(Context context, int apiType) {
-		if (apiType == CoreKitConfig.API_TYPE_BTC) {
-			if (mABCoreKitClientBtc == null) {
-				mABCoreKitClientBtc = ABCoreKitClient.builder(context, CoreKitConfig.API_TYPE_BTC).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();
-			}
-			return mABCoreKitClientBtc;
-		} else {
-			if (mABCoreKitClientEth == null) {
-				mABCoreKitClientEth = ABCoreKitClient.builder(context, CoreKitConfig.API_TYPE_ETH).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();
-			}
-			return mABCoreKitClientEth;
-		}
-	}
+    public static ABCoreKitClient mABCoreKitClientEth;
+    public static ABCoreKitClient mABCoreKitClientBtc;
+
+    public static ABCoreKitClient defaultInstance(Context context, CoreKitConfig.ApiType apiType) {
+        if (apiType == CoreKitConfig.ApiType.API_TYPE_BTC) {
+            if (mABCoreKitClientBtc == null) {
+                mABCoreKitClientBtc = ABCoreKitClient.builder(context, CoreKitConfig.ApiType.API_TYPE_BTC).setOpenOkHttpLog(true).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();
+            }
+            return mABCoreKitClientBtc;
+        } else {
+            if (mABCoreKitClientEth == null) {
+                mABCoreKitClientEth = ABCoreKitClient.builder(context, CoreKitConfig.ApiType.API_TYPE_ETH).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();
+            }
+            return mABCoreKitClientEth;
+        }
+    }
 
 
 }

@@ -32,12 +32,12 @@ import com.arcblock.sdk.demo.btc.TransactionByHashQuery;
 import java.util.List;
 
 public class TsOutputsAdapter extends CustomBaseAdapter<TransactionByHashQuery.Datum> {
-	public TsOutputsAdapter(Context context, int resource, List<TransactionByHashQuery.Datum> list) {
-		super(context, resource, list);
-	}
+    public TsOutputsAdapter(Context context, int resource, List<TransactionByHashQuery.Datum> list) {
+        super(context, resource, list);
+    }
 
-	@Override
-	public void setConvert(BaseViewHolder viewHolder, TransactionByHashQuery.Datum datum) {
-		viewHolder.setTextView(R.id.item_tv, TextUtils.isEmpty(datum.getAccount()) ? "Account is empty" : datum.getAccount());
-	}
+    @Override
+    public void setConvert(BaseViewHolder viewHolder, TransactionByHashQuery.Datum datum) {
+        viewHolder.setTextView(R.id.item_tv, TextUtils.isEmpty(datum.getAccount()) ? "Account is empty" : datum.getAccount());
+    }
 }

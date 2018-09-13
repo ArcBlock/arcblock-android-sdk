@@ -31,18 +31,18 @@ import com.chad.library.adapter.base.BaseViewHolder;
 import java.util.List;
 
 public class ListBlocksAdapter extends BaseQuickAdapter<BlocksByHeightQuery.Datum, BaseViewHolder> {
-	public ListBlocksAdapter(int layoutResId, @Nullable List<BlocksByHeightQuery.Datum> data) {
-		super(layoutResId, data);
-	}
+    public ListBlocksAdapter(int layoutResId, @Nullable List<BlocksByHeightQuery.Datum> data) {
+        super(layoutResId, data);
+    }
 
-	public void setNewListData(List<BlocksByHeightQuery.Datum> newList){
-		this.mData = newList;
-	}
+    public void setNewListData(List<BlocksByHeightQuery.Datum> newList) {
+        this.mData = newList;
+    }
 
-	@Override
-	protected void convert(BaseViewHolder helper, BlocksByHeightQuery.Datum item) {
-		helper.setText(R.id.hash_tv, item.getHash());
-		helper.setText(R.id.txs_tv, "" + item.getNumberTxs());
-		helper.setText(R.id.height_tv, "" + item.getHeight());
-	}
+    @Override
+    protected void convert(BaseViewHolder helper, BlocksByHeightQuery.Datum item) {
+        helper.setText(R.id.hash_tv, item.getHash());
+        helper.setText(R.id.txs_tv, "" + item.getNumberTxs());
+        helper.setText(R.id.height_tv, "" + item.getHeight());
+    }
 }

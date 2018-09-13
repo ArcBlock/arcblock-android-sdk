@@ -19,14 +19,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.corekit.viewmodel;
+package com.arcblock.corekit.viewmodel.i;
 
 import com.apollographql.apollo.api.Query;
+import com.arcblock.corekit.viewmodel.CoreKitPagedQueryViewModel;
 
-public interface CoreKitInterface {
-	/**
-	 * do apollo query
-	 * @param query
-	 */
-	void doFinalQuery(Query query);
+public interface CoreKitPagedHelperInterface {
+
+    /**
+     * @return initial query object for page initial query
+     */
+    Query getInitialQuery();
+
+    /**
+     * @return loadMore query object for page loadMore query
+     */
+    Query getLoadMoreQuery();
+
+    /**
+     * @return refresh query object for page refresh query
+     */
+    Query getRefreshQuery();
+
+    /**
+     * this method is for {@link CoreKitPagedQueryViewModel#refresh()}
+     */
+    void setHasMoreForRefresh();
+
 }

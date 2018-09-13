@@ -19,25 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.sdk.demo.adapter;
+package com.arcblock.corekit.viewmodel.i;
 
-import android.content.Context;
-import android.text.TextUtils;
+import com.apollographql.apollo.api.Query;
 
-import com.arcblock.sdk.demo.R;
-import com.arcblock.sdk.demo.adapter.base.BaseViewHolder;
-import com.arcblock.sdk.demo.adapter.base.CustomBaseAdapter;
-import com.arcblock.sdk.demo.btc.AccountByAddressQuery;
-
-import java.util.List;
-
-public class TsSentAdapter extends CustomBaseAdapter<AccountByAddressQuery.Datum1> {
-    public TsSentAdapter(Context context, int resource, List<AccountByAddressQuery.Datum1> list) {
-        super(context, resource, list);
-    }
-
-    @Override
-    public void setConvert(BaseViewHolder viewHolder, AccountByAddressQuery.Datum1 datum1) {
-        viewHolder.setTextView(R.id.item_tv, TextUtils.isEmpty(datum1.getHash()) ? "txsHash is empty!" : datum1.getHash());
-    }
+/**
+*  Created by Nate on 2018/9/12
+**/
+public interface CoreKitQueryInterface {
+    Query getQuery();
 }

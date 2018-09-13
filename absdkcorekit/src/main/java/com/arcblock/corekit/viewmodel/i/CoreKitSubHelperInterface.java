@@ -19,8 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.corekit.utils;
+package com.arcblock.corekit.viewmodel.i;
 
-public interface CoreKitBeanMapper<T,D> {
-	D map(T t);
+public interface CoreKitSubHelperInterface<T,D> {
+
+    D getSubscription();
+
+    Class<T> getResultDataClass();
+
 }

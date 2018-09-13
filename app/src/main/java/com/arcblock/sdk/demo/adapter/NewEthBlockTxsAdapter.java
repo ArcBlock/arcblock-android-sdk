@@ -31,12 +31,12 @@ import com.arcblock.sdk.demo.eth.NewBlockMinedSubscription;
 import java.util.List;
 
 public class NewEthBlockTxsAdapter extends CustomBaseAdapter<NewBlockMinedSubscription.Datum> {
-	public NewEthBlockTxsAdapter(Context context, int resource, List<NewBlockMinedSubscription.Datum> list) {
-		super(context, resource, list);
-	}
+    public NewEthBlockTxsAdapter(Context context, int resource, List<NewBlockMinedSubscription.Datum> list) {
+        super(context, resource, list);
+    }
 
-	@Override
-	public void setConvert(BaseViewHolder viewHolder, NewBlockMinedSubscription.Datum datum) {
-		viewHolder.setTextView(R.id.txs_hash_tv, datum.getHash());
-	}
+    @Override
+    public void setConvert(BaseViewHolder viewHolder, NewBlockMinedSubscription.Datum datum) {
+        viewHolder.setTextView(R.id.txs_hash_tv, datum.getHash());
+    }
 }

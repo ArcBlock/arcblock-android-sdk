@@ -29,65 +29,65 @@ import android.widget.ArrayAdapter;
 import java.util.List;
 
 public abstract class CustomBaseAdapter<T> extends ArrayAdapter<T> {
-	protected static String TAG_LOG = null;
+    protected static String TAG_LOG = null;
 
-	private int resourceId;
+    private int resourceId;
 
-	protected List<T> list;
+    protected List<T> list;
 
-	public CustomBaseAdapter(Context context, int resource, List<T> list) {
-		super(context, resource, list);
-		this.list = list;
-		this.resourceId = resource;
-		TAG_LOG = this.getClass().getSimpleName();
-	}
+    public CustomBaseAdapter(Context context, int resource, List<T> list) {
+        super(context, resource, list);
+        this.list = list;
+        this.resourceId = resource;
+        TAG_LOG = this.getClass().getSimpleName();
+    }
 
-	@Override
-	public T getItem(int position) {
-		return list.get(position);
-	}
+    @Override
+    public T getItem(int position) {
+        return list.get(position);
+    }
 
-	public void remove(int position) {
-		this.list.remove(position);
-		notifyDataSetChanged();
-	}
+    public void remove(int position) {
+        this.list.remove(position);
+        notifyDataSetChanged();
+    }
 
-	public void remove(T t) {
-		this.list.remove(t);
-		notifyDataSetChanged();
-	}
+    public void remove(T t) {
+        this.list.remove(t);
+        notifyDataSetChanged();
+    }
 
-	public void updateListView(List<T> list) {
-		this.list = list;
-		notifyDataSetChanged();
-	}
+    public void updateListView(List<T> list) {
+        this.list = list;
+        notifyDataSetChanged();
+    }
 
-	@Override
-	public int getCount() {
-		if (list == null) {
-			return 0;
-		}
-		return list.size();
-	}
+    @Override
+    public int getCount() {
+        if (list == null) {
+            return 0;
+        }
+        return list.size();
+    }
 
-	@Override
-	public long getItemId(int id) {
-		return id;
-	}
+    @Override
+    public long getItemId(int id) {
+        return id;
+    }
 
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		BaseViewHolder viewHolder = BaseViewHolder.get(getContext(), parent,
-				resourceId, position, convertView);
-		// 设置每个item控件
-		setConvert(viewHolder, getItem(position));
-		return viewHolder.getConvertView();
-	}
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        BaseViewHolder viewHolder = BaseViewHolder.get(getContext(), parent,
+                resourceId, position, convertView);
+        // 设置每个item控件
+        setConvert(viewHolder, getItem(position));
+        return viewHolder.getConvertView();
+    }
 
-	public abstract void setConvert(BaseViewHolder viewHolder, T t);
+    public abstract void setConvert(BaseViewHolder viewHolder, T t);
 
-	public void setList(List<T> list) {
-		this.list = list;
-	}
+    public void setList(List<T> list) {
+        this.list = list;
+    }
 
 }

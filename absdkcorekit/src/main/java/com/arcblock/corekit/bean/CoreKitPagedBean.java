@@ -23,7 +23,7 @@ package com.arcblock.corekit.bean;
 
 public class CoreKitPagedBean<T> extends CoreKitBean<T> {
 
-	public CoreKitPagedBean(T data, int status, String errorMessage) {
-		super(data, status, errorMessage);
-	}
+    public CoreKitPagedBean(T data, int status, String errorMessage) {
+        super(data, status, errorMessage);
+    }
 }

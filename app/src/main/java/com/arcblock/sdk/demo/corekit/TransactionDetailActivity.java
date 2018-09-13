@@ -21,21 +21,27 @@
  */
 package com.arcblock.sdk.demo.corekit;
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.api.Response;
+import com.arcblock.corekit.ABCoreKitClient;
+import com.arcblock.corekit.CoreKitQuery;
 import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.utils.CoreKitBeanMapper;
-import com.arcblock.corekit.viewmodel.CoreKitViewModel;
+import com.arcblock.corekit.viewmodel.CoreKitQueryViewModel;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.TsInputsAdapter;
@@ -47,183 +53,201 @@ import java.util.List;
 
 public class TransactionDetailActivity extends AppCompatActivity {
 
-	public static final String TRANSACTION_HASH_KEY = "transaction_hash_key";
-	private String transactionHash = "";
+    public static final String TRANSACTION_HASH_KEY = "transaction_hash_key";
+    private String transactionHash = "";
 
-	private TextView block_hash_tv;
-	private TextView block_height_tv;
-	private TextView size_tv;
-	private TextView virtual_size_tv;
-	private TextView weight_tv;
-	private TextView input_total_tv;
-	private TextView output_total_tv;
-	private TextView fees_tv;
-	private TextView input_title_tv;
-	private ListView input_lv;
-	private TextView output_title_tv;
-	private ListView output_lv;
+    private TextView block_hash_tv;
+    private TextView block_height_tv;
+    private TextView size_tv;
+    private TextView virtual_size_tv;
+    private TextView weight_tv;
+    private TextView input_total_tv;
+    private TextView output_total_tv;
+    private TextView fees_tv;
+    private TextView input_title_tv;
+    private ListView input_lv;
+    private TextView output_title_tv;
+    private ListView output_lv;
 
-	private boolean isInputLvShow = true;
-	private boolean isOutputLvShow = true;
+    private boolean isInputLvShow = true;
+    private boolean isOutputLvShow = true;
 
-	private TsInputsAdapter mTsInputsAdapter;
-	private TsOutputsAdapter mTsOutputsAdapter;
-	private List<TransactionByHashQuery.Datum1> inputs = new ArrayList<>();
-	private List<TransactionByHashQuery.Datum> outputs = new ArrayList<>();
+    private TsInputsAdapter mTsInputsAdapter;
+    private TsOutputsAdapter mTsOutputsAdapter;
+    private List<TransactionByHashQuery.Datum1> inputs = new ArrayList<>();
+    private List<TransactionByHashQuery.Datum> outputs = new ArrayList<>();
 
-	private CoreKitViewModel<Response<TransactionByHashQuery.Data>, TransactionByHashQuery.TransactionByHash> mTransactionByHashQueryViewModel;
+    private CoreKitQueryViewModel<Response<TransactionByHashQuery.Data>, TransactionByHashQuery.TransactionByHash> mTransactionByHashQueryViewModel;
 
-	@Override
-	protected void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_transaction_detail);
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_transaction_detail);
 
-		transactionHash = getIntent().getExtras().getString(TRANSACTION_HASH_KEY);
+        transactionHash = getIntent().getExtras().getString(TRANSACTION_HASH_KEY);
 
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setTitle("Tx-" + transactionHash);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Tx-" + transactionHash);
 
-		initView();
+        initView();
 
-		// init data mapper
-		CoreKitBeanMapper<Response<TransactionByHashQuery.Data>, TransactionByHashQuery.TransactionByHash> transactionMapper = new CoreKitBeanMapper<Response<TransactionByHashQuery.Data>, TransactionByHashQuery.TransactionByHash>() {
 
-			@Override
-			public TransactionByHashQuery.TransactionByHash map(Response<TransactionByHashQuery.Data> dataResponse) {
-				if (dataResponse != null) {
-					return dataResponse.data().getTransactionByHash();
-				}
-				return null;
-			}
-		};
-		// init a query
-		TransactionByHashQuery query = TransactionByHashQuery.builder().hash(transactionHash).build();
-		// init the ViewModel with CustomClientFactory
-		CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(query, transactionMapper, DemoApplication.getInstance().abCoreKitClientBtc());
-		mTransactionByHashQueryViewModel = CoreKitViewModel.getInstance(this, factory);
-		mTransactionByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<TransactionByHashQuery.TransactionByHash>>() {
-			@Override
-			public void onChanged(@Nullable CoreKitBean<TransactionByHashQuery.TransactionByHash> coreKitBean) {
-				if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-					TransactionByHashQuery.TransactionByHash transactionByHash = coreKitBean.getData();
-					if (transactionByHash != null) {
-						block_hash_tv.setText(transactionByHash.getBlockHash());
-						block_height_tv.setText(transactionByHash.getBlockHeight() + "");
-						size_tv.setText(transactionByHash.getSize() + " Bytes");
-						virtual_size_tv.setText(transactionByHash.getVirtualSize() + " Bytes");
-						weight_tv.setText(transactionByHash.getWeight() + "");
-						input_total_tv.setText(transactionByHash.getTotal() + " BTC");
-						output_total_tv.setText(transactionByHash.getTotal() + " BTC");
-						fees_tv.setText(transactionByHash.getFees() + " BTC");
+        // init TransactionByHashQueryHelper and get data
+        TransactionByHashQueryHelper transactionByHashQueryHelper = new TransactionByHashQueryHelper(this, this, DemoApplication.getInstance().abCoreKitClientBtc());
+        transactionByHashQueryHelper.setObserve(new Observer<CoreKitBean<TransactionByHashQuery.TransactionByHash>>() {
+            @Override
+            public void onChanged(@Nullable CoreKitBean<TransactionByHashQuery.TransactionByHash> coreKitBean) {
+                if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+                    TransactionByHashQuery.TransactionByHash transactionByHash = coreKitBean.getData();
+                    if (transactionByHash != null) {
+                        block_hash_tv.setText(transactionByHash.getBlockHash());
+                        block_height_tv.setText(transactionByHash.getBlockHeight() + "");
+                        size_tv.setText(transactionByHash.getSize() + " Bytes");
+                        virtual_size_tv.setText(transactionByHash.getVirtualSize() + " Bytes");
+                        weight_tv.setText(transactionByHash.getWeight() + "");
+                        input_total_tv.setText(transactionByHash.getTotal() + " BTC");
+                        output_total_tv.setText(transactionByHash.getTotal() + " BTC");
+                        fees_tv.setText(transactionByHash.getFees() + " BTC");
 
-						input_title_tv.setText(String.format("Input(%s)", transactionByHash.getNumberInputs() + ""));
-						output_title_tv.setText(String.format("Output(%s)", transactionByHash.getNumberOutputs() + ""));
+                        input_title_tv.setText(String.format("Input(%s)", transactionByHash.getNumberInputs() + ""));
+                        output_title_tv.setText(String.format("Output(%s)", transactionByHash.getNumberOutputs() + ""));
 
-						if (transactionByHash.getInputs() != null && transactionByHash.getInputs().getData() != null) {
-							inputs.clear();
-							inputs.addAll(transactionByHash.getInputs().getData());
-							mTsInputsAdapter.notifyDataSetChanged();
-						}
+                        if (transactionByHash.getInputs() != null && transactionByHash.getInputs().getData() != null) {
+                            inputs.clear();
+                            inputs.addAll(transactionByHash.getInputs().getData());
+                            mTsInputsAdapter.notifyDataSetChanged();
+                        }
 
-						if (transactionByHash.getOutputs() != null && transactionByHash.getOutputs().getData() != null) {
-							outputs.clear();
-							outputs.addAll(transactionByHash.getOutputs().getData());
-							mTsOutputsAdapter.notifyDataSetChanged();
-						}
-					}
-				} else {
-					// show error msg
-				}
-			}
-		});
-	}
+                        if (transactionByHash.getOutputs() != null && transactionByHash.getOutputs().getData() != null) {
+                            outputs.clear();
+                            outputs.addAll(transactionByHash.getOutputs().getData());
+                            mTsOutputsAdapter.notifyDataSetChanged();
+                        }
+                    }
+                } else {
+                    // show error msg
+                }
+            }
+        });
+    }
 
-	private void initView() {
-		block_hash_tv = findViewById(R.id.block_hash_tv);
-		block_height_tv = findViewById(R.id.block_height_tv);
-		size_tv = findViewById(R.id.size_tv);
-		virtual_size_tv = findViewById(R.id.virtual_size_tv);
-		weight_tv = findViewById(R.id.weight_tv);
-		input_total_tv = findViewById(R.id.input_total_tv);
-		output_total_tv = findViewById(R.id.output_total_tv);
-		fees_tv = findViewById(R.id.fees_tv);
-		input_title_tv = findViewById(R.id.input_title_tv);
-		input_lv = findViewById(R.id.input_lv);
-		output_title_tv = findViewById(R.id.output_title_tv);
-		output_lv = findViewById(R.id.output_lv);
+    private void initView() {
+        block_hash_tv = findViewById(R.id.block_hash_tv);
+        block_height_tv = findViewById(R.id.block_height_tv);
+        size_tv = findViewById(R.id.size_tv);
+        virtual_size_tv = findViewById(R.id.virtual_size_tv);
+        weight_tv = findViewById(R.id.weight_tv);
+        input_total_tv = findViewById(R.id.input_total_tv);
+        output_total_tv = findViewById(R.id.output_total_tv);
+        fees_tv = findViewById(R.id.fees_tv);
+        input_title_tv = findViewById(R.id.input_title_tv);
+        input_lv = findViewById(R.id.input_lv);
+        output_title_tv = findViewById(R.id.output_title_tv);
+        output_lv = findViewById(R.id.output_lv);
 
-		mTsInputsAdapter = new TsInputsAdapter(this, R.layout.item_transaction_detail_accounts, inputs);
-		input_lv.setAdapter(mTsInputsAdapter);
-		input_lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				if (position < inputs.size()) {
-					Intent intent = new Intent(TransactionDetailActivity.this, AccountDetailActivity.class);
-					Bundle bundle = new Bundle();
-					bundle.putString(AccountDetailActivity.ADDRESS_KEY, inputs.get(position).getAccount());
-					intent.putExtras(bundle);
-					startActivity(intent);
-				}
-			}
-		});
+        mTsInputsAdapter = new TsInputsAdapter(this, R.layout.item_transaction_detail_accounts, inputs);
+        input_lv.setAdapter(mTsInputsAdapter);
+        input_lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (position < inputs.size()) {
+                    if (TextUtils.isEmpty(inputs.get(position).getAccount())) {
+                        Toast.makeText(TransactionDetailActivity.this, "CoinBase", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Intent intent = new Intent(TransactionDetailActivity.this, AccountDetailActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putString(AccountDetailActivity.ADDRESS_KEY, inputs.get(position).getAccount());
+                        intent.putExtras(bundle);
+                        startActivity(intent);
+                    }
+                }
+            }
+        });
 
-		mTsOutputsAdapter = new TsOutputsAdapter(this, R.layout.item_transaction_detail_accounts, outputs);
-		output_lv.setAdapter(mTsOutputsAdapter);
-		output_lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				if (position < outputs.size()) {
-					Intent intent = new Intent(TransactionDetailActivity.this, AccountDetailActivity.class);
-					Bundle bundle = new Bundle();
-					bundle.putString(AccountDetailActivity.ADDRESS_KEY, outputs.get(position).getAccount());
-					intent.putExtras(bundle);
-					startActivity(intent);
-				}
-			}
-		});
+        mTsOutputsAdapter = new TsOutputsAdapter(this, R.layout.item_transaction_detail_accounts, outputs);
+        output_lv.setAdapter(mTsOutputsAdapter);
+        output_lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (position < outputs.size()) {
+                    if (TextUtils.isEmpty(outputs.get(position).getAccount())) {
+                        Toast.makeText(TransactionDetailActivity.this, "Account is empty", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Intent intent = new Intent(TransactionDetailActivity.this, AccountDetailActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putString(AccountDetailActivity.ADDRESS_KEY, outputs.get(position).getAccount());
+                        intent.putExtras(bundle);
+                        startActivity(intent);
+                    }
+                }
+            }
+        });
 
-		refreshLvState();
+        refreshLvState();
 
-		input_title_tv.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				isInputLvShow = !isInputLvShow;
-				refreshLvState();
-			}
-		});
+        input_title_tv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isInputLvShow = !isInputLvShow;
+                refreshLvState();
+            }
+        });
 
-		output_title_tv.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				isOutputLvShow = !isOutputLvShow;
-				refreshLvState();
-			}
-		});
+        output_title_tv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isOutputLvShow = !isOutputLvShow;
+                refreshLvState();
+            }
+        });
 
-	}
+    }
 
-	private void refreshLvState() {
-		if (isInputLvShow) {
-			input_lv.setVisibility(View.VISIBLE);
-		} else {
-			input_lv.setVisibility(View.GONE);
-		}
-		if (isOutputLvShow) {
-			output_lv.setVisibility(View.VISIBLE);
-		} else {
-			output_lv.setVisibility(View.GONE);
-		}
-	}
+    private void refreshLvState() {
+        if (isInputLvShow) {
+            input_lv.setVisibility(View.VISIBLE);
+        } else {
+            input_lv.setVisibility(View.GONE);
+        }
+        if (isOutputLvShow) {
+            output_lv.setVisibility(View.VISIBLE);
+        } else {
+            output_lv.setVisibility(View.GONE);
+        }
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home://返回键的id
-				this.finish();
-				return false;
-			default:
-				return super.onOptionsItemSelected(item);
-		}
-	}
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home://返回键的id
+                this.finish();
+                return false;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * TransactionByHashQueryHelper for TransactionByHashQuery
+     */
+    private class TransactionByHashQueryHelper extends CoreKitQuery<TransactionByHashQuery.Data, TransactionByHashQuery.TransactionByHash> {
+
+        public TransactionByHashQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
+            super(activity, lifecycleOwner, client);
+        }
+
+        @Override
+        public TransactionByHashQuery.TransactionByHash map(Response<TransactionByHashQuery.Data> dataResponse) {
+            if (dataResponse != null) {
+                return dataResponse.data().getTransactionByHash();
+            }
+            return null;
+        }
+
+        @Override
+        public Query getQuery() {
+            return TransactionByHashQuery.builder().hash(transactionHash).build();
+        }
+    }
 
 }

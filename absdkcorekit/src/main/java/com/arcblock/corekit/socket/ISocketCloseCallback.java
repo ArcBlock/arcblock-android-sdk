@@ -22,5 +22,5 @@
 package com.arcblock.corekit.socket;
 
 public interface ISocketCloseCallback {
-	void onClose();
+    void onClose();
 }
