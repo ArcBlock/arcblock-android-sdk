@@ -226,7 +226,7 @@ dependencies {
 			.xxxx
 			.build();
 	```
-`
+
 2. 第二步，自定义一个类继承自 `CoreKitSubscription` 抽象类，需要实现三个部分：
 
 	- **构造方法：** 实现和当前使用相匹配的构造方法，匹配条件取决于是在 FragmentActivity 中还是 Fragment 中使用的此 Subscription 和 当前传入的是自定义的 ABCoreKitClient 还是默认的 ABCoreKitClient
