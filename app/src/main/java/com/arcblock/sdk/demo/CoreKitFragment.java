@@ -136,6 +136,9 @@ public class CoreKitFragment extends Fragment {
         super.onDestroyView();
     }
 
+    /**
+     *  NewBlockMinedSubscriptionHelper for NewBlockMinedSubscription
+     */
     private class NewBlockMinedSubscriptionHelper extends CoreKitSubscription<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> {
 
         public NewBlockMinedSubscriptionHelper(Fragment fragment, ABCoreKitClient client) {
@@ -148,7 +151,7 @@ public class CoreKitFragment extends Fragment {
         }
 
         @Override
-        public Class<NewBlockMinedSubscription.Data> getSubscriptionClass() {
+        public Class<NewBlockMinedSubscription.Data> getResultDataClass() {
             return NewBlockMinedSubscription.Data.class;
         }
     }

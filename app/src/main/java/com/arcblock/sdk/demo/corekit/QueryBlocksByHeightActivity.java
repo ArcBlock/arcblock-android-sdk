@@ -162,7 +162,9 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     *  BlocksByHeightQueryHelper for BlocksByHeightQuery
+     */
     private class BlocksByHeightQueryHelper extends CoreKitPagedQuery<BlocksByHeightQuery.Data, BlocksByHeightQuery.Datum> {
 
         public BlocksByHeightQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {

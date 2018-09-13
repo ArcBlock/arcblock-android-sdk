@@ -25,6 +25,6 @@ public interface CoreKitSubHelperInterface<T,D> {
 
     D getSubscription();
 
-    Class<T> getSubscriptionClass();
+    Class<T> getResultDataClass();
 
 }

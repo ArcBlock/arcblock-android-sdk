@@ -133,6 +133,9 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * NewBlockMinedSubscriptionHelper for NewBlockMinedSubscription
+     */
     private class NewBlockMinedSubscriptionHelper extends CoreKitSubscription<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> {
 
         public NewBlockMinedSubscriptionHelper(FragmentActivity activity, ABCoreKitClient client) {
@@ -145,7 +148,7 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
         }
 
         @Override
-        public Class<NewBlockMinedSubscription.Data> getSubscriptionClass() {
+        public Class<NewBlockMinedSubscription.Data> getResultDataClass() {
             return NewBlockMinedSubscription.Data.class;
         }
     }

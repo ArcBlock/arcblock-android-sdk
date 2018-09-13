@@ -15,7 +15,7 @@ Absdkcorekit Library 是在 [apollo-android](https://github.com/apollographql/ap
 
 添加下面代码到项目根目录的 `build.gradle` 文件中：
 
-``` groovy
+```groovy
 buildscript {
   dependencies {
     //...
@@ -33,7 +33,7 @@ allprojects {
 
 添加下面代码到 app module 的 `build.gradle` 文件中：
 
-``` groovy
+```groovy
 apply plugin: 'com.apollographql.android'
 
 //......
@@ -54,213 +54,247 @@ dependencies {
 2. 使用 [ArcBlock OCAP Playground](https://ocap.arcblock.io/) 编写一个测试通过的 GraphQL 语句，并把它复制到一个 `.graphql` 的文件中，你可以在示例项目的 `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/` 目录下找到类似的示例文件 。
 3. 编译你的项目，编译成功之后，你会在 `build` 目录下找到自动编译生成的 `Java` 代码，你可以在示例项目的 `arcblock-android-sdk/app/build/generated/source/apollo/` 目录下看到生成的代码，你不需要修改这些自动生成的代码。
 
-#### 3. 实现普通的 Query 功能
+#### 3. 实现普通的查询功能
 
+1. 首先，自定义一个类继承自 CoreKitQuery 抽象类，需要实现两个部分：
+	- **构造方法：** 实现和当前使用相匹配的构造方法，匹配条件取决于是在 FragmentActivity 中还是 Fragment 中使用的此 Query 和 当前传入的是自定义的 ABCoreKitClient 还是默认的 ABCoreKitClient
+	- **map(...) 方法：** 该方法是实现 CoreKitBeanMapperInterface 的一个方法，供 CoreKitQueryViewModel 内部使用，用于将返回的 Response map 成最终想得到的数据格式
+	- **getQuery() 方法：** 初始化并返回一个当前的 Query 对象，用于实现具体的业务查询
 
-1. 自定义一个类继承自 CoreKitQuery 抽象类，需要实现两个部分：
-	- 和当前使用相匹配的构造方法，匹配条件取决于是在 FragmentActivity 中还是 Fragment 中使用的此 Query 和 当前传入的是自定义的 ABCoreKitClient 还是默认的 ABCoreKitClient 。
-	- 
-
-
-
-
-
-
-1. 首先，设置一个 `CoreKitBeanMapper` 对象，并你利用上一步生成的代码创建一个 `Query` 对象，如：
-
-	```java
-	// init data mapper
-	CoreKitBeanMapper<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress> accountMapper = new CoreKitBeanMapper<Response<AccountByAddressQuery.Data>, AccountByAddressQuery.AccountByAddress>() {
-
-	@Override
-	public AccountByAddressQuery.AccountByAddress map(Response<AccountByAddressQuery.Data> dataResponse) {
-		if (dataResponse != null) {
-			return dataResponse.data().getAccountByAddress();
-		}
-		return null;
-	}
-	};
-	```
-	
-	*and*
-
-	```java
-	// init a query
-	AccountByAddressQuery query = 	AccountByAddressQuery.builder().address(address).build();
-	```
-	
-2. 第二步，你需要创建一个 `CoreKitViewModel Factory` 对象，用来给下一步构建 `CoreKitViewModel`，如：
-
-	```java
-	// init the ViewModel with DefaultFactory
-	CoreKitViewModel.DefaultFactory factory = new CoreKitViewModel.DefaultFactory(query,accountMapper,DemoApplication.getInstance(),CoreKitConfig.API_TYPE_BTC);
-	```
-	
-	*or*
-	
-	```java
-	// init the ViewModel with CustomClientFactory
-	CoreKitViewModel.CustomClientFactory factory = new CoreKitViewModel.CustomClientFactory(query,accountMapper,DemoApplication.getInstance().abCoreKitClient());
-	```
-	
-	第二种方式传入的是一个自定义的 `ABCoreKitClient` 对象，而 `DefaultFactory` 只需传入一个 `Application` 对象即可，我们会在 `ABCoreKitClient` 中实例一个默认的 `ABCoreKitClient` 对象供 `CoreKitViewModel` 使用。
-
-3. 第三步，构建 `CoreKitViewModel` 获得 `LiveData` 对象并设置 `observe` 监听事件，如：
-
-	```java
-	mBlockByHashQueryViewModel = CoreKitViewModel.getInstance(this, factory);
-	// get livedata and set observe
-	mBlockByHashQueryViewModel.getQueryData(query).observe(this, new Observer<CoreKitBean<Response<BlockByHashQuery.Data>>>() {
-		@Override
-		public void onChanged(@Nullable CoreKitBean<Response<BlockByHashQuery.Data>> coreKitBean) {
-			if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-				// do view bind data logic
-			} else {
-				// show error msg
-			}
-		}
-	});
-	```
-	
-	至此你已经完成了一个完整流程的对接，使用 `Absdkcorekit Library` ，你只需编写业务相关的 `GraphQL` 语句并实例化一个`Query` 对象，然后结合 `CoreKitViewModel` 就可以完美的实现数据的获取与展示，你无需关注底层只需专注于本身业务功能代码的开发。
-
-	> Note：整个过程你无需关心内存释放问题，这要归功于我们使用了 `ViewModel` 组件
-
-#### 4. 实现分页的 Query 功能
-
-1. 构建一个 `CoreKitPagedHelper` 对象，需要实现里面的三个返回 `Query` 对象的方法，分别为：
-	1. **getInitialQuery()**：返回页面初始化请求的 `Query` 对象
-	2. **getLoadMoreQuery()**：返回用于加载一下页数据的 `Query` 对象
-	3. **getRefreshQuery()**：返回用于刷新的 `Query` 对象，一般情况下与 `getInitialQuery()` 返回一致
-	
-	另外，`CoreKitPagedHelper` 对象还有两个属性：`isHaveMore` , `cursor` 用来分别控制是否有更多数据以及用于保存查询下一页数据的 `cursor`
-	
 	示例代码：
-	
-	```java
-	CoreKitPagedHelper coreKitPagedHelper = new CoreKitPagedHelper() {
 
-		@Override
-		public Query getInitialQuery() {
-			return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).build();
-		}
-	
-		@Override
-		public Query getLoadMoreQuery() {
-			PageInput pageInput = null;
-			if (!TextUtils.isEmpty(getCursor())) {
-				pageInput = PageInput.builder().cursor(getCursor()).build();
-			}
-			return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).paging(pageInput).build();
-		}
-	
-		@Override
-		public Query getRefreshQuery() {
-			return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).build();
-		}
-		};
-	```
-	
-2. 设置 `CoreKitBeanMapper` 对象，在里面需要手动实现数据的转换，并维护 `CoreKitPagedHelper` 的`isHaveMore` , `cursor` ，示例代码如下：
-	
 	```java
-	CoreKitBeanMapper<Response<BlocksByHeightQuery.Data>, List<BlocksByHeightQuery.Datum>> blocksMapper = new CoreKitBeanMapper<Response<BlocksByHeightQuery.Data>, List<BlocksByHeightQuery.Datum>>() {
+	/**
+     * AccountByAddressQueryHelper for AccountByAddressQuery
+     */
+    private class AccountByAddressQueryHelper extends CoreKitQuery<AccountByAddressQuery.Data, AccountByAddressQuery.AccountByAddress> {
 
-	@Override
-	public List<BlocksByHeightQuery.Datum> map(Response<BlocksByHeightQuery.Data> dataResponse) {
-		if (dataResponse != null && dataResponse.data().getBlocksByHeight() != null) {
-			// set page info to CoreKitPagedHelper
-			if (dataResponse.data().getBlocksByHeight().getPage() != null) {
-				// set is have next flag to CoreKitPagedHelper
-				coreKitPagedHelper.setHaveMore(dataResponse.data().getBlocksByHeight().getPage().isNext());
-				// set new cursor to CoreKitPagedHelper
-				coreKitPagedHelper.setCursor(dataResponse.data().getBlocksByHeight().getPage().getCursor());
-			}
-			return dataResponse.data().getBlocksByHeight().getData();
-		}
-		return null;
-	}
-	};
-	```
-	
-3. 创建一个 `CoreKitPagedViewModel Factory` 对象，用来给下一步构建 `CoreKitPagedViewModel`，同样的，它也提供了 `CustomClientFactory` 和 `DefaultFactory` 用法和 [3. 实现普通的Query功能](#3-实现普通的query功能) 中类似。示例代码：
-	
-	```java
-	CoreKitPagedViewModel.CustomClientFactory factory = new CoreKitPagedViewModel.CustomClientFactory(blocksMapper, coreKitPagedHelper, DemoApplication.getInstance().abCoreKitClient());
-	```
-	
-4. 第三步，构建 `CoreKitPagedViewModel` 获得 `LiveData` 对象并设置 `observe` 监听事件，可以在回调监听中实现自己的数据逻辑和视图逻辑，示例代码：
-	
-	```java
-	mBlocksByHeightQueryViewModel = CoreKitPagedViewModel.getInstance(this, factory);
-	mBlocksByHeightQueryViewModel.getCleanQueryData().observe(this, new Observer<CoreKitPagedBean<List<BlocksByHeightQuery.Datum>>>() {
-	@Override
-	public void onChanged(@Nullable CoreKitPagedBean<List<BlocksByHeightQuery.Datum>> coreKitPagedBean) {
-		//1. handle return data
-		if (coreKitPagedBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-			if (coreKitPagedBean.getData() != null) {
-				// new a old list
-				List<BlocksByHeightQuery.Datum> oldList = new ArrayList<>();
-				oldList.addAll(mBlocks);
+        public AccountByAddressQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
+            super(activity, lifecycleOwner, client);
+        }
 
-				// set mBlocks with new data
-				mBlocks = coreKitPagedBean.getData();
-				// use DiffUtil
-				DiffUtil.DiffResult result = DiffUtil.calculateDiff(new CoreKitDiffUtil<>(oldList, mBlocks), true);
-				// need this line , otherwise the update will have no effect
-				mListBlocksAdapter.setNewListData(mBlocks);
-				result.dispatchUpdatesTo(mListBlocksAdapter);
-			}
-		}
+        @Override
+        public AccountByAddressQuery.AccountByAddress map(Response<AccountByAddressQuery.Data> dataResponse) {
+            if (dataResponse != null) {
+                return dataResponse.data().getAccountByAddress();
+            }
+            return null;
+        }
 
-		//2. view status change and loadMore component need
-		content.setVisibility(View.VISIBLE);
-		progressBar.setVisibility(View.GONE);
-		content.setRefreshing(false);
-		if (coreKitPagedHelper.isHaveMore()) {
-			mListBlocksAdapter.setEnableLoadMore(true);
-			mListBlocksAdapter.loadMoreComplete();
-		} else {
-			mListBlocksAdapter.loadMoreEnd();
-		}
-	}
-	});
+        @Override
+        public Query getQuery() {
+            return AccountByAddressQuery.builder().address(address).build();
+        }
+    }
 	```
 
-#### 5. 实现 Subscription
+	> 这边的命名建议以对应的 `Query`, `Mutaition`, `Subscription` 具体类名称加上 `-Helper` 结尾，比如上面 AccountByAddressQuery 对应的为 AccountByAddressQueryHelper
 
-1. 在 ABCoreClient 初始化的时候打开 socket 开关:
+2. 第二步，创建一个 `xxxHelper` 查询类的对象，并设置 Observe 对象，请求并获取数据
+
+	- 创建 `xxxHelper` 查询类的对象：
+	
+		```java
+		AccountByAddressQueryHelper accountByAddressQueryHelper = new AccountByAddressQueryHelper(this, this, DemoApplication.getInstance().abCoreKitClientBtc());
+		```
+
+		这里的构造函数上文已经提过，有4种不同的实现可以选择，具体根据自己的代码选择即可。
+
+	- 设置 Observe 对象：
+	
+		```java
+		accountByAddressQueryHelper.setObserve(new Observer<CoreKitBean<AccountByAddressQuery.AccountByAddress>>() {
+				@Override
+				public void onChanged(@Nullable CoreKitBean<AccountByAddressQuery.AccountByAddress> coreKitBean) {
+					if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+						AccountByAddressQuery.AccountByAddress accountByAddress = coreKitBean.getData();
+						// get data and set data to view here.
+					} else {
+						// show error msg.
+					}
+				}
+			});
+		```
+
+	> Note：整个过程你无需关心内存释放问题，这要归功于我们在内部使用了 `ViewModel` 组件
+
+#### 4. 实现分页查询功能
+
+1. 首先，自定义一个类继承自 CoreKitPagedQuery 抽象类，需要实现五个部分：
+	- **构造方法：** 实现和当前使用相匹配的构造方法，匹配条件取决于是在 FragmentActivity 中还是 Fragment 中使用的此 Query 和 当前传入的是自定义的 ABCoreKitClient 还是默认的 ABCoreKitClient
+	- **map(...) 方法：** 该方法是实现 CoreKitBeanMapperInterface 的一个方法，供 CoreKitQueryViewModel 内部使用，用于将返回的 Response map 成最终想得到的数据格式
+		> 这里不同于普通查询的地方是，在分页查询的 map(...) 方法中，需要手动地设置 `setHasMore(boolean hasMore)` 和 `setCursor(String cursor)`，这两个参数是底层判断是否进行分页请求的依据
+	- **getInitialQuery() 方法：** 初始化并返回一个分页查询的初始的 Query 对象
+	- **getLoadMoreQuery() 方法：** 初始化并返回一个分页查询查询更多的 Query 对象
+	- **getRefreshQuery() 方法：** 初始化并返回一个分页查询刷新查询的 Query 对象，一般情况下此 Query 对象与 getInitialQuery() 返回的相同
+
+	示例代码：
+
+	```java
+	/**
+     *  BlocksByHeightQueryHelper for BlocksByHeightQuery
+     */
+    private class BlocksByHeightQueryHelper extends CoreKitPagedQuery<BlocksByHeightQuery.Data, BlocksByHeightQuery.Datum> {
+
+        public BlocksByHeightQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
+            super(activity, lifecycleOwner, client);
+        }
+
+        @Override
+        public List<BlocksByHeightQuery.Datum> map(Response<BlocksByHeightQuery.Data> dataResponse) {
+            if (dataResponse != null && dataResponse.data().getBlocksByHeight() != null) {
+                // set page info to CoreKitPagedQuery
+                if (dataResponse.data().getBlocksByHeight().getPage() != null) {
+                    // set is have next flag to CoreKitPagedQuery
+                    setHasMore(dataResponse.data().getBlocksByHeight().getPage().isNext());
+                    // set new cursor to CoreKitPagedQuery
+                    setCursor(dataResponse.data().getBlocksByHeight().getPage().getCursor());
+                }
+                return dataResponse.data().getBlocksByHeight().getData();
+            }
+            return null;
+        }
+
+        @Override
+        public Query getInitialQuery() {
+            return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).build();
+        }
+
+        @Override
+        public Query getLoadMoreQuery() {
+            PageInput pageInput = null;
+            if (!TextUtils.isEmpty(getCursor())) {
+                pageInput = PageInput.builder().cursor(getCursor()).build();
+            }
+            return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).paging(pageInput).build();
+        }
+
+        @Override
+        public Query getRefreshQuery() {
+            return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).build();
+        }
+    }
+	```
+
+	> 这边的命名建议以对应的 `Query`, `Mutaition`, `Subscription` 具体类名称加上 `-Helper` 结尾，比如上面 BlocksByHeightQuery 对应的为 BlocksByHeightQueryHelper
+
+2. 第二步，创建一个 `xxxHelper` 查询类的对象，并设置 Observe 对象，请求并获取数据
+
+	- 创建 xxxHelper 查询类的对象：
+	
+		```java
+		mBlocksByHeightQueryHelper = new BlocksByHeightQueryHelper(this, this, DemoApplication.getInstance().abCoreKitClientBtc());
+		```
+
+		这里的构造函数上文已经提过，有4种不同的实现可以选择，具体根据自己的代码选择即可。
+	
+	- 设置 Observe 对象：
+
+		```java
+		mBlocksByHeightQueryHelper.setObserve(new Observer<CoreKitPagedBean<List<BlocksByHeightQuery.Datum>>>() {
+				@Override
+				public void onChanged(@Nullable CoreKitPagedBean<List<BlocksByHeightQuery.Datum>> coreKitPagedBean) {
+					if (coreKitPagedBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+						if (coreKitPagedBean.getData() != null) {
+						// get data and set data to view here.
+						}
+					}
+				}
+			});
+		```
+
+	- 调用 refresh 方法刷新
+
+		```java
+		mBlocksByHeightQueryHelper.refresh();
+		```
+
+	- 调用 loadMore 方法加载下一页数据
+
+		```java
+		mBlocksByHeightQueryHelper.loadMore();
+		```
+
+#### 5. 实现数据订阅
+
+1. 首先，在 ABCoreClient 初始化的时候打开 socket 开关:
 
 	```java
 	ABCoreKitClient.xxx
 			.xxxx
-			.setOpenSocket(true) // socket 开关
+			.setOpenSocket(true)
 			.xxxx
 			.build();
 	```
 
-2. 参考上面的步骤构建 `CoreKitSubViewModel` 对象
+2. 第二步，自定义一个类继承自 CoreKitSubscription 抽象类，需要实现三个部分：
+
+	- **构造方法：** 实现和当前使用相匹配的构造方法，匹配条件取决于是在 FragmentActivity 中还是 Fragment 中使用的此 Query 和 当前传入的是自定义的 ABCoreKitClient 还是默认的 ABCoreKitClient
+	- **getSubscription() 方法：** 初始化并返回一个具体的 Subscription 对象
+	- **getResultDataClass() 方法：** 返回最终期望的 Data 类的 Class，供 CoreKitSubscriptionViewModel 中 json 解析使用
+
+	示例代码：
 
 	```java
-	NewBlockMinedSubscription newBlockMinedSubscription = new NewBlockMinedSubscription();
-	CoreKitSubViewModel.CustomClientFactory<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> factory =
-				new CoreKitSubViewModel.CustomClientFactory<>(DemoApplication.getInstance().abCoreKitClientEth(), newBlockMinedSubscription, NewBlockMinedSubscription.Data.class);
-	mDataCoreKitSubViewModel = CoreKitSubViewModel.getInstance(this, factory);
+	/**
+     * NewBlockMinedSubscriptionHelper for NewBlockMinedSubscription
+     */
+    private class NewBlockMinedSubscriptionHelper extends CoreKitSubscription<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> {
+
+        public NewBlockMinedSubscriptionHelper(FragmentActivity activity, ABCoreKitClient client) {
+            super(activity, client);
+        }
+
+        @Override
+        public NewBlockMinedSubscription getSubscription() {
+            return new NewBlockMinedSubscription();
+        }
+
+        @Override
+        public Class<NewBlockMinedSubscription.Data> getResultDataClass() {
+            return NewBlockMinedSubscription.Data.class;
+        }
+    }
 	```
 
-3. 通过 `CoreKitSubViewModel` 对象获取 `LiveData` 对象，并设置 `Observer` 监听，从监听回调中获取实时的数据，并使用他们完成自己的业务逻辑
+	> 这边的命名建议以对应的 `Query`, `Mutaition`, `Subscription` 具体类名称加上 `-Helper` 结尾，比如上面 NewBlockMinedSubscription 对应的为 NewBlockMinedSubscriptionHelper
 
-	```java
-	mDataCoreKitSubViewModel.subscription()
-				.setCoreKitSubCallBack(new CoreKitSubViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
-					@Override
-					public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
-						if (coreKitBean != null && coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-							// set data to view
-						}
-					}
-				});
-	```
+3. 第三步，设置 CoreKitSubCallBack 与 CoreKitSocketStatusCallBack
+
+	- 设置 CoreKitSubCallBack
+
+		```java
+		// add data callback
+		mNewBlockMinedSubscriptionHelper.setCoreKitSubCallBack(new CoreKitSubscriptionViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
+			@Override
+			public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
+				if (coreKitBean != null && coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
+					// get data and set data to view here.
+				}
+			}
+		});
+		```
+	- 设置 CoreKitSocketStatusCallBack
+
+		```java
+		// add status callback
+		mNewBlockMinedSubscriptionHelper.setCoreKitSocketStatusCallBack(new CoreKitSocketStatusCallBack() {
+			@Override
+			public void onOpen() {
+			    // do something here when socket on open
+			}
+
+			@Override
+			public void onClose() {
+			    // do something here when socket on close
+			}
+
+			@Override
+			public void onError() {
+			    // do something here when on error
+			}
+		});
+		```
 
 #### 6. 其他配置
 
