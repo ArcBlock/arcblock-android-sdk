@@ -1,3 +1,6 @@
+## 0.2.2 (September 19, 2018)
+  - support custom url
+
 ## 0.2.1 (September 12, 2018)
   - optimize sdk usage
 
