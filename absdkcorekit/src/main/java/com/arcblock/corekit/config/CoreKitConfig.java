@@ -42,6 +42,18 @@ public class CoreKitConfig {
     }
 
     /**
+     * @param type
+     * @return
+     */
+    public static String getSubUrl(ApiType type){
+        if (type == ApiType.API_TYPE_BTC) {
+            return SUBSCRIPTION_BASE_URL_BTC;
+        } else {
+            return SUBSCRIPTION_BASE_URL_ETH;
+        }
+    }
+
+    /**
      *  Api type for different endpoint
      */
     public enum ApiType {
