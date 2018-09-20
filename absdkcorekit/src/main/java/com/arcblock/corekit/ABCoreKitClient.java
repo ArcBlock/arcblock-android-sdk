@@ -103,8 +103,15 @@ public class ABCoreKitClient {
         if (builder.openSocket) {
             initCoreKitSocket(builder);
         }
+
+        String serverUrl = builder.apiType == CoreKitConfig.ApiType.API_TYPE_CUSTOM ? builder.serverUrl : CoreKitConfig.getApiUrl(builder.apiType);
+
+        if (TextUtils.isEmpty(serverUrl)) {
+            throw new RuntimeException("Please set the server url correct.");
+        }
+
         ApolloClient.Builder apolloClientBuilder = ApolloClient.builder()
-                .serverUrl(TextUtils.isEmpty(builder.serverUrl) ? CoreKitConfig.getApiUrl(builder.apiType) : builder.serverUrl)
+                .serverUrl(serverUrl)
                 .okHttpClient(mOkHttpClient)
                 .normalizedCache(builder.mNormalizedCacheFactory, builder.mResolver);
         for (ScalarType scalarType : builder.customTypeAdapters.keySet()) {
@@ -270,9 +277,16 @@ public class ABCoreKitClient {
 
     private void initCoreKitSocket(Builder builder) {
         CoreKitLogUtils.e("initCoreKitSocket=>" + Thread.currentThread().getName());
+
+        String subscriptionUrl = builder.apiType == CoreKitConfig.ApiType.API_TYPE_CUSTOM ? builder.subscriptionServerUrl : CoreKitConfig.getSubUrl(builder.apiType);
+
+        if (TextUtils.isEmpty(subscriptionUrl)) {
+            throw new RuntimeException("Please set the subscription url correct.");
+        }
+
         if (mCoreKitSocket == null) {
             // sub url set by apiType
-            mCoreKitSocket = new CoreKitSocket(TextUtils.isEmpty(builder.subscriptionServerUrl) ? CoreKitConfig.getSubUrl(builder.apiType) : builder.subscriptionServerUrl, mOkHttpClient);
+            mCoreKitSocket = new CoreKitSocket(subscriptionUrl, mOkHttpClient);
         }
 
         synchronized (this) {
