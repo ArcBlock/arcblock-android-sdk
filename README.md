@@ -2,7 +2,7 @@
 
 [![license](https://img.shields.io/badge/API-15+-green.svg?longCache=true&style=flat)](https://android-arsenal.com/api?level=15)  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/ArcBlock/arcblock-android-sdk/blob/master/LICENSE)
 
-[README of Chinese](https://github.com/ArcBlock/arcblock-android-sdk/blob/master/README-CN.md)
+[中文 README](https://github.com/ArcBlock/arcblock-android-sdk/blob/master/README-CN.md)
 
 > Developers need to have basic [GraphQL](https://graphql.org/) capabilities before accessing the ArcBlock Android SDK. We also provide a fully functional [ArcBlock OCAP Playground](https://ocap.arcblock.io/) where developers can use it to write and test the GraphQL statements they want.
 
@@ -34,6 +34,10 @@ Add the following code into the app module `build.gradle` file:
 
 ``` groovy
 apply plugin: 'com.apollographql.android'
+
+apollo {
+    useJavaBeansSemanticNaming = true
+}
 
 //......
 dependencies {

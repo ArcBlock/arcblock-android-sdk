@@ -36,8 +36,24 @@ public class CoreKitConfig {
     public static String getApiUrl(ApiType type) {
         if (type == ApiType.API_TYPE_BTC) {
             return BASE_URL_BTC;
-        } else {
+        } else if (type == ApiType.API_TYPE_ETH) {
             return BASE_URL_ETH;
+        } else {
+            return "";
+        }
+    }
+
+    /**
+     * @param type
+     * @return subscription url by type
+     */
+    public static String getSubUrl(ApiType type){
+        if (type == ApiType.API_TYPE_BTC) {
+            return SUBSCRIPTION_BASE_URL_BTC;
+        } else if (type == ApiType.API_TYPE_ETH) {
+            return SUBSCRIPTION_BASE_URL_ETH;
+        } else {
+            return "";
         }
     }
 
@@ -46,6 +62,7 @@ public class CoreKitConfig {
      */
     public enum ApiType {
         API_TYPE_BTC,
-        API_TYPE_ETH
+        API_TYPE_ETH,
+        API_TYPE_CUSTOM
     }
 }

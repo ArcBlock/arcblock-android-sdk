@@ -36,6 +36,10 @@ allprojects {
 ```groovy
 apply plugin: 'com.apollographql.android'
 
+apollo {
+    useJavaBeansSemanticNaming = true
+}
+
 //......
 dependencies {
   // x.x.x => release version
