@@ -1,0 +1,7 @@
+mutation createEvents(
+  $data: EventInputs!
+)
+{
+    String: createEvents(
+        data: $data)
+}

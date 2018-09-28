@@ -1,0 +1,20 @@
+mutation createEvent(
+  $clientTimestamp: DateTime!,
+  $deviceId: String!,
+  $eventType: String!,
+  $objectId: String!,
+  $objectType: String!,
+  $operation: String!,
+  $source: String!
+)
+{
+    String: createEvent(
+        clientTimestamp: $clientTimestamp,
+          deviceId: $deviceId,
+          eventType: $eventType,
+          objectId: $objectId,
+          objectType: $objectType,
+          operation: $operation,
+          source: $source
+          )
+}

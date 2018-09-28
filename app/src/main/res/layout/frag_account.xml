@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/page_padding">
 
-    <TextView
-        android:gravity="center"
-        android:textSize="22sp"
-        android:text="@string/account_kit_test"
+
+    <Button
+        android:id="@+id/account_login_btn"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="@dimen/btn_height"
+        android:background="@drawable/btn_bg"
+        android:text="@string/query_list_blocks_data"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white" />
 
 </LinearLayout>

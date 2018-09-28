@@ -1,18 +1,31 @@
 <resources>
-	<string name="app_name">Arcblock Android Sdk Demo</string>
-	<string name="core_kit_test">Core Kit Test</string>
-	<string name="account_kit_test">Account Kit Test(ToDo)</string>
-	<string name="message_kit_test">Message Kit Test(ToDo)</string>
-	<string name="wallet_kit_test">Wallet Kit Test(ToDo)</string>
-	<string name="query_list_blocks_data">Query List Blocks-BTC</string>
-	<string name="query_list_block_eth_data">Query Blocks By Height-ETH</string>
-	<string name="query_richest_account_data">Query Richest Account-BTC</string>
-	<string name="query_pizza_transaction">Query Pizza Transaction-BTC</string>
-	<string name="multi_query_in_one_page">Multi Query In One Page</string>
-	<string name="eth_new_block_subscription">New Block Subscription-ETH</string>
-	<string name="eth_new_block_in_main_subscription">New Block Subscription In MainActivity-ETH</string>
-	<string name="test_add_new_data_to_db">Test add a new data to db</string>
-	<string name="core_kit_tab">CoreKit</string>
-	<string name="account_tab">Account</string>
-	<string name="message_tab">Message</string>
+    <string name="app_name">Arcblock Android Sdk Demo</string>
+    <string name="core_kit_test">Core Kit Test</string>
+    <string name="account_kit_test">Account Kit Test(ToDo)</string>
+    <string name="message_kit_test">Message Kit Test(ToDo)</string>
+    <string name="wallet_kit_test">Wallet Kit Test(ToDo)</string>
+    <string name="query_list_blocks_data">Query List Blocks-BTC</string>
+    <string name="query_list_block_eth_data">Query Blocks By Height-ETH</string>
+    <string name="query_richest_account_data">Query Richest Account-BTC</string>
+    <string name="query_pizza_transaction">Query Pizza Transaction-BTC</string>
+    <string name="multi_query_in_one_page">Multi Query In One Page</string>
+    <string name="eth_new_block_subscription">New Block Subscription-ETH</string>
+    <string name="eth_new_block_in_main_subscription">New Block Subscription In MainActivity-ETH</string>
+    <string name="test_add_new_data_to_db">Test add a new data to db</string>
+    <string name="core_kit_tab">CoreKit</string>
+    <string name="account_tab">Account</string>
+    <string name="message_tab">Message</string>
+    <string name="title_activity_auth">Sign in</string>
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
 </resources>

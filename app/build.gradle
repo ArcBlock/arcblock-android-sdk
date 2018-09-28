@@ -42,7 +42,7 @@ android {
             signingConfig signingConfigs.signingConfig
         }
         debug {
-            signingConfig signingConfigs.signingConfig
+//            signingConfig signingConfigs.signingConfig
             testCoverageEnabled = true
         }
     }
