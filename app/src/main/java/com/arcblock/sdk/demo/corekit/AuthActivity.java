@@ -34,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.apollographql.apollo.api.Mutation;
+import com.apollographql.apollo.api.Operation;
 import com.apollographql.apollo.api.Response;
 import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.CoreKitMutation;
@@ -59,14 +60,6 @@ public class AuthActivity extends AppCompatActivity implements LoaderCallbacks<C
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
-
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
 
 
     // UI references.
@@ -160,7 +153,7 @@ public class AuthActivity extends AppCompatActivity implements LoaderCallbacks<C
 
     private void attemptLogin() {
         if (helper == null) {
-            helper = new MutationHelper(this, this, DemoApplication.getInstance().abCoreKitClientAuth());
+            helper = new MutationHelper(this, DemoApplication.getInstance().abCoreKitClientAuth());
             helper.setObserve(new Observer<CoreKitBean<String>>() {
                 @Override
                 public void onChanged(@Nullable CoreKitBean<String> stringCoreKitBean) {
@@ -228,12 +221,10 @@ public class AuthActivity extends AppCompatActivity implements LoaderCallbacks<C
     }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
         return email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
         return password.length() > 4;
     }
 
@@ -328,40 +319,15 @@ public class AuthActivity extends AppCompatActivity implements LoaderCallbacks<C
     }
 
 
-    public class MutationHelper extends CoreKitMutation<CreateEventsMutation.Data, String> {
+    public class MutationHelper<T extends Mutation.Data> extends CoreKitMutation<T, String> {
 
-        public MutationHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
-            super(activity, lifecycleOwner, client);
-        }
-
-        public MutationHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, Context context, CoreKitConfig.ApiType apiType) {
-            super(activity, lifecycleOwner, context, apiType);
-        }
-
-        public MutationHelper(Fragment fragment, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
-            super(fragment, lifecycleOwner, client);
-        }
-
-        public MutationHelper(Fragment fragment, LifecycleOwner lifecycleOwner, Context context, CoreKitConfig.ApiType apiType) {
-            super(fragment, lifecycleOwner, context, apiType);
+        MutationHelper(FragmentActivity activity,ABCoreKitClient client){
+            super(activity,client);
         }
 
         @Override
-        public String map(Response<CreateEventsMutation.Data> dataResponse) {
-            return "xx";
-        }
-
-        @Override
-        public Mutation getMutation() {
-            return CreateEventMutation.builder()
-                    .clientTimestamp(new Date())
-                    .deviceId("testID")
-                    .eventType("testType")
-                    .objectId("testID")
-                    .objectType("testType")
-                    .operation("testOp")
-                    .source("xxx")
-                    .build();
+        public String map(Response<T> dataResponse) {
+            return dataResponse.data() == null?"response.data is null":dataResponse.data().toString();
         }
     }
 

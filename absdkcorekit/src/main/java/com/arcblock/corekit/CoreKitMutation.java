@@ -34,69 +34,77 @@ import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.corekit.config.CoreKitConfig;
 import com.arcblock.corekit.viewmodel.CoreKitMutationViewModel;
 import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
-import com.arcblock.corekit.viewmodel.i.CoreKitMutationInterface;
 
 /**
  * The CoreKitMutation is used to make developer use CoreKitMutationViewModel more easily.
  * Created by Paper on 2018/9/27
  **/
-public abstract class CoreKitMutation<T extends Operation.Data, D> implements CoreKitMutationInterface, CoreKitBeanMapperInterface<Response<T>, D> {
+public abstract class CoreKitMutation<T extends Operation.Data, D> implements CoreKitBeanMapperInterface<Response<T>, D> {
 
     private CoreKitMutationViewModel mCoreKitMutationViewModel;
     private LifecycleOwner mLifecycleOwner;
 
+
     /**
      * The construct for activity and custom client
      *
-     * @param activity
-     * @param lifecycleOwner
+     * @param client
+     */
+    public CoreKitMutation(FragmentActivity activity, ABCoreKitClient client) {
+        CoreKitMutationViewModel.CustomClientFactory factory = new CoreKitMutationViewModel.CustomClientFactory(this, client);
+        this.mCoreKitMutationViewModel = CoreKitMutationViewModel.getInstance(activity, factory);
+        this.mLifecycleOwner = activity;
+    }
+
+    /**
+     * The construct for activity and custom client
+     *
+     * @param activity  for vm_provider
+     * @param lifecycleOwner lc owner
      * @param client
      */
     public CoreKitMutation(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
         CoreKitMutationViewModel.CustomClientFactory factory = new CoreKitMutationViewModel.CustomClientFactory(this, client);
-        this.mCoreKitMutationViewModel = mCoreKitMutationViewModel.getInstance(activity, factory);
+        this.mCoreKitMutationViewModel = CoreKitMutationViewModel.getInstance(activity, factory);
         this.mLifecycleOwner = lifecycleOwner;
     }
 
     /**
      * The construct for activity and default client
      *
-     * @param activity
-     * @param lifecycleOwner
-     * @param context
-     * @param apiType
+     * @param activity for vm_provider
+     * @param lifecycleOwner lc owner
+     * @param apiType   base api type ,btc eth or auth
      */
-    public CoreKitMutation(FragmentActivity activity, LifecycleOwner lifecycleOwner, Context context, CoreKitConfig.ApiType apiType) {
-        CoreKitMutationViewModel.DefaultFactory factory = new CoreKitMutationViewModel.DefaultFactory(this, context, apiType);
-        this.mCoreKitMutationViewModel = mCoreKitMutationViewModel.getInstance(activity, factory);
+    public CoreKitMutation(FragmentActivity activity, LifecycleOwner lifecycleOwner, CoreKitConfig.ApiType apiType) {
+        CoreKitMutationViewModel.DefaultFactory factory = new CoreKitMutationViewModel.DefaultFactory(this, activity, apiType);
+        this.mCoreKitMutationViewModel = CoreKitMutationViewModel.getInstance(activity, factory);
         this.mLifecycleOwner = lifecycleOwner;
     }
 
     /**
-     * he construct for fragment and custom client
+     * The construct for fragment and custom client
      *
-     * @param fragment
      * @param fragment
      * @param lifecycleOwner
      * @param client
      */
     public CoreKitMutation(Fragment fragment, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
         CoreKitMutationViewModel.CustomClientFactory factory = new CoreKitMutationViewModel.CustomClientFactory(this, client);
-        this.mCoreKitMutationViewModel = mCoreKitMutationViewModel.getInstance(fragment, factory);
+        this.mCoreKitMutationViewModel = CoreKitMutationViewModel.getInstance(fragment, factory);
         this.mLifecycleOwner = lifecycleOwner;
     }
 
     /**
      * The construct for fragment and default client
      *
-     * @param fragment
-     * @param lifecycleOwner
-     * @param context
-     * @param apiType
+     * @param fragment  for vm provider
+     * @param lifecycleOwner lc owner
+     * @param apiType   base api type ,btc eth or auth
      */
-    public CoreKitMutation(Fragment fragment, LifecycleOwner lifecycleOwner, Context context, CoreKitConfig.ApiType apiType) {
-        CoreKitMutationViewModel.DefaultFactory factory = new CoreKitMutationViewModel.DefaultFactory(this, context, apiType);
-        this.mCoreKitMutationViewModel = mCoreKitMutationViewModel.getInstance(fragment, factory);
+    public CoreKitMutation(Fragment fragment, LifecycleOwner lifecycleOwner, CoreKitConfig.ApiType apiType) {
+        CoreKitMutationViewModel.DefaultFactory factory = new CoreKitMutationViewModel.DefaultFactory(this, fragment.getContext(), apiType);
+        this.mCoreKitMutationViewModel = CoreKitMutationViewModel.getInstance(fragment, factory);
         this.mLifecycleOwner = lifecycleOwner;
     }
 

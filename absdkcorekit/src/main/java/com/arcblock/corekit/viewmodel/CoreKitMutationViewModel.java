@@ -50,18 +50,9 @@ public class CoreKitMutationViewModel<T, D> extends ViewModel {
         return ViewModelProviders.of(activity, factory).get(factory.getTag(), CoreKitMutationViewModel.class);
     }
 
-    public static CoreKitMutationViewModel getInstance(FragmentActivity activity, CoreKitMutationViewModel.DefaultFactory factory) {
-        return ViewModelProviders.of(activity, factory).get(factory.getTag(), CoreKitMutationViewModel.class);
-    }
-
     public static CoreKitMutationViewModel getInstance(Fragment fragment, CoreKitMutationViewModel.CustomClientFactory factory) {
         return ViewModelProviders.of(fragment, factory).get(factory.getTag(), CoreKitMutationViewModel.class);
     }
-
-    public static CoreKitMutationViewModel getInstance(Fragment fragment, CoreKitMutationViewModel.DefaultFactory factory) {
-        return ViewModelProviders.of(fragment, factory).get(factory.getTag(), CoreKitMutationViewModel.class);
-    }
-
 
     private ABCoreKitClient mABCoreKitClient;
     private MutableLiveData<CoreKitBean<D>> mCoreKitBeanMutableLiveData = new MutableLiveData<>();
@@ -160,33 +151,15 @@ public class CoreKitMutationViewModel<T, D> extends ViewModel {
         }
     }
 
-    public static class DefaultFactory extends ViewModelProvider.NewInstanceFactory {
-        private CoreKitBeanMapperInterface mCoreKitBeanMapper;
-        private Context mContext;
-        private CoreKitConfig.ApiType apiType;
-        private String mTag = "";
 
-        public String getTag() {
-            return mTag;
-        }
+    public static class DefaultFactory extends CustomClientFactory {
 
         public DefaultFactory(CoreKitBeanMapperInterface coreKitBeanMapper, Context context, CoreKitConfig.ApiType apiType) {
-            this.mCoreKitBeanMapper = coreKitBeanMapper;
-            this.mContext = context;
-            this.apiType = apiType;
+            super(coreKitBeanMapper,ABCoreKitClient.defaultInstance(context, apiType));
         }
 
         public DefaultFactory(CoreKitBeanMapperInterface coreKitBeanMapper, Context context, CoreKitConfig.ApiType apiType, String tag) {
-            this.mCoreKitBeanMapper = coreKitBeanMapper;
-            this.mContext = context;
-            this.apiType = apiType;
-            this.mTag = tag;
-        }
-
-        @NonNull
-        @Override
-        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            return (T) new CoreKitMutationViewModel(mCoreKitBeanMapper, mContext, apiType);
+            super(coreKitBeanMapper,ABCoreKitClient.defaultInstance(context, apiType),tag);
         }
     }
 
