@@ -9,7 +9,7 @@ buildscript {
 		maven { url "http://android-docs.arcblock.io/release" }
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:3.1.2'
+		classpath 'com.android.tools.build:gradle:3.2.0'
 		classpath 'com.apollographql.apollo:apollo-gradle-plugin:1.0.0-alpha'
 
 		// NOTE: Do not place your application dependencies here; they belong

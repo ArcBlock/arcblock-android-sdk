@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.apollographql.android'
 apply plugin: 'maven-publish'
 
-version = new File('version').text.replace("\n", "")
+version = new File(rootDir.getAbsolutePath()+'/version').text.replace("\n", "")
 
 android {
     compileSdkVersion 27

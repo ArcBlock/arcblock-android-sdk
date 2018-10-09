@@ -25,7 +25,7 @@ public class CoreKitConfig {
 
     public static final String BASE_URL_BTC = "https://ocap.arcblock.io/api/btc";
     public static final String BASE_URL_ETH = "https://ocap.arcblock.io/api/eth";
-    public static final String BASE_URL_AUTH = "https://api.arcblock.io/analytics/playground";
+    public static final String BASE_URL_AUTH = "http://10.0.2.2:8080/playground/";
 
     public static final String SUBSCRIPTION_BASE_URL_ETH = "wss://ocap.arcblock.io/api/eth/socket/websocket";
     public static final String SUBSCRIPTION_BASE_URL_BTC = "wss://ocap.arcblock.io/api/btc/socket/websocket";

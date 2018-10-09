@@ -40,13 +40,14 @@ import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class CoreKitMutationViewModel<T, D> extends ViewModel {
 
 
-    public static CoreKitMutationViewModel getInstance(FragmentActivity activity, CoreKitMutationViewModel.CustomClientFactory factory) {
+    public  static CoreKitMutationViewModel getInstance(FragmentActivity activity, CoreKitMutationViewModel.CustomClientFactory factory) {
         return ViewModelProviders.of(activity, factory).get(factory.getTag(), CoreKitMutationViewModel.class);
     }
 
@@ -57,7 +58,7 @@ public class CoreKitMutationViewModel<T, D> extends ViewModel {
     private ABCoreKitClient mABCoreKitClient;
     private MutableLiveData<CoreKitBean<D>> mCoreKitBeanMutableLiveData = new MutableLiveData<>();
     private CoreKitBeanMapperInterface<T, D> mCoreKitBeanMapper;
-//    private CompositeDisposable mCompositeDisposable = new CompositeDisposable(); Rx2Apollo maybe leak
+    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
     public CoreKitMutationViewModel(CoreKitBeanMapperInterface<T, D> mapper, Context context, CoreKitConfig.ApiType apiType) {
         this.mCoreKitBeanMapper = mapper;
@@ -91,7 +92,7 @@ public class CoreKitMutationViewModel<T, D> extends ViewModel {
 
     private void doFinalMutation(Mutation mutation) {
         if (mutation == null) {
-            mCoreKitBeanMutableLiveData.postValue(new CoreKitBean(null, CoreKitBean.FAIL_CODE, "The query is empty."));
+            mCoreKitBeanMutableLiveData.postValue(CoreKitBean.errorBean("The query is empty."));
             return;
         }
         Rx2Apollo.from(mABCoreKitClient.mutate(mutation))
@@ -100,6 +101,7 @@ public class CoreKitMutationViewModel<T, D> extends ViewModel {
                 .subscribe(new Observer<T>() {
                     @Override
                     public void onSubscribe(Disposable d) {
+                        mCompositeDisposable.add(d);
                     }
 
                     @Override
@@ -121,6 +123,14 @@ public class CoreKitMutationViewModel<T, D> extends ViewModel {
                         CoreKitLogUtils.d("onComplete");
                     }
                 });
+
+    }
+
+    @Override
+    protected void onCleared() {
+        mCompositeDisposable.dispose();
+        mCompositeDisposable.clear();
+        super.onCleared();
     }
 
     public static class CustomClientFactory extends ViewModelProvider.NewInstanceFactory {

@@ -6,7 +6,7 @@ jacoco {
     toolVersion = "0.7.1.201405082137"
 }
 
-version = new File('version').text.replace("\n", "")
+version = new File(rootDir.getAbsolutePath()+'/version').text.replace("\n", "")
 
 apollo {
     useJavaBeansSemanticNaming = true
