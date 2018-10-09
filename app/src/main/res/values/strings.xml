@@ -17,6 +17,7 @@
     <string name="message_tab">Message</string>
     <string name="title_activity_auth">Sign in</string>
     <!-- Strings related to login -->
+    <string name="account_login">Account Login</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password (optional)</string>
     <string name="action_sign_in">Sign in or register</string>
