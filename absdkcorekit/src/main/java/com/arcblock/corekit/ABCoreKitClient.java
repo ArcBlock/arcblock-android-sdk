@@ -406,7 +406,7 @@ public class ABCoreKitClient {
             if (mABCoreKitClientAuth == null) {
                 mABCoreKitClientAuth = ABCoreKitClient.builder(context, CoreKitConfig.ApiType.API_TYPE_AUTH).setOpenOkHttpLog(true).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();
             }
-            return mABCoreKitClientBtc;
+            return mABCoreKitClientAuth;
         } else {
             if (mABCoreKitClientEth == null) {
                 mABCoreKitClientEth = ABCoreKitClient.builder(context, CoreKitConfig.ApiType.API_TYPE_ETH).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();

@@ -30,7 +30,9 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
+import com.apollographql.apollo.api.Error;
 import com.apollographql.apollo.api.Mutation;
+import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.rx2.Rx2Apollo;
 import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.bean.CoreKitBean;
@@ -107,7 +109,13 @@ public class CoreKitMutationViewModel<T, D> extends ViewModel {
                     @Override
                     public void onNext(T t) {
                         if (t != null) {
-                            mCoreKitBeanMutableLiveData.postValue(new CoreKitBean(mCoreKitBeanMapper.map(t), CoreKitBean.SUCCESS_CODE, ""));
+                            if (t instanceof Response){
+                                if (((Response) t).hasErrors()){
+                                    mCoreKitBeanMutableLiveData.postValue(new CoreKitBean(null, CoreKitBean.FAIL_CODE, ((Error)((Response) t).errors().get(0)).message()));
+                                }else {
+                                    mCoreKitBeanMutableLiveData.postValue(new CoreKitBean(mCoreKitBeanMapper.map(t), CoreKitBean.SUCCESS_CODE, ""));
+                                }
+                            }
                         } else {
                             mCoreKitBeanMutableLiveData.postValue(new CoreKitBean(null, CoreKitBean.FAIL_CODE, "The result is empty."));
                         }
