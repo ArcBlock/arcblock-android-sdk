@@ -39,6 +39,7 @@ import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
@@ -65,6 +66,7 @@ public class CoreKitQueryViewModel<T, D> extends ViewModel {
     private ABCoreKitClient mABCoreKitClient;
     private MutableLiveData<CoreKitBean<D>> mCoreKitBeanMutableLiveData = new MutableLiveData<>();
     private CoreKitBeanMapperInterface<T, D> mCoreKitBeanMapper;
+    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
     public CoreKitQueryViewModel(CoreKitBeanMapperInterface<T, D> mapper, Context context, CoreKitConfig.ApiType apiType) {
         this.mCoreKitBeanMapper = mapper;
@@ -96,7 +98,7 @@ public class CoreKitQueryViewModel<T, D> extends ViewModel {
                 .subscribe(new Observer<T>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
+                        mCompositeDisposable.add(d);
                     }
 
                     @Override
@@ -119,7 +121,13 @@ public class CoreKitQueryViewModel<T, D> extends ViewModel {
 
                     }
                 });
-        ;
+    }
+
+    @Override
+    protected void onCleared() {
+        mCompositeDisposable.dispose();
+        mCompositeDisposable.clear();
+        super.onCleared();
     }
 
     public static class CustomClientFactory extends ViewModelProvider.NewInstanceFactory {
