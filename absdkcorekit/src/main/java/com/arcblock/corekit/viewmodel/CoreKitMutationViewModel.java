@@ -30,11 +30,14 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
-import com.apollographql.apollo.api.Query;
+import com.apollographql.apollo.api.Error;
+import com.apollographql.apollo.api.Mutation;
+import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.rx2.Rx2Apollo;
 import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.corekit.config.CoreKitConfig;
+import com.arcblock.corekit.utils.CoreKitLogUtils;
 import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
 
 import io.reactivex.Observer;
@@ -43,56 +46,58 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class CoreKitQueryViewModel<T, D> extends ViewModel {
+public class CoreKitMutationViewModel<T, D> extends ViewModel {
 
 
-    public static CoreKitQueryViewModel getInstance(FragmentActivity activity, CoreKitQueryViewModel.CustomClientFactory factory) {
-        return ViewModelProviders.of(activity, factory).get(factory.getQuery().operationId() + "$" + factory.getQuery().variables().valueMap().hashCode(), CoreKitQueryViewModel.class);
+    public  static CoreKitMutationViewModel getInstance(FragmentActivity activity, CoreKitMutationViewModel.CustomClientFactory factory) {
+        return ViewModelProviders.of(activity, factory).get(factory.getTag(), CoreKitMutationViewModel.class);
     }
 
-    public static CoreKitQueryViewModel getInstance(FragmentActivity activity, CoreKitQueryViewModel.DefaultFactory factory) {
-        return ViewModelProviders.of(activity, factory).get(factory.getQuery().operationId() + "$" + factory.getQuery().variables().valueMap().hashCode(), CoreKitQueryViewModel.class);
+    public static CoreKitMutationViewModel getInstance(Fragment fragment, CoreKitMutationViewModel.CustomClientFactory factory) {
+        return ViewModelProviders.of(fragment, factory).get(factory.getTag(), CoreKitMutationViewModel.class);
     }
-
-    public static CoreKitQueryViewModel getInstance(Fragment fragment, CoreKitQueryViewModel.CustomClientFactory factory) {
-        return ViewModelProviders.of(fragment, factory).get(factory.getQuery().operationId() + "$" + factory.getQuery().variables().valueMap().hashCode(), CoreKitQueryViewModel.class);
-    }
-
-    public static CoreKitQueryViewModel getInstance(Fragment fragment, CoreKitQueryViewModel.DefaultFactory factory) {
-        return ViewModelProviders.of(fragment, factory).get(factory.getQuery().operationId() + "$" + factory.getQuery().variables().valueMap().hashCode(), CoreKitQueryViewModel.class);
-    }
-
 
     private ABCoreKitClient mABCoreKitClient;
     private MutableLiveData<CoreKitBean<D>> mCoreKitBeanMutableLiveData = new MutableLiveData<>();
     private CoreKitBeanMapperInterface<T, D> mCoreKitBeanMapper;
     private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
-    public CoreKitQueryViewModel(CoreKitBeanMapperInterface<T, D> mapper, Context context, CoreKitConfig.ApiType apiType) {
+    public CoreKitMutationViewModel(CoreKitBeanMapperInterface<T, D> mapper, Context context, CoreKitConfig.ApiType apiType) {
         this.mCoreKitBeanMapper = mapper;
         this.mABCoreKitClient = ABCoreKitClient.defaultInstance(context, apiType);
     }
 
-    public CoreKitQueryViewModel(CoreKitBeanMapperInterface<T, D> mapper, ABCoreKitClient aBCoreKitClient) {
+    public CoreKitMutationViewModel(CoreKitBeanMapperInterface<T, D> mapper, ABCoreKitClient aBCoreKitClient) {
         this.mCoreKitBeanMapper = mapper;
         this.mABCoreKitClient = aBCoreKitClient;
     }
 
+
     /**
-     * @param query
+     * @param mutation
+     */
+    public void mutationData(Mutation mutation) {
+        if (mCoreKitBeanMutableLiveData.hasObservers()) {
+            doFinalMutation(mutation);
+        } else {
+            throw new IllegalStateException("You must have at least one Observable!");
+        }
+    }
+
+    /**
      * @return a livedata object with CoreKitBean
      */
-    public MutableLiveData<CoreKitBean<D>> getQueryData(Query query) {
-        doFinalQuery(query);
+    public MutableLiveData<CoreKitBean<D>> observeData() {
         return mCoreKitBeanMutableLiveData;
     }
 
-    private void doFinalQuery(Query query) {
-        if (query == null) {
-            mCoreKitBeanMutableLiveData.postValue(new CoreKitBean(null, CoreKitBean.FAIL_CODE, "The query is empty."));
+
+    private void doFinalMutation(Mutation mutation) {
+        if (mutation == null) {
+            mCoreKitBeanMutableLiveData.postValue(CoreKitBean.errorBean("The query is empty."));
             return;
         }
-        Rx2Apollo.from(mABCoreKitClient.query(query))
+        Rx2Apollo.from(mABCoreKitClient.mutate(mutation))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<T>() {
@@ -104,11 +109,16 @@ public class CoreKitQueryViewModel<T, D> extends ViewModel {
                     @Override
                     public void onNext(T t) {
                         if (t != null) {
-                            mCoreKitBeanMutableLiveData.postValue(new CoreKitBean(mCoreKitBeanMapper.map(t), CoreKitBean.SUCCESS_CODE, ""));
+                            if (t instanceof Response){
+                                if (((Response) t).hasErrors()){
+                                    mCoreKitBeanMutableLiveData.postValue(new CoreKitBean(null, CoreKitBean.FAIL_CODE, ((Error)((Response) t).errors().get(0)).message()));
+                                }else {
+                                    mCoreKitBeanMutableLiveData.postValue(new CoreKitBean(mCoreKitBeanMapper.map(t), CoreKitBean.SUCCESS_CODE, ""));
+                                }
+                            }
                         } else {
                             mCoreKitBeanMutableLiveData.postValue(new CoreKitBean(null, CoreKitBean.FAIL_CODE, "The result is empty."));
                         }
-
                     }
 
                     @Override
@@ -118,9 +128,10 @@ public class CoreKitQueryViewModel<T, D> extends ViewModel {
 
                     @Override
                     public void onComplete() {
-
+                        CoreKitLogUtils.d("onComplete");
                     }
                 });
+
     }
 
     @Override
@@ -134,48 +145,39 @@ public class CoreKitQueryViewModel<T, D> extends ViewModel {
 
         private CoreKitBeanMapperInterface mCoreKitBeanMapper;
         private ABCoreKitClient mABCoreKitClient;
-        private Query mQuery;
+        private String mTag = "";
 
-
-        public CustomClientFactory(Query query, CoreKitBeanMapperInterface coreKitBeanMapper, ABCoreKitClient aBCoreKitClient) {
-            this.mABCoreKitClient = aBCoreKitClient;
-            this.mCoreKitBeanMapper = coreKitBeanMapper;
-            this.mQuery = query;
+        public String getTag() {
+            return mTag;
         }
 
-        public Query getQuery() {
-            return mQuery;
+        public CustomClientFactory(CoreKitBeanMapperInterface coreKitBeanMapper, ABCoreKitClient aBCoreKitClient) {
+            this.mABCoreKitClient = aBCoreKitClient;
+            this.mCoreKitBeanMapper = coreKitBeanMapper;
+        }
+
+        public CustomClientFactory(CoreKitBeanMapperInterface coreKitBeanMapper, ABCoreKitClient aBCoreKitClient, String tag) {
+            this.mABCoreKitClient = aBCoreKitClient;
+            this.mCoreKitBeanMapper = coreKitBeanMapper;
+            this.mTag = tag;
         }
 
         @NonNull
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            return (T) new CoreKitQueryViewModel(mCoreKitBeanMapper, mABCoreKitClient);
+            return (T) new CoreKitMutationViewModel(mCoreKitBeanMapper, mABCoreKitClient);
         }
     }
 
-    public static class DefaultFactory extends ViewModelProvider.NewInstanceFactory {
 
-        private CoreKitBeanMapperInterface mCoreKitBeanMapper;
-        private Context mContext;
-        private CoreKitConfig.ApiType apiType;
-        private Query mQuery;
+    public static class DefaultFactory extends CustomClientFactory {
 
-        public DefaultFactory(Query query, CoreKitBeanMapperInterface coreKitBeanMapper, Context context, CoreKitConfig.ApiType apiType) {
-            this.mCoreKitBeanMapper = coreKitBeanMapper;
-            this.mContext = context;
-            this.apiType = apiType;
-            this.mQuery = query;
+        public DefaultFactory(CoreKitBeanMapperInterface coreKitBeanMapper, Context context, CoreKitConfig.ApiType apiType) {
+            super(coreKitBeanMapper,ABCoreKitClient.defaultInstance(context, apiType));
         }
 
-        public Query getQuery() {
-            return mQuery;
-        }
-
-        @NonNull
-        @Override
-        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-            return (T) new CoreKitQueryViewModel(mCoreKitBeanMapper, mContext, apiType);
+        public DefaultFactory(CoreKitBeanMapperInterface coreKitBeanMapper, Context context, CoreKitConfig.ApiType apiType, String tag) {
+            super(coreKitBeanMapper,ABCoreKitClient.defaultInstance(context, apiType),tag);
         }
     }
 

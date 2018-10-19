@@ -48,8 +48,8 @@ public class MainActivity extends AppCompatActivity {
 
         mViewPager = (ViewPager) findViewById(R.id.view_pager);
         mTabLayout = (TabLayout) findViewById(R.id.tab_layout);
-//		mTabLayout.addTab(mTabLayout.newTab().setText(sTitle[0]));
-//		mTabLayout.addTab(mTabLayout.newTab().setText(sTitle[1]));
+        mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.core_kit_tab)));
+        //mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.account_tab)));
 //		mTabLayout.addTab(mTabLayout.newTab().setText(sTitle[2]));
 
         mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -97,4 +97,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 }

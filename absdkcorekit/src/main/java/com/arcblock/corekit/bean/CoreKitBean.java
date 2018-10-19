@@ -39,7 +39,11 @@ public class CoreKitBean<T> {
         this.status = status;
         this.errorMessage = errorMessage;
     }
-
+    public CoreKitBean(int status, String errorMessage) {
+        this.data = null;
+        this.status = status;
+        this.errorMessage = errorMessage;
+    }
     public T getData() {
         return data;
     }
@@ -63,4 +67,10 @@ public class CoreKitBean<T> {
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }
+
+    public static   CoreKitBean errorBean(String errorMessage){
+        return new CoreKitBean(FAIL_CODE, errorMessage);
+    }
+
+
 }

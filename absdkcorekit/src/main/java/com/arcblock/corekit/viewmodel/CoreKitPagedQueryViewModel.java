@@ -46,6 +46,7 @@ import java.util.UUID;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
@@ -73,6 +74,7 @@ public class CoreKitPagedQueryViewModel<T, K> extends ViewModel {
     private boolean isLoading;
     private List<K> resultDatas = new ArrayList<>();
     private CoreKitPagedHelperInterface mCoreKitPagedHelper;
+    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
 
     public CoreKitPagedQueryViewModel(CoreKitBeanMapperInterface<Response<T>, List<K>> mapper, CoreKitPagedHelperInterface coreKitPagedHelper, Context context, CoreKitConfig.ApiType apiType) {
         this.mCoreKitBeanMapper = mapper;
@@ -111,7 +113,7 @@ public class CoreKitPagedQueryViewModel<T, K> extends ViewModel {
                 .subscribe(new Observer<Response<T>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
+                        mCompositeDisposable.add(d);
                     }
 
                     @Override
@@ -202,6 +204,13 @@ public class CoreKitPagedQueryViewModel<T, K> extends ViewModel {
             }
         }
         return true;
+    }
+
+    @Override
+    protected void onCleared() {
+        mCompositeDisposable.dispose();
+        mCompositeDisposable.clear();
+        super.onCleared();
     }
 
     /**

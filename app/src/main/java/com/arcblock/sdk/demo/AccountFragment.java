@@ -39,6 +39,12 @@ public class AccountFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.frag_account, null);
+        view.findViewById(R.id.account_login_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //startActivity(new Intent(getContext(), AuthActivity.class));
+            }
+        });
         return view;
     }
 
