@@ -21,15 +21,12 @@
  */
 package com.arcblock.sdk.demo;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.arcblock.sdk.demo.corekit.AuthActivity;
 
 public class AccountFragment extends Fragment {
 
@@ -45,7 +42,7 @@ public class AccountFragment extends Fragment {
         view.findViewById(R.id.account_login_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getContext(), AuthActivity.class));
+                //startActivity(new Intent(getContext(), AuthActivity.class));
             }
         });
         return view;

@@ -57,9 +57,6 @@
             android:name=".corekit.EthNewBlockSubscriptionActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing|stateAlwaysHidden" />
-        <activity
-            android:name=".corekit.AuthActivity"
-            android:label="@string/title_activity_auth"></activity>
     </application>
 
 </manifest>

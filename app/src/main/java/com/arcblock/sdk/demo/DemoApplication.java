@@ -44,7 +44,6 @@ public class DemoApplication extends Application {
     public static DemoApplication INSTANCE = null;
     private ABCoreKitClient mABCoreClientBtc;
     private ABCoreKitClient mABCoreClientEth;
-    private ABCoreKitClient mABCoreClientAuth;
 
     public static DemoApplication getInstance() {
         return INSTANCE;
@@ -63,36 +62,6 @@ public class DemoApplication extends Application {
 
         initBtcClient();
         initEthClient();
-        initAuthClient();
-    }
-
-    private void initAuthClient() {
-        CustomTypeAdapter dateCustomTypeAdapter = new CustomTypeAdapter<Date>() {
-            @Override
-            public Date decode(CustomTypeValue value) {
-                try {
-                    SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
-                    utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));//时区定义并进行时间获取
-                    Date gpsUTCDate = utcFormat.parse(value.value.toString());
-                    return gpsUTCDate;
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-
-            @Override
-            public CustomTypeValue encode(Date value) {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
-                return new CustomTypeValue.GraphQLString(sdf.format(value));
-            }
-        };
-
-        mABCoreClientAuth = ABCoreKitClient.builder(this, CoreKitConfig.ApiType.API_TYPE_AUTH)
-                .addCustomTypeAdapter(com.arcblock.sdk.demo.auth.type.CustomType.DATETIME, dateCustomTypeAdapter)
-                .setOpenOkHttpLog(true)
-                .setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK)
-                .build();
     }
 
     private void initBtcClient() {
@@ -146,13 +115,5 @@ public class DemoApplication extends Application {
             throw new RuntimeException("Please init corekit first.");
         }
         return mABCoreClientEth;
-    }
-
-    @NotNull
-    public ABCoreKitClient abCoreKitClientAuth() {
-        if (mABCoreClientAuth == null) {
-            throw new RuntimeException("Please init corekit first.");
-        }
-        return mABCoreClientAuth;
     }
 }

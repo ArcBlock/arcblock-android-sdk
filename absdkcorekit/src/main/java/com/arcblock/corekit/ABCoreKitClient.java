@@ -394,7 +394,6 @@ public class ABCoreKitClient {
 
     public static ABCoreKitClient mABCoreKitClientEth;
     public static ABCoreKitClient mABCoreKitClientBtc;
-    public static ABCoreKitClient mABCoreKitClientAuth;
 
     public static ABCoreKitClient defaultInstance(Context context, CoreKitConfig.ApiType apiType) {
         if (apiType == CoreKitConfig.ApiType.API_TYPE_BTC) {
@@ -402,11 +401,6 @@ public class ABCoreKitClient {
                 mABCoreKitClientBtc = ABCoreKitClient.builder(context, CoreKitConfig.ApiType.API_TYPE_BTC).setOpenOkHttpLog(true).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();
             }
             return mABCoreKitClientBtc;
-        } else if (apiType == CoreKitConfig.ApiType.API_TYPE_AUTH) {
-            if (mABCoreKitClientAuth == null) {
-                mABCoreKitClientAuth = ABCoreKitClient.builder(context, CoreKitConfig.ApiType.API_TYPE_AUTH).setOpenOkHttpLog(true).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();
-            }
-            return mABCoreKitClientAuth;
         } else {
             if (mABCoreKitClientEth == null) {
                 mABCoreKitClientEth = ABCoreKitClient.builder(context, CoreKitConfig.ApiType.API_TYPE_ETH).setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK).build();
