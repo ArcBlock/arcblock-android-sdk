@@ -1,8 +1,3 @@
-## 0.3.0 (October 21, 2018)
-  - update english readme for new methods
-  - update chinese readme for new methods.
-  - update sdk for be used easier
-
 ## 0.2.3 (九月 29, 2018)
 
 
