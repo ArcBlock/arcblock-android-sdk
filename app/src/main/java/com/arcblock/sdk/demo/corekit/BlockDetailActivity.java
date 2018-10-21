@@ -21,12 +21,9 @@
  */
 package com.arcblock.sdk.demo.corekit;
 
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -34,12 +31,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.apollographql.apollo.api.Query;
-import com.apollographql.apollo.api.Response;
-import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.CoreKitQuery;
-import com.arcblock.corekit.bean.CoreKitBean;
+import com.arcblock.corekit.CoreKitResultListener;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.BlockDetailTransactionsAdapter;
@@ -82,34 +77,41 @@ public class BlockDetailActivity extends AppCompatActivity {
 
         initView();
 
-        // init BlockByHashQueryHelper and get data
-        BlockByHashQueryHelper blockByHashQueryHelper = new BlockByHashQueryHelper(this,this,DemoApplication.getInstance().abCoreKitClientBtc());
-        blockByHashQueryHelper.setObserve(new Observer<CoreKitBean<BlockByHashQuery.BlockByHash>>() {
+        // init CorekitQuery and do query
+        CoreKitQuery newCoreKitQuery = new CoreKitQuery(this, DemoApplication.getInstance().abCoreKitClientBtc());
+        newCoreKitQuery.query(BlockByHashQuery.builder().hash(blockHash).build(), new CoreKitResultListener<BlockByHashQuery.Data>() {
             @Override
-            public void onChanged(@Nullable CoreKitBean<BlockByHashQuery.BlockByHash> coreKitBean) {
-                if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-                    BlockByHashQuery.BlockByHash blockByHash = coreKitBean.getData();
-                    if (blockByHash != null) {
-                        block_height_tv.setText(blockByHash.getHeight() + "");
-                        size_tv.setText(blockByHash.getSize() + " Bytes");
-                        striped_size_tv.setText(blockByHash.getStrippedSize() + " Bytes");
-                        weight_tv.setText(blockByHash.getWeight() + "");
-                        version_tv.setText(blockByHash.getVersion() + "");
-                        bits_tv.setText(blockByHash.getBits() + "");
-                        nonce_tv.setText(blockByHash.getNonce() + "");
-                        time_tv.setText(blockByHash.getTime() != null ? DATE_FORMAT.format(blockByHash.getTime()) : "Time is empty");
-                        pre_hash_tv.setText(blockByHash.getPreHash() + "");
-                        if (blockByHash.getTransactions().getData() != null) {
-                            mDatumList.clear();
-                            mDatumList.addAll(blockByHash.getTransactions().getData());
-                            mBlockDetailTransactionsAdapter.notifyDataSetChanged();
-                        }
+            public void onSuccess(BlockByHashQuery.Data data) {
+                BlockByHashQuery.BlockByHash blockByHash = data.getBlockByHash();
+                if (blockByHash != null) {
+                    block_height_tv.setText(blockByHash.getHeight() + "");
+                    size_tv.setText(blockByHash.getSize() + " Bytes");
+                    striped_size_tv.setText(blockByHash.getStrippedSize() + " Bytes");
+                    weight_tv.setText(blockByHash.getWeight() + "");
+                    version_tv.setText(blockByHash.getVersion() + "");
+                    bits_tv.setText(blockByHash.getBits() + "");
+                    nonce_tv.setText(blockByHash.getNonce() + "");
+                    time_tv.setText(blockByHash.getTime() != null ? DATE_FORMAT.format(blockByHash.getTime()) : "Time is empty");
+                    pre_hash_tv.setText(blockByHash.getPreHash() + "");
+                    if (blockByHash.getTransactions().getData() != null) {
+                        mDatumList.clear();
+                        mDatumList.addAll(blockByHash.getTransactions().getData());
+                        mBlockDetailTransactionsAdapter.notifyDataSetChanged();
                     }
-                } else {
-                    // show error msg
                 }
             }
+
+            @Override
+            public void onError(String errMsg) {
+                Toast.makeText(BlockDetailActivity.this, errMsg, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
         });
+
     }
 
     private void initView() {
@@ -161,26 +163,6 @@ public class BlockDetailActivity extends AppCompatActivity {
                 return false;
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    private class BlockByHashQueryHelper extends CoreKitQuery<BlockByHashQuery.Data,BlockByHashQuery.BlockByHash>{
-
-        public BlockByHashQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
-            super(activity, lifecycleOwner, client);
-        }
-
-        @Override
-        public BlockByHashQuery.BlockByHash map(Response<BlockByHashQuery.Data> dataResponse) {
-            if (dataResponse != null) {
-                return dataResponse.data().getBlockByHash();
-            }
-            return null;
-        }
-
-        @Override
-        public Query getQuery() {
-            return BlockByHashQuery.builder().hash(blockHash).build();
         }
     }
 }

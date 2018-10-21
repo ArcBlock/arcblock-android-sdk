@@ -30,10 +30,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.CoreKitSubscription;
-import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.viewmodel.CoreKitSubscriptionViewModel;
+import com.arcblock.corekit.CoreKitSubscriptionResultListener;
 import com.arcblock.sdk.demo.corekit.EthNewBlockSubscriptionActivity;
 import com.arcblock.sdk.demo.corekit.MultiQueryInOnePageActivity;
 import com.arcblock.sdk.demo.corekit.QueryBlocksByHeightActivity;
@@ -120,13 +118,16 @@ public class CoreKitFragment extends Fragment {
     }
 
     private void initSub() {
-        NewBlockMinedSubscriptionHelper newBlockMinedSubscriptionHelper = new NewBlockMinedSubscriptionHelper(this, DemoApplication.getInstance().abCoreKitClientEth());
-        newBlockMinedSubscriptionHelper.setCoreKitSubCallBack(new CoreKitSubscriptionViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
+        CoreKitSubscription<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> coreKitSubscription = new CoreKitSubscription<>(this, DemoApplication.getInstance().abCoreKitClientEth(), new NewBlockMinedSubscription(), NewBlockMinedSubscription.Data.class);
+        coreKitSubscription.setResultListener(new CoreKitSubscriptionResultListener<NewBlockMinedSubscription.Data>() {
             @Override
-            public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
-                if (coreKitBean != null && coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-                    Toast.makeText(getActivity(), "New Block Height:" + coreKitBean.getData().getNewBlockMined().getHeight(), Toast.LENGTH_SHORT).show();
-                }
+            public void onSuccess(NewBlockMinedSubscription.Data data) {
+                Toast.makeText(getActivity(), "New Block Height:" + data.getNewBlockMined().getHeight(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(String errMsg) {
+
             }
         });
     }
@@ -134,25 +135,5 @@ public class CoreKitFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-    }
-
-    /**
-     *  NewBlockMinedSubscriptionHelper for NewBlockMinedSubscription
-     */
-    private class NewBlockMinedSubscriptionHelper extends CoreKitSubscription<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> {
-
-        public NewBlockMinedSubscriptionHelper(Fragment fragment, ABCoreKitClient client) {
-            super(fragment, client);
-        }
-
-        @Override
-        public NewBlockMinedSubscription getSubscription() {
-            return new NewBlockMinedSubscription();
-        }
-
-        @Override
-        public Class<NewBlockMinedSubscription.Data> getResultDataClass() {
-            return NewBlockMinedSubscription.Data.class;
-        }
     }
 }

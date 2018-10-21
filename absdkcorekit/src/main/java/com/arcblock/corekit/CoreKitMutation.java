@@ -1,120 +1,77 @@
-/*
- * Copyright (c) 2017-present ArcBlock Foundation Ltd <https://www.arcblock.io/>
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
 package com.arcblock.corekit;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.Observer;
-import android.content.Context;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import android.arch.lifecycle.OnLifecycleEvent;
 
+import com.apollographql.apollo.api.Error;
 import com.apollographql.apollo.api.Mutation;
 import com.apollographql.apollo.api.Operation;
 import com.apollographql.apollo.api.Response;
-import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.config.CoreKitConfig;
-import com.arcblock.corekit.viewmodel.CoreKitMutationViewModel;
-import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
+import com.apollographql.apollo.rx2.Rx2Apollo;
+
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
- * The CoreKitMutation is used to make developer use CoreKitMutationViewModel more easily.
- * Created by Paper on 2018/9/27
+ * Created by Nate on 2018/10/19
  **/
-public abstract class CoreKitMutation<T extends Operation.Data, D> implements CoreKitBeanMapperInterface<Response<T>, D> {
+public class CoreKitMutation implements LifecycleObserver {
 
-    private CoreKitMutationViewModel mCoreKitMutationViewModel;
-    private LifecycleOwner mLifecycleOwner;
+    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    private ABCoreKitClient mABCoreKitClient;
 
-
-    /**
-     * The construct for activity and custom client
-     *
-     * @param client
-     */
-    public CoreKitMutation(FragmentActivity activity, ABCoreKitClient client) {
-        CoreKitMutationViewModel.CustomClientFactory factory = new CoreKitMutationViewModel.CustomClientFactory(this, client);
-        this.mCoreKitMutationViewModel = CoreKitMutationViewModel.getInstance(activity, factory);
-        this.mLifecycleOwner = activity;
+    public CoreKitMutation(LifecycleOwner lifecycleOwner, ABCoreKitClient aBCoreKitClient) {
+        this.mABCoreKitClient = aBCoreKitClient;
+        lifecycleOwner.getLifecycle().addObserver(this);
     }
 
-    /**
-     * The construct for activity and custom client
-     *
-     * @param activity  for vm_provider
-     * @param lifecycleOwner lc owner
-     * @param client
-     */
-    public CoreKitMutation(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
-        CoreKitMutationViewModel.CustomClientFactory factory = new CoreKitMutationViewModel.CustomClientFactory(this, client);
-        this.mCoreKitMutationViewModel = CoreKitMutationViewModel.getInstance(activity, factory);
-        this.mLifecycleOwner = lifecycleOwner;
+    public <T extends Operation.Data> void mutation(Mutation mutation, final CoreKitResultListener<T> listener) {
+        Rx2Apollo.from(mABCoreKitClient.mutate(mutation))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Response<T>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        mCompositeDisposable.add(d);
+                    }
+
+                    @Override
+                    public void onNext(Response<T> t) {
+                        if (t != null && t.data() != null) {
+                            if (t.hasErrors()) {
+                                try {
+                                    listener.onError(((Error) ((Response) t).errors().get(0)).message());
+                                } catch (Exception e) {
+                                    listener.onError(e.toString());
+                                }
+                            } else {
+                                listener.onSuccess(t.data());
+                            }
+                        } else {
+                            listener.onError("The result is empty.");
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        listener.onError(e.toString());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        listener.onComplete();
+                    }
+                });
     }
 
-    /**
-     * The construct for activity and default client
-     *
-     * @param activity for vm_provider
-     * @param lifecycleOwner lc owner
-     * @param apiType   base api type ,btc eth or auth
-     */
-    public CoreKitMutation(FragmentActivity activity, LifecycleOwner lifecycleOwner, CoreKitConfig.ApiType apiType) {
-        CoreKitMutationViewModel.DefaultFactory factory = new CoreKitMutationViewModel.DefaultFactory(this, activity, apiType);
-        this.mCoreKitMutationViewModel = CoreKitMutationViewModel.getInstance(activity, factory);
-        this.mLifecycleOwner = lifecycleOwner;
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    public void onDestroy() {
+        mCompositeDisposable.dispose();
+        mCompositeDisposable.clear();
     }
-
-    /**
-     * The construct for fragment and custom client
-     *
-     * @param fragment
-     * @param lifecycleOwner
-     * @param client
-     */
-    public CoreKitMutation(Fragment fragment, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
-        CoreKitMutationViewModel.CustomClientFactory factory = new CoreKitMutationViewModel.CustomClientFactory(this, client);
-        this.mCoreKitMutationViewModel = CoreKitMutationViewModel.getInstance(fragment, factory);
-        this.mLifecycleOwner = lifecycleOwner;
-    }
-
-    /**
-     * The construct for fragment and default client
-     *
-     * @param fragment  for vm provider
-     * @param lifecycleOwner lc owner
-     * @param apiType   base api type ,btc eth or auth
-     */
-    public CoreKitMutation(Fragment fragment, LifecycleOwner lifecycleOwner, CoreKitConfig.ApiType apiType) {
-        CoreKitMutationViewModel.DefaultFactory factory = new CoreKitMutationViewModel.DefaultFactory(this, fragment.getContext(), apiType);
-        this.mCoreKitMutationViewModel = CoreKitMutationViewModel.getInstance(fragment, factory);
-        this.mLifecycleOwner = lifecycleOwner;
-    }
-
-    public void mutation(Mutation mutation) {
-        this.mCoreKitMutationViewModel.mutationData(mutation);
-    }
-
-    public void setObserve(Observer<CoreKitBean<D>> observe) {
-        this.mCoreKitMutationViewModel.observeData().observe(mLifecycleOwner, observe);
-    }
-
-
 }
