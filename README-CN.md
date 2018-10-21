@@ -9,7 +9,7 @@ ArcBlock Android SDK 目前提供了 `Absdkcorekit Library` ，未来还将提�
 
 ## Absdkcorekit Library
 
-Absdkcorekit Library 是在 [apollo-android](https://github.com/apollographql/apollo-android) 的基础上封装的 `Data` 层核心库，我们引入了 `LifecycleObserver` 使得我们的 SDK 可以感知页面的生命周期，在 SDK 层做了内存优化的处理, 开发者只需在使用的时候, 传入一个 LifecycleOwner 对象即可 ( support 库中的 Fragment 和 AppCompatActivity 都已经实现了 LifecycleOwner 接口, 可以直接使用, 否则可以参考上面 support 库中的实现自己实现 LifecycleOwner )。
+Absdkcorekit Library 是在 [apollo-android](https://github.com/apollographql/apollo-android) 的基础上封装的 `Data` 层核心库，我们引入了 `LifecycleObserver` 使得 SDK 可以感知页面的生命周期，在 SDK 层做内存优化的处理, 开发者只需在使用的时候, 传入一个 LifecycleOwner 对象即可 ( support 库中的 Fragment 和 AppCompatActivity 都已经实现了 LifecycleOwner 接口, 可以直接使用, 否则可以参考上面 support 库中的实现自己实现 LifecycleOwner )。
 
 #### 1. 引入 Absdkcorekit Library
 
@@ -155,13 +155,13 @@ dependencies {
 	mCoreKitPagedQuery.startInitQuery();
 	```
 
-4. 刷新页面：
+4. 刷新页面查询：
 
 	```java
 	mCoreKitPagedQuery.startInitQuery();
 	```
 
-5. 加载下一页：
+5. 加载下一页查询：
 
 	```java
 	mCoreKitPagedQuery.startLoadMoreQuery();
@@ -240,17 +240,17 @@ dependencies {
 	mCoreKitSubscription.setCoreKitSocketStatusCallBack(new CoreKitSocketStatusCallBack() {
 		@Override
 		public void onOpen() {
-			// do something here when socket on open
+			// socket打开
 		}
 
 		@Override
 		public void onClose() {
-			// do something here when socket on close
+			// socket关闭
 		}
 
 		@Override
 		public void onError() {
-			// do something here when on error
+			// 发生错误
 		}
 	});
 	```
