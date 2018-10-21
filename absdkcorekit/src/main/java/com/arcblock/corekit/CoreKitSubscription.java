@@ -55,6 +55,9 @@ import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
+/**
+ * Created by Nate on 2018/10/21
+ **/
 public class CoreKitSubscription<T extends Operation.Data, D extends com.apollographql.apollo.api.Subscription> implements LifecycleObserver {
 
     private final ABCoreKitClient mABCoreKitClient;
