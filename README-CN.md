@@ -257,7 +257,7 @@ dependencies {
 
 > 一个 CoreKitSubscription 对象只能服务于一个特定的 Subscription 对象。
 
-#### 6. 其他配置
+#### 7. 其他配置
 
 1. `CustomType` 配置：
 
