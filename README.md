@@ -256,7 +256,7 @@ dependencies {
 
 > A CoreKitSubscription object can only serve a specific Subscription object.
 
-#### 6. Other Settings
+#### 7. Other Settings
 
 1. `CustomType` Setting：
 	1. First, add `customTypeMapping` in the `build.gradle` file of `app module`:
