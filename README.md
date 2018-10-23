@@ -8,7 +8,7 @@
 
 ## Absdkcorekit Library
 
-Absdkcorekit Library is on the basis of the [apollo-android](https://github.com/apollographql/apollo-android) encapsulated ` Data ` layer core Library, we introduced the Android's latest ` Architecture Components `, among them the ` LiveData ` and ` ViewModel ` and ` Apollo - android Library ` combined with encapsulated into `CoreKitQueryViewModel`, `CoreKitPagedQueryViewModel`, `CoreKitSubscriptionViewModel`.
+Absdkcorekit Library is on the basis of the [apollo-android](https://github.com/apollographql/apollo-android) encapsulated `Data` layer core Library, we introduced `LifecycleObserver` makes the SDK can sense the page life cycle, To do memory optimization in the SDK layer, developers only need to pass in a `LifecycleOwner` object when they are using it. (both the `Fragment` and `AppCompatActivity` in the support library have implemented the `LifecycleOwner` interface, which can be used directly, otherwise, they can realize `LifecycleOwner` by referring to the implementation in the support library above.)
 
 #### 1. Import Absdkcorekit Library
 
@@ -53,172 +53,153 @@ dependencies {
 
 > Recommend to create a directory which is the same as app module package name, such as sample code of `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/`，`arcblock-android-sdk/app/src/main/graphql/` behind relatively catalogue and sample project package name is consistent, Of course, you can also specify directory correlation, please refer to the [explicit-schema-location](https://github.com/apollographql/apollo-android#explicit-schema-location) .
 
-1. `schema.json` download address: [bitcoin.json](https://ocap.arcblock.io/doc/bitcoin.json) download later renamed `schema.json`, you can be in the sample project of `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/` directory to find this file, you can directly copy to use. 
-2. Using [ArcBlock OCAP Playground](https://ocap.arcblock.io/)  write and test by GraphQL statements, and make a copy of it to a `.graphql` file, you can be in the sample project of `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/` directory to find similar sample files.
+1. `schema.json` download address: [bitcoin.json](https://ocap.arcblock.io/doc/bitcoin.json), [ethereum.json](https://ocap.arcblock.io/doc/ethereum.json) download later and all need to be renamed as `schema.json`, you can be in the sample project of `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/btc/` or `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/eth/` directory to find this file, you can directly copy to use. 
+2. Using [ArcBlock OCAP Playground](https://ocap.arcblock.io/)  write and test by GraphQL statements, and make a copy of it to a `.graphql` file, you can be in the sample project of `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/btc/` or `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/eth/` directory to find similar sample files.
 3. Build your project, after successful compilation, will you be in `build` found directory compiled automatically generated `Java` code, you can be in the sample project of `arcblock-android-sdk/app/build/generated/source/apollo/` directory to see the generated code, you don't need to modify the automatically generated code.
 
 #### 3. Implement common query function
 
-1. First, to customize a class inherited from the `CoreKitQuery` abstract class, you need to implement three parts:
-	- **Constructor:** Implement a constructor that matches the current usage, depending on whether the Query is used in FragmentActivity or Fragment and whether the currently passed in is a custom ABCoreKitClient or the default ABCoreKitClient
-	- **map(...) method:** The method for CoreKitBeanMapperInterface interface implementation, provide CoreKitQueryViewModel internal use, is used to return the Response into the final desired data format
-	- **getQuery() method:** Initialize and return a current Query object to implement a concrete business Query
-
-	Sample code:
+1. New one `CoreKitQuery` object:
 
 	```java
-	/**
-     * AccountByAddressQueryHelper for AccountByAddressQuery
-     */
-    private class AccountByAddressQueryHelper extends CoreKitQuery<AccountByAddressQuery.Data, AccountByAddressQuery.AccountByAddress> {
-
-        public AccountByAddressQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
-            super(activity, lifecycleOwner, client);
-        }
-
-        @Override
-        public AccountByAddressQuery.AccountByAddress map(Response<AccountByAddressQuery.Data> dataResponse) {
-            if (dataResponse != null) {
-                return dataResponse.data().getAccountByAddress();
-            }
-            return null;
-        }
-
-        @Override
-        public Query getQuery() {
-            return AccountByAddressQuery.builder().address(address).build();
-        }
-    }
+	CoreKitQuery coreKitQuery = new CoreKitQuery(this, DemoApplication.getInstance().abCoreKitClientBtc());
 	```
 
-	> Class naming a proposal to the corresponding `Query`, `Mutaition`, `Subscription` name plus `-Helper` end, such as the above AccountByAddressQuery corresponding AccountByAddressQueryHelper
+2. To initiate a query request, you only need to set the corresponding query object and callback object in the method, and the results of the query can be obtained in the callback object:
 
-2. The second step, create a `xxxHelper` query help the object of the class, and set the Observe object
+	```java
+	coreKitQuery.query(AccountByAddressQuery.builder().address(address).build(), new CoreKitResultListener<AccountByAddressQuery.Data>() {
+		@Override
+		public void onSuccess(AccountByAddressQuery.Data data) {
+			// get the data
+		}
 
-	- Create a `xxxHelper` class object:
-	
-		```java
-		AccountByAddressQueryHelper accountByAddressQueryHelper = new AccountByAddressQueryHelper(this, this, DemoApplication.getInstance().abCoreKitClientBtc());
-		```
+		@Override
+		public void onError(String errMsg) {
+			// get the error message
+		}
 
-		As mentioned above, there are four different implementations to choose from.
+		@Override
+		public void onComplete() {
+			// query complete
+		}
+	});
+	```
 
-	- Set the Observe object:
-	
-		```java
-		accountByAddressQueryHelper.setObserve(new Observer<CoreKitBean<AccountByAddressQuery.AccountByAddress>>() {
-				@Override
-				public void onChanged(@Nullable CoreKitBean<AccountByAddressQuery.AccountByAddress> coreKitBean) {
-					if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-						AccountByAddressQuery.AccountByAddress accountByAddress = coreKitBean.getData();
-						// get data and set data to view here.
-					} else {
-						// show error msg.
-					}
-				}
-			});
-		```
+> A CoreKitQuery object can be used for processing multiple query objects.
 	
 #### 4. Implement paged Query function
 
-1. First, to customize a class inherited from the `CoreKitPagedQuery` abstract class, you need to implement five parts:
-	- **Constructor:** Implement a constructor that matches the current usage, depending on whether the paged query is used in FragmentActivity or Fragment and whether the currently passed in is a custom ABCoreKitClient or the default ABCoreKitClient
-	- **map(...) method:** The method for CoreKitBeanMapperInterface interface implementation, provide CoreKitPagedQueryViewModel internal use, is used to return the Response into the final desired data format
-		
-		> The difference here is that the map(...) approach, the need to manually set `setHasMore(boolean hasMore)` and `setCursor(String cursor)`, these two parameters is the basis of the underlying determine whether paging request
-		
-	- **getInitialQuery() method:** Initialize and return an initial Query object for a paged query
-	- **getLoadMoreQuery() method:** Initialize and return a Query object for more queries
-	- **getRefreshQuery() method:** Initialize and return a Query object for the paging Query refresh Query, which is generally the same as the Query object returned by getInitialQuery()
-
-	Sample code:
+1. New `PagedQueryHelper` object, which is used to build the initial (or refresh) query object used for paging queries and to add more query objects, as well as map processing of the data, sets the paged flag:
 
 	```java
-	/**
-     *  BlocksByHeightQueryHelper for BlocksByHeightQuery
-     */
-    private class BlocksByHeightQueryHelper extends CoreKitPagedQuery<BlocksByHeightQuery.Data, BlocksByHeightQuery.Datum> {
+	mPagedQueryHelper = new PagedQueryHelper<BlocksByHeightQuery.Data, BlocksByHeightQuery.Datum>() {
+		@Override
+		public Query getInitialQuery() {
+			return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).build();
+		}
 
-        public BlocksByHeightQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
-            super(activity, lifecycleOwner, client);
-        }
+		@Override
+		public Query getLoadMoreQuery() {
+			PageInput pageInput = null;
+			if (!TextUtils.isEmpty(getCursor())) {
+				pageInput = PageInput.builder().cursor(getCursor()).build();
+			}
+			return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).paging(pageInput).build();
+		}
 
-        @Override
-        public List<BlocksByHeightQuery.Datum> map(Response<BlocksByHeightQuery.Data> dataResponse) {
-            if (dataResponse != null && dataResponse.data().getBlocksByHeight() != null) {
-                // set page info to CoreKitPagedQuery
-                if (dataResponse.data().getBlocksByHeight().getPage() != null) {
-                    // set is have next flag to CoreKitPagedQuery
-                    setHasMore(dataResponse.data().getBlocksByHeight().getPage().isNext());
-                    // set new cursor to CoreKitPagedQuery
-                    setCursor(dataResponse.data().getBlocksByHeight().getPage().getCursor());
-                }
-                return dataResponse.data().getBlocksByHeight().getData();
-            }
-            return null;
-        }
-
-        @Override
-        public Query getInitialQuery() {
-            return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).build();
-        }
-
-        @Override
-        public Query getLoadMoreQuery() {
-            PageInput pageInput = null;
-            if (!TextUtils.isEmpty(getCursor())) {
-                pageInput = PageInput.builder().cursor(getCursor()).build();
-            }
-            return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).paging(pageInput).build();
-        }
-
-        @Override
-        public Query getRefreshQuery() {
-            return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).build();
-        }
-    }
+		@Override
+		public List<BlocksByHeightQuery.Datum> map(BlocksByHeightQuery.Data data) {
+			if (data.getBlocksByHeight() != null) {
+				// set page info to PagedQueryHelper
+				if (data.getBlocksByHeight().getPage() != null) {
+					// set is have next flag to PagedQueryHelper
+					setHasMore(data.getBlocksByHeight().getPage().isNext());
+					// set new cursor to PagedQueryHelper
+					setCursor(data.getBlocksByHeight().getPage().getCursor());
+				}
+				return data.getBlocksByHeight().getData();
+			}
+			return null;
+		}
+	};
 	```
 
-	> Class naming a proposal to the corresponding `Query`, `Mutaition`, `Subscription` concrete class name plus `-Helper` end, such as the above BlocksByHeightQuery corresponding BlocksByHeightQueryHelper
+2. New a ` CoreKitPagedQuery ` object, introduced into the above ` PagedQueryHelper ` objects:
 
-2. The second step, create a `xxxHelper` query help the object of the class, and set the Observe object, request and get the data
+	```java
+	mCoreKitPagedQuery = new CoreKitPagedQuery(this, DemoApplication.getInstance().abCoreKitClientBtc(), mPagedQueryHelper);
+	```
 
-	- Create a `xxxHelper` class object:
-	
-		```java
-		mBlocksByHeightQueryHelper = new BlocksByHeightQueryHelper(this, this, DemoApplication.getInstance().abCoreKitClientBtc());
-		```
+3. Set the paging query data processing callback and launch the initial page query:
 
-		As mentioned above, there are four different implementations to choose from.
-	
-	- Set the Observe object:
+	```java
+	mCoreKitPagedQuery.setPagedQueryResultListener(new CoreKitPagedQueryResultListener<BlocksByHeightQuery.Datum>() {
+		@Override
+		public void onSuccess(List<BlocksByHeightQuery.Datum> datas) {
+		  // Processing the data that comes back from paging, the total data will be returned here, please refer to the demo code for details
+		}
 
-		```java
-		mBlocksByHeightQueryHelper.setObserve(new Observer<CoreKitPagedBean<List<BlocksByHeightQuery.Datum>>>() {
-				@Override
-				public void onChanged(@Nullable CoreKitPagedBean<List<BlocksByHeightQuery.Datum>> coreKitPagedBean) {
-					if (coreKitPagedBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-						if (coreKitPagedBean.getData() != null) {
-						// get data and set data to view here.
-						}
-					}
-				}
-			});
-		```
+		@Override
+		public void onError(String errMsg) {
+		  // get the error message
+		}
 
-	- Call the refresh method to refresh
+		@Override
+		public void onComplete() {
+		  // query complete
+		}
+	});
+	// start initial query
+	mCoreKitPagedQuery.startInitQuery();
+	```
 
-		```java
-		mBlocksByHeightQueryHelper.refresh();
-		```
+4. Page refresh query:
 
-	- Call the loadMore method to load the next page of data
+	```java
+	mCoreKitPagedQuery.startInitQuery();
+	```
 
-		```java
-		mBlocksByHeightQueryHelper.loadMore();
-		```
+5. Load next page query:
 
-#### 5. Implement data subscription function
+	```java
+	mCoreKitPagedQuery.startLoadMoreQuery();
+	```
+
+> Different from `CoreKitQuery`, a `CoreKitPagedQuery` object can only be in the service of a particular paging query.
+
+#### 5. Implement mutation
+
+1. New a `CoreKitMutation` object:
+
+	```java
+	CoreKitMutation coreKitMutation = new CoreKitMutation(this, DemoApplication.getInstance().abCoreKitClient());
+	```
+
+2. To initiate mutation, you only need to set the corresponding mutation object and callback object in the method. The results of mutation can be obtained in the callback object:
+
+	```java
+	coreKitMutation.mutation(mutation, new CoreKitResultListener<XXMutation.Data>() {
+			@Override
+			public void onSuccess(XXMutation.Data data) {
+				// get the data
+			}
+
+			@Override
+			public void onError(String errMsg) {
+				// get the error message
+			}
+
+			@Override
+			public void onComplete() {
+				// mutation complete
+			}
+		});
+	```
+
+> A CoreKitMutation object can be used for processing more than one mutation object.
+
+#### 6. Implement data subscription function
 
 1. Open the socket switch when init the ABCoreClient :
 
@@ -230,84 +211,52 @@ dependencies {
 			.build();
 	```
 
-2. The second step, customize a class to inherit from the `CoreKitSubscription` abstract class, and you need to implement three sections:
-
-	- **Constructor:** Implement a constructor that matches the current usage, depending on whether the subscription is used in FragmentActivity or Fragment and whether the currently passed in is a custom ABCoreKitClient or the default ABCoreKitClient
-	- **getSubscription() method:** Initialize and return a Subscription object
-	- **getResultDataClass() method:** Return the desired Data type of the Class, eventually for CoreKitSubscriptionViewModel in json parsing
-
-	Sample code:
+2. New a `CoreKitSubscription` object:
 
 	```java
-	/**
-     * NewBlockMinedSubscriptionHelper for NewBlockMinedSubscription
-     */
-    private class NewBlockMinedSubscriptionHelper extends CoreKitSubscription<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> {
-
-        public NewBlockMinedSubscriptionHelper(FragmentActivity activity, ABCoreKitClient client) {
-            super(activity, client);
-        }
-
-        @Override
-        public NewBlockMinedSubscription getSubscription() {
-            return new NewBlockMinedSubscription();
-        }
-
-        @Override
-        public Class<NewBlockMinedSubscription.Data> getResultDataClass() {
-            return NewBlockMinedSubscription.Data.class;
-        }
-    }
+	mCoreKitSubscription = new CoreKitSubscription<>(this, DemoApplication.getInstance().abCoreKitClientEth(), new NewBlockMinedSubscription(), NewBlockMinedSubscription.Data.class);
 	```
 
-	> Class naming a proposal to the corresponding `Query`, `Mutaition`, `Subscription` concrete class name plus `-Helper` end, such as the above NewBlockMinedSubscription corresponding NewBlockMinedSubscriptionHelper
+3. Set ResultListener:
 
-3. The third step, create a `xxxHelper` class object and set CoreKitSubCallBack, CoreKitSocketStatusCallBack
-    
-	- Create a `xxxHelper` class object:
+	```java
+	mCoreKitSubscription.setResultListener(new CoreKitSubscriptionResultListener<NewBlockMinedSubscription.Data>() {
+		@Override
+		public void onSuccess(NewBlockMinedSubscription.Data data) {
+			// get the new data
+		}
 
-		```java
-		mNewBlockMinedSubscriptionHelper = new NewBlockMinedSubscriptionHelper(this, DemoApplication.getInstance().abCoreKitClientEth());
-		```
+		@Override
+		public void onError(String errMsg) {
+			// get the error message
+		}
+	});
+	```
 
-		As mentioned above, there are four different implementations to choose from.
+4. Set CoreKitSocketStatusCallBack:
 
-	- Set the CoreKitSubCallBack
+	```java
+	mCoreKitSubscription.setCoreKitSocketStatusCallBack(new CoreKitSocketStatusCallBack() {
+		@Override
+		public void onOpen() {
+			// do something here when socket on open
+		}
 
-		```java
-		// add data callback
-		mNewBlockMinedSubscriptionHelper.setCoreKitSubCallBack(new CoreKitSubscriptionViewModel.CoreKitSubCallBack<NewBlockMinedSubscription.Data>() {
-			@Override
-			public void onNewData(CoreKitBean<NewBlockMinedSubscription.Data> coreKitBean) {
-				if (coreKitBean != null && coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-					// get data and set data to view here.
-				}
-			}
-		});
-		```
-	- Set the CoreKitSocketStatusCallBack
+		@Override
+		public void onClose() {
+			// do something here when socket on close
+		}
 
-		```java
-		// add status callback
-		mNewBlockMinedSubscriptionHelper.setCoreKitSocketStatusCallBack(new CoreKitSocketStatusCallBack() {
-			@Override
-			public void onOpen() {
-			    // do something here when socket on open
-			}
+		@Override
+		public void onError() {
+			// do something here when on error
+		}
+	});
+	```
 
-			@Override
-			public void onClose() {
-			    // do something here when socket on close
-			}
+> A CoreKitSubscription object can only serve a specific Subscription object.
 
-			@Override
-			public void onError() {
-			    // do something here when on error
-			}
-		});
-		```
-
-#### 6. Other Settings
+#### 7. Other Settings
 
 1. `CustomType` Setting：
 	1. First, add `customTypeMapping` in the `build.gradle` file of `app module`:
@@ -351,7 +300,7 @@ dependencies {
 	mABCoreClientBtc = ABCoreKitClient.builder(this, CoreKitConfig.ApiType.API_TYPE_BTC)
                     .addCustomTypeAdapter(CustomType.DATETIME, dateCustomTypeAdapter)
                     .setOpenOkHttpLog(true)
-                    .setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK)
+                    .setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_FIRST)
                     .build();
 	```
 	

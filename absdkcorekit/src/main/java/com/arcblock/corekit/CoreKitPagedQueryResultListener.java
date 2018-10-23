@@ -19,12 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.corekit.viewmodel.i;
+package com.arcblock.corekit;
 
-public interface CoreKitSubHelperInterface<T,D> {
+import java.util.List;
 
-    D getSubscription();
+/**
+*  Created by Nate on 2018/10/19
+**/
+public interface CoreKitPagedQueryResultListener<K> {
+    void onSuccess(List<K> datas);
 
-    Class<T> getResultDataClass();
+    void onError(String errMsg);
 
+    void onComplete();
 }

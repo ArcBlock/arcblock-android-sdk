@@ -19,8 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.corekit.viewmodel.i;
+package com.arcblock.corekit;
 
-public interface CoreKitBeanMapperInterface<T, D> {
-    D map(T dataResponse);
+import com.apollographql.apollo.api.Operation;
+
+/**
+*  Created by Nate on 2018/10/19
+**/
+public interface CoreKitResultListener<T extends Operation.Data> {
+    void onSuccess(T t);
+
+    void onError(String errMsg);
+
+    void onComplete();
 }

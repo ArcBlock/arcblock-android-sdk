@@ -21,24 +21,19 @@
  */
 package com.arcblock.sdk.demo.corekit;
 
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.apollographql.apollo.api.Query;
-import com.apollographql.apollo.api.Response;
-import com.arcblock.corekit.ABCoreKitClient;
+import com.arcblock.corekit.CoreKitResultListener;
 import com.arcblock.corekit.CoreKitQuery;
-import com.arcblock.corekit.bean.CoreKitBean;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.TsReceiverAdapter;
@@ -82,29 +77,35 @@ public class AccountDetailActivity extends AppCompatActivity {
 
         address_tv.setText(address);
 
-        // init AccountByAddressQueryHelper and get data
-        AccountByAddressQueryHelper accountByAddressQueryHelper = new AccountByAddressQueryHelper(this, this, DemoApplication.getInstance().abCoreKitClientBtc());
-        accountByAddressQueryHelper.setObserve(new Observer<CoreKitBean<AccountByAddressQuery.AccountByAddress>>() {
+        // init CorekitQuery and do query
+        CoreKitQuery coreKitQuery = new CoreKitQuery(this, DemoApplication.getInstance().abCoreKitClientBtc());
+        coreKitQuery.query(AccountByAddressQuery.builder().address(address).build(), new CoreKitResultListener<AccountByAddressQuery.Data>() {
             @Override
-            public void onChanged(@Nullable CoreKitBean<AccountByAddressQuery.AccountByAddress> coreKitBean) {
-                if (coreKitBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-                    AccountByAddressQuery.AccountByAddress accountByAddress = coreKitBean.getData();
-                    if (accountByAddress != null) {
-                        balance_tv.setText(accountByAddress.getBalance() == null ? "0 BTC" : accountByAddress.getBalance() + " BTC");
-                        if (accountByAddress.getTxsSent() != null && accountByAddress.getTxsSent().getData() != null) {
-                            sents.clear();
-                            sents.addAll(accountByAddress.getTxsSent().getData());
-                            mTsSentAdapter.notifyDataSetChanged();
-                        }
-                        if (accountByAddress.getTxsReceived() != null && accountByAddress.getTxsReceived().getData() != null) {
-                            receives.clear();
-                            receives.addAll(accountByAddress.getTxsReceived().getData());
-                            mTsReceiverAdapter.notifyDataSetChanged();
-                        }
+            public void onSuccess(AccountByAddressQuery.Data data) {
+                AccountByAddressQuery.AccountByAddress accountByAddress = data.getAccountByAddress();
+                if (accountByAddress != null) {
+                    balance_tv.setText(accountByAddress.getBalance() == null ? "0 BTC" : accountByAddress.getBalance() + " BTC");
+                    if (accountByAddress.getTxsSent() != null && accountByAddress.getTxsSent().getData() != null) {
+                        sents.clear();
+                        sents.addAll(accountByAddress.getTxsSent().getData());
+                        mTsSentAdapter.notifyDataSetChanged();
                     }
-                } else {
-                    // show error msg.
+                    if (accountByAddress.getTxsReceived() != null && accountByAddress.getTxsReceived().getData() != null) {
+                        receives.clear();
+                        receives.addAll(accountByAddress.getTxsReceived().getData());
+                        mTsReceiverAdapter.notifyDataSetChanged();
+                    }
                 }
+            }
+
+            @Override
+            public void onError(String errMsg) {
+                Toast.makeText(AccountDetailActivity.this, errMsg, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onComplete() {
+
             }
         });
     }
@@ -187,30 +188,5 @@ public class AccountDetailActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    /**
-     * AccountByAddressQueryHelper for AccountByAddressQuery
-     */
-    private class AccountByAddressQueryHelper extends CoreKitQuery<AccountByAddressQuery.Data, AccountByAddressQuery.AccountByAddress> {
-
-        public AccountByAddressQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
-            super(activity, lifecycleOwner, client);
-        }
-
-        @Override
-        public AccountByAddressQuery.AccountByAddress map(Response<AccountByAddressQuery.Data> dataResponse) {
-            if (dataResponse != null) {
-                return dataResponse.data().getAccountByAddress();
-            }
-            return null;
-        }
-
-        @Override
-        public Query getQuery() {
-            return AccountByAddressQuery.builder().address(address).build();
-        }
-
-
     }
 }

@@ -19,13 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.corekit.viewmodel.i;
+package com.arcblock.corekit;
 
-import com.apollographql.apollo.api.Query;
+import com.apollographql.apollo.api.Operation;
 
 /**
-*  Created by Nate on 2018/9/12
+*  Created by Nate on 2018/10/19
 **/
-public interface CoreKitQueryInterface {
-    Query getQuery();
+public interface CoreKitSubscriptionResultListener<T extends Operation.Data> {
+    void onSuccess(T t);
+
+    void onError(String errMsg);
 }

@@ -21,12 +21,9 @@
  */
 package com.arcblock.sdk.demo.corekit;
 
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.util.DiffUtil;
@@ -36,14 +33,13 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.apollographql.apollo.api.Query;
-import com.apollographql.apollo.api.Response;
-import com.arcblock.corekit.ABCoreKitClient;
-import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.bean.CoreKitPagedBean;
-import com.arcblock.corekit.utils.CoreKitDiffUtil;
+import com.arcblock.corekit.CoreKitPagedQueryResultListener;
 import com.arcblock.corekit.CoreKitPagedQuery;
+import com.arcblock.corekit.PagedQueryHelper;
+import com.arcblock.corekit.utils.CoreKitDiffUtil;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.ListBlocksAdapter;
@@ -62,9 +58,10 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
     ProgressBar progressBar;
 
     private List<BlocksByHeightQuery.Datum> mBlocks = new ArrayList<>();
-    private BlocksByHeightQueryHelper mBlocksByHeightQueryHelper;
     private int startIndex = 448244;
     private int endIndex = 448344;
+    private CoreKitPagedQuery<BlocksByHeightQuery.Data, BlocksByHeightQuery.Datum> mCoreKitPagedQuery;
+    private PagedQueryHelper<BlocksByHeightQuery.Data, BlocksByHeightQuery.Datum> mPagedQueryHelper;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,7 +84,7 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
                 mListBlocksAdapter.notifyDataSetChanged();
 
                 mListBlocksAdapter.setEnableLoadMore(false);
-                mBlocksByHeightQueryHelper.refresh();
+                mCoreKitPagedQuery.startInitQuery();
             }
         });
 
@@ -98,7 +95,7 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
         mListBlocksAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
             @Override
             public void onLoadMoreRequested() {
-                mBlocksByHeightQueryHelper.loadMore();
+                mCoreKitPagedQuery.startLoadMoreQuery();
             }
         }, feedRecyclerView);
 
@@ -115,33 +112,64 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
         });
         feedRecyclerView.setAdapter(mListBlocksAdapter);
 
-
-        // get data
-        mBlocksByHeightQueryHelper = new BlocksByHeightQueryHelper(this, this, DemoApplication.getInstance().abCoreKitClientBtc());
-        mBlocksByHeightQueryHelper.setObserve(new Observer<CoreKitPagedBean<List<BlocksByHeightQuery.Datum>>>() {
+        // init page query help
+        mPagedQueryHelper = new PagedQueryHelper<BlocksByHeightQuery.Data, BlocksByHeightQuery.Datum>() {
             @Override
-            public void onChanged(@Nullable CoreKitPagedBean<List<BlocksByHeightQuery.Datum>> coreKitPagedBean) {
-                //1. handle return data
-                if (coreKitPagedBean.getStatus() == CoreKitBean.SUCCESS_CODE) {
-                    if (coreKitPagedBean.getData() != null) {
-                        // new a old list
-                        List<BlocksByHeightQuery.Datum> oldList = new ArrayList<>();
-                        oldList.addAll(mBlocks);
+            public Query getInitialQuery() {
+                return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).build();
+            }
 
-                        // set mBlocks with new data
-                        mBlocks = coreKitPagedBean.getData();
-                        DiffUtil.DiffResult result = DiffUtil.calculateDiff(new CoreKitDiffUtil<>(oldList, mBlocks), true);
-                        // need this line , otherwise the update will have no effect
-                        mListBlocksAdapter.setNewListData(mBlocks);
-                        result.dispatchUpdatesTo(mListBlocksAdapter);
-                    }
+            @Override
+            public Query getLoadMoreQuery() {
+                PageInput pageInput = null;
+                if (!TextUtils.isEmpty(getCursor())) {
+                    pageInput = PageInput.builder().cursor(getCursor()).build();
                 }
+                return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).paging(pageInput).build();
+            }
 
-                //2. view status change and loadMore component need
+            @Override
+            public List<BlocksByHeightQuery.Datum> map(BlocksByHeightQuery.Data data) {
+                if (data.getBlocksByHeight() != null) {
+                    // set page info to PagedQueryHelper
+                    if (data.getBlocksByHeight().getPage() != null) {
+                        // set is have next flag to PagedQueryHelper
+                        setHasMore(data.getBlocksByHeight().getPage().isNext());
+                        // set new cursor to PagedQueryHelper
+                        setCursor(data.getBlocksByHeight().getPage().getCursor());
+                    }
+                    return data.getBlocksByHeight().getData();
+                }
+                return null;
+            }
+        };
+        // init a CoreKitPagedQuery and set result listener
+        mCoreKitPagedQuery = new CoreKitPagedQuery(this, DemoApplication.getInstance().abCoreKitClientBtc(), mPagedQueryHelper);
+        mCoreKitPagedQuery.setPagedQueryResultListener(new CoreKitPagedQueryResultListener<BlocksByHeightQuery.Datum>() {
+            @Override
+            public void onSuccess(List<BlocksByHeightQuery.Datum> datas) {
+                // new a old list
+                List<BlocksByHeightQuery.Datum> oldList = new ArrayList<>();
+                oldList.addAll(mBlocks);
+                // set mBlocks with new data
+                mBlocks = datas;
+                DiffUtil.DiffResult result = DiffUtil.calculateDiff(new CoreKitDiffUtil<>(oldList, mBlocks), true);
+                // need this line , otherwise the update will have no effect
+                mListBlocksAdapter.setNewListData(mBlocks);
+                result.dispatchUpdatesTo(mListBlocksAdapter);
+            }
+
+            @Override
+            public void onError(String errMsg) {
+                Toast.makeText(QueryBlocksByHeightActivity.this, errMsg, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onComplete() {
                 content.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.GONE);
                 content.setRefreshing(false);
-                if (mBlocksByHeightQueryHelper.isHasMore()) {
+                if (mPagedQueryHelper.isHasMore()) {
                     mListBlocksAdapter.setEnableLoadMore(true);
                     mListBlocksAdapter.loadMoreComplete();
                 } else {
@@ -149,6 +177,8 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
                 }
             }
         });
+        // start initial query
+        mCoreKitPagedQuery.startInitQuery();
     }
 
     @Override
@@ -161,49 +191,4 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
-    /**
-     *  BlocksByHeightQueryHelper for BlocksByHeightQuery
-     */
-    private class BlocksByHeightQueryHelper extends CoreKitPagedQuery<BlocksByHeightQuery.Data, BlocksByHeightQuery.Datum> {
-
-        public BlocksByHeightQueryHelper(FragmentActivity activity, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
-            super(activity, lifecycleOwner, client);
-        }
-
-        @Override
-        public List<BlocksByHeightQuery.Datum> map(Response<BlocksByHeightQuery.Data> dataResponse) {
-            if (dataResponse != null && dataResponse.data().getBlocksByHeight() != null) {
-                // set page info to CoreKitPagedQuery
-                if (dataResponse.data().getBlocksByHeight().getPage() != null) {
-                    // set is have next flag to CoreKitPagedQuery
-                    setHasMore(dataResponse.data().getBlocksByHeight().getPage().isNext());
-                    // set new cursor to CoreKitPagedQuery
-                    setCursor(dataResponse.data().getBlocksByHeight().getPage().getCursor());
-                }
-                return dataResponse.data().getBlocksByHeight().getData();
-            }
-            return null;
-        }
-
-        @Override
-        public Query getInitialQuery() {
-            return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).build();
-        }
-
-        @Override
-        public Query getLoadMoreQuery() {
-            PageInput pageInput = null;
-            if (!TextUtils.isEmpty(getCursor())) {
-                pageInput = PageInput.builder().cursor(getCursor()).build();
-            }
-            return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).paging(pageInput).build();
-        }
-
-        @Override
-        public Query getRefreshQuery() {
-            return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).build();
-        }
-    }
-
 }

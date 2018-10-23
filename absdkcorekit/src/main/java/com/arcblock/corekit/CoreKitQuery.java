@@ -21,82 +21,78 @@
  */
 package com.arcblock.corekit;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.Observer;
-import android.content.Context;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import android.arch.lifecycle.OnLifecycleEvent;
 
+import com.apollographql.apollo.api.Error;
+import com.apollographql.apollo.api.Operation;
 import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.api.Response;
-import com.arcblock.corekit.bean.CoreKitBean;
-import com.arcblock.corekit.config.CoreKitConfig;
-import com.arcblock.corekit.viewmodel.CoreKitQueryViewModel;
-import com.arcblock.corekit.viewmodel.i.CoreKitBeanMapperInterface;
-import com.arcblock.corekit.viewmodel.i.CoreKitQueryInterface;
+import com.apollographql.apollo.rx2.Rx2Apollo;
+
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 /**
- * The CoreKitQuery is used to make developer use CoreKitQueryViewModel more easily.
- * Created by Nate on 2018/9/12
+ * Created by Nate on 2018/10/19
  **/
-public abstract class CoreKitQuery<T extends Query.Data, D> implements CoreKitQueryInterface, CoreKitBeanMapperInterface<Response<T>, D> {
+public class CoreKitQuery implements LifecycleObserver {
 
-    private CoreKitQueryViewModel mCoreKitQueryViewModel;
-    private LifecycleOwner mLifecycleOwner;
+    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+    private ABCoreKitClient mABCoreKitClient;
 
-    /**
-     * The construct for activity and custom client
-     * @param activity
-     * @param lifecycleOwner
-     * @param client
-     */
-    public CoreKitQuery(FragmentActivity activity,LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
-        CoreKitQueryViewModel.CustomClientFactory factory = new CoreKitQueryViewModel.CustomClientFactory(getQuery(), this, client);
-        this.mCoreKitQueryViewModel = CoreKitQueryViewModel.getInstance(activity, factory);
-        this.mLifecycleOwner = lifecycleOwner;
+    public CoreKitQuery(LifecycleOwner lifecycleOwner, ABCoreKitClient aBCoreKitClient) {
+        this.mABCoreKitClient = aBCoreKitClient;
+        lifecycleOwner.getLifecycle().addObserver(this);
     }
 
-    /**
-     * The construct for activity and default client
-     * @param activity
-     * @param lifecycleOwner
-     * @param context
-     * @param apiType
-     */
-    public CoreKitQuery(FragmentActivity activity,LifecycleOwner lifecycleOwner, Context context, CoreKitConfig.ApiType apiType) {
-        CoreKitQueryViewModel.DefaultFactory factory = new CoreKitQueryViewModel.DefaultFactory(getQuery(), this, context, apiType);
-        this.mCoreKitQueryViewModel = CoreKitQueryViewModel.getInstance(activity, factory);
-        this.mLifecycleOwner = lifecycleOwner;
+    public <T extends  Operation.Data> void query(Query query, final CoreKitResultListener<T> listener) {
+        Rx2Apollo.from(mABCoreKitClient.query(query))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Response<T>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        mCompositeDisposable.add(d);
+                    }
+
+                    @Override
+                    public void onNext(Response<T> t) {
+                        if (t != null && t.data() != null) {
+                            if (t.hasErrors()) {
+                                try {
+                                    listener.onError(((Error) ((Response) t).errors().get(0)).message());
+                                } catch (Exception e) {
+                                    listener.onError(e.toString());
+                                }
+                            } else {
+                                listener.onSuccess(t.data());
+                            }
+                        } else {
+                            listener.onError("The result is empty.");
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        listener.onError("The result is empty.");
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        listener.onComplete();
+                    }
+                });
     }
 
-    /**
-     * he construct for fragment and custom client
-     * @param fragment
-     * @param fragment
-     * @param lifecycleOwner
-     * @param client
-     */
-    public CoreKitQuery(Fragment fragment, LifecycleOwner lifecycleOwner, ABCoreKitClient client) {
-        CoreKitQueryViewModel.CustomClientFactory factory = new CoreKitQueryViewModel.CustomClientFactory(getQuery(), this, client);
-        this.mCoreKitQueryViewModel = CoreKitQueryViewModel.getInstance(fragment, factory);
-        this.mLifecycleOwner = lifecycleOwner;
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    public void onDestroy() {
+        mCompositeDisposable.dispose();
+        mCompositeDisposable.clear();
     }
-
-    /**
-     * The construct for fragment and default client
-     * @param fragment
-     * @param lifecycleOwner
-     * @param context
-     * @param apiType
-     */
-    public CoreKitQuery(Fragment fragment,LifecycleOwner lifecycleOwner, Context context, CoreKitConfig.ApiType apiType) {
-        CoreKitQueryViewModel.DefaultFactory factory = new CoreKitQueryViewModel.DefaultFactory(getQuery(), this, context, apiType);
-        this.mCoreKitQueryViewModel = CoreKitQueryViewModel.getInstance(fragment, factory);
-        this.mLifecycleOwner = lifecycleOwner;
-    }
-
-    public void setObserve(Observer<CoreKitBean<D>> observe){
-        this.mCoreKitQueryViewModel.getQueryData(getQuery()).observe(mLifecycleOwner,observe);
-    }
-
 }
