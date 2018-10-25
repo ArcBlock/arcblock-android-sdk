@@ -46,7 +46,7 @@ deploy:
 after_deploy:
 - fir p app/build/outputs/apk/release/app-release.apk -T $FIR_TOKEN -c "`git cat-file
   tag $TRAVIS_TAG`"
-- make upload-library
+- make upload-library-snapshot
 env:
   global:
   - secure: eeQdwXxWaaxIegGKl4ASghHEF4ID+12BLI5d1wqImXo0XiDtmtn0NjXqRGrhrL6Laljc5l5QjFrCJXYPDGk9v5uDo55g+8Qh9HE7U4DtLw4Xtq2213JRBDfziuoVocc6nbVgweEWJgEVriZoinjIMUXIqXHVCWBJPJL1j2+trrnGyQIBinHpiFEdDeO6y5zPQ8yskN7fUJpidy9TXJ5zucq3H/Y+O400/v0NozAcKqbus22eaiNKYJMmx/CqkdDeg6SR2wVdw6wi4Qw18klFHlRBxYIUcEakCGut4rJowVrdf9QnkaVOz1uatiTswzCCUGWQ6IPAt+VbRgd/vIBoQMZBjK0XJgxcSlqBUfyon9v7BnqbnbF6nq5r911XDcET9w2x8d4lZ4jBM5x0NAbhPvA7jDJcjNUeWcAHXc8Ldy38ejBYtqmTRO1hrI2b25R0Zp9mSf4ahdsq+qSlf0bLnrbBu0HfRkzcGpMJAA+KlzUUDpiS1j9uQhz+9mAg4xsdXz2nVQd7aEOAWtKFIMZG9ZuFv1CYf22BZ1lpEayP6AvotEXTzloGCA1MyWU4hXJjJx2whIHN696Y9nHiaX9dqs5f5W4RQ9lb34BJttTcMkdcq8bpeIFlTniCkRTt4XDmp0Yw2BNofCd+uViupvj0Y0+js6nPjZjDya6jmPAEgHY=

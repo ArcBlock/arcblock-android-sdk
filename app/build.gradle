@@ -42,7 +42,7 @@ android {
             signingConfig signingConfigs.signingConfig
         }
         debug {
-//            signingConfig signingConfigs.signingConfig
+            signingConfig signingConfigs.signingConfig
             testCoverageEnabled = true
         }
     }
@@ -64,9 +64,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-intents:3.0.2'
     implementation project(':absdkcorekit')
-    //	def absdkcorekitversion = "0.0.9"
-    //	implementation "com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"
-
+    //def absdkcorekitversion = "0.0.9"
+    //implementation "com.arcblock.corekit:absdkcorekit:$absdkcorekitversion"
     implementation 'com.android.support:recyclerview-v7:27.1.1'
     implementation 'com.android.support:cardview-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
