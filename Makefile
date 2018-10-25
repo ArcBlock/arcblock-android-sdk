@@ -56,7 +56,11 @@ deploy: release
 	@echo "Deploy software into local machine..."
 
 upload-library:
-	@echo "Deploy library to s3..."
+	@echo "Deploy release library to s3..."
+	./gradlew clean absdkcorekit:publish -P RELEASE
+
+upload-library-snapshot:
+	@echo "Deploy snapshot library to s3..."
 	./gradlew clean absdkcorekit:publish
 
 include .makefiles/release.mk
