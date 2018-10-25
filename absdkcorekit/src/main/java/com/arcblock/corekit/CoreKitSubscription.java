@@ -136,7 +136,7 @@ public class CoreKitSubscription<T extends Operation.Data, D extends com.apollog
                     @Override
                     public void onError(Throwable t) {
                         if (mResultListener != null) {
-                            mResultListener.onError(t.toString());
+                            mResultListener.onError(t);
                         }
                     }
 

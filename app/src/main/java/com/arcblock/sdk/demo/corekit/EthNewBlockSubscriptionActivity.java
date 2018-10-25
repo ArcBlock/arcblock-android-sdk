@@ -28,6 +28,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.arcblock.corekit.CoreKitSubscription;
 import com.arcblock.corekit.CoreKitSubscriptionResultListener;
@@ -96,8 +97,8 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(String errMsg) {
-
+            public void onError(Throwable e) {
+                Toast.makeText(EthNewBlockSubscriptionActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
             }
         });
         // add status callback

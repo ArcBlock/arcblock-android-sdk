@@ -66,21 +66,21 @@ public class CoreKitMutation implements LifecycleObserver {
                         if (t != null && t.data() != null) {
                             if (t.hasErrors()) {
                                 try {
-                                    listener.onError(((Error) ((Response) t).errors().get(0)).message());
+                                    listener.onError(new Throwable(((Error) ((Response) t).errors().get(0)).message()));
                                 } catch (Exception e) {
-                                    listener.onError(e.toString());
+                                    listener.onError(e);
                                 }
                             } else {
                                 listener.onSuccess(t.data());
                             }
                         } else {
-                            listener.onError("The result is empty.");
+                            listener.onError(new Throwable("The result is empty."));
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        listener.onError(e.toString());
+                        listener.onError(e);
                     }
 
                     @Override

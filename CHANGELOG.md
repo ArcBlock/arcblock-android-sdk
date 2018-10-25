@@ -1,3 +1,6 @@
+## 0.3.2 (October 25, 2018)
+  - pass error to callback
+
 ## 0.3.1 (October 25, 2018)
   - optimize maven packaging
 

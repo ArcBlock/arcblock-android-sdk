@@ -66,7 +66,7 @@ public class CoreKitPagedQuery<T extends Operation.Data, K> implements Lifecycle
     public void startInitQuery() {
         if (isLoading) {
             if (mPagedQueryResultListener != null) {
-                mPagedQueryResultListener.onError("Cannot do refresh or initial query when loading.");
+                mPagedQueryResultListener.onError(new Throwable("Cannot do refresh or initial query when loading."));
             }
             return;
         }
@@ -77,7 +77,7 @@ public class CoreKitPagedQuery<T extends Operation.Data, K> implements Lifecycle
             query(mPagedQueryHelper.getInitialQuery());
         } else {
             if (mPagedQueryResultListener != null) {
-                mPagedQueryResultListener.onError("Initial query is empty.");
+                mPagedQueryResultListener.onError(new Throwable("Initial query is empty."));
             }
         }
     }
@@ -85,7 +85,7 @@ public class CoreKitPagedQuery<T extends Operation.Data, K> implements Lifecycle
     public void startLoadMoreQuery() {
         if (isLoading) {
             if (mPagedQueryResultListener != null) {
-                mPagedQueryResultListener.onError("Cannot do loadMore when loading.");
+                mPagedQueryResultListener.onError(new Throwable("Cannot do loadMore when loading."));
             }
             return;
         }
@@ -94,7 +94,7 @@ public class CoreKitPagedQuery<T extends Operation.Data, K> implements Lifecycle
             query(mPagedQueryHelper.getLoadMoreQuery());
         } else {
             if (mPagedQueryResultListener != null) {
-                mPagedQueryResultListener.onError("Load more query is empty.");
+                mPagedQueryResultListener.onError(new Throwable("Load more query is empty."));
             }
         }
     }
@@ -115,11 +115,11 @@ public class CoreKitPagedQuery<T extends Operation.Data, K> implements Lifecycle
                             if (t.hasErrors()) {
                                 try {
                                     if (mPagedQueryResultListener != null) {
-                                        mPagedQueryResultListener.onError(((Error) ((Response) t).errors().get(0)).message());
+                                        mPagedQueryResultListener.onError(new Throwable(((Error) ((Response) t).errors().get(0)).message()));
                                     }
                                 } catch (Exception e) {
                                     if (mPagedQueryResultListener != null) {
-                                        mPagedQueryResultListener.onError(e.toString());
+                                        mPagedQueryResultListener.onError(e);
                                     }
                                 }
                             } else {
@@ -128,7 +128,7 @@ public class CoreKitPagedQuery<T extends Operation.Data, K> implements Lifecycle
                             }
                         } else {
                             if (mPagedQueryResultListener != null) {
-                                mPagedQueryResultListener.onError("The result is empty.");
+                                mPagedQueryResultListener.onError(new Throwable("The result is empty."));
                             }
                         }
                     }
@@ -136,7 +136,7 @@ public class CoreKitPagedQuery<T extends Operation.Data, K> implements Lifecycle
                     @Override
                     public void onError(Throwable e) {
                         if (mPagedQueryResultListener != null) {
-                            mPagedQueryResultListener.onError("The result is empty.");
+                            mPagedQueryResultListener.onError(new Throwable("The result is empty."));
                         }
                     }
 
@@ -157,14 +157,14 @@ public class CoreKitPagedQuery<T extends Operation.Data, K> implements Lifecycle
     private synchronized void handleData(Operation.Data data) {
         if (mPagedQueryHelper == null) {
             if (mPagedQueryResultListener != null) {
-                mPagedQueryResultListener.onError("The PagedQueryHelper is empty when handleData.");
+                mPagedQueryResultListener.onError(new Throwable("The PagedQueryHelper is empty when handleData."));
             }
             return;
         }
         List<K> temp = mPagedQueryHelper.map(data);
         if (temp == null) {
             if (mPagedQueryResultListener != null) {
-                mPagedQueryResultListener.onError("The paged result is empty when handleData.");
+                mPagedQueryResultListener.onError(new Throwable("The paged result is empty when handleData."));
             }
             return;
         }

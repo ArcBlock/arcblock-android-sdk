@@ -126,8 +126,8 @@ public class CoreKitFragment extends Fragment {
             }
 
             @Override
-            public void onError(String errMsg) {
-
+            public void onError(Throwable e) {
+                Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
             }
         });
     }

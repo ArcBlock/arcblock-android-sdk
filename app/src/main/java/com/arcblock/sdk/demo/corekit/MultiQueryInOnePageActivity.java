@@ -61,8 +61,8 @@ public class MultiQueryInOnePageActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(String errMsg) {
-                Toast.makeText(MultiQueryInOnePageActivity.this, errMsg, Toast.LENGTH_SHORT).show();
+            public void onError(Throwable e) {
+                Toast.makeText(MultiQueryInOnePageActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -81,8 +81,8 @@ public class MultiQueryInOnePageActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(String errMsg) {
-                Toast.makeText(MultiQueryInOnePageActivity.this, errMsg, Toast.LENGTH_SHORT).show();
+            public void onError(Throwable e) {
+                Toast.makeText(MultiQueryInOnePageActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
