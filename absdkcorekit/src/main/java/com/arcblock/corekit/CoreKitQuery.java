@@ -51,7 +51,7 @@ public class CoreKitQuery implements LifecycleObserver {
         lifecycleOwner.getLifecycle().addObserver(this);
     }
 
-    public <T extends  Operation.Data> void query(Query query, final CoreKitResultListener<T> listener) {
+    public <T extends Operation.Data> void query(Query query, final CoreKitResultListener<T> listener) {
         Rx2Apollo.from(mABCoreKitClient.query(query))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -66,21 +66,21 @@ public class CoreKitQuery implements LifecycleObserver {
                         if (t != null && t.data() != null) {
                             if (t.hasErrors()) {
                                 try {
-                                    listener.onError(((Error) ((Response) t).errors().get(0)).message());
+                                    listener.onError(new Throwable(((Error) ((Response) t).errors().get(0)).message()));
                                 } catch (Exception e) {
-                                    listener.onError(e.toString());
+                                    listener.onError(e);
                                 }
                             } else {
                                 listener.onSuccess(t.data());
                             }
                         } else {
-                            listener.onError("The result is empty.");
+                            listener.onError(new Throwable("The result is empty."));
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        listener.onError("The result is empty.");
+                        listener.onError(e);
                     }
 
                     @Override

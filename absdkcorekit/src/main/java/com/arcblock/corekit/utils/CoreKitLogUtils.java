@@ -27,7 +27,7 @@ import com.arcblock.corekit.ABCoreKitClient;
 
 public class CoreKitLogUtils {
 
-    private static final String TAG = "CoreKitSocket";
+    private static final String TAG = "ArcBlock-CoreKit";
 
     public static void v(String log) {
         if (ABCoreKitClient.IS_DEBUG) {

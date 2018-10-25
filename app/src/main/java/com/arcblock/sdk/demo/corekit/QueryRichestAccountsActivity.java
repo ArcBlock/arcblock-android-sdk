@@ -91,8 +91,8 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(String errMsg) {
-                Toast.makeText(QueryRichestAccountsActivity.this, errMsg, Toast.LENGTH_SHORT).show();
+            public void onError(Throwable e) {
+                Toast.makeText(QueryRichestAccountsActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
             }
 
             @Override

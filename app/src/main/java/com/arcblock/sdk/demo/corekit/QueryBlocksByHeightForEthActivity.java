@@ -160,8 +160,8 @@ public class QueryBlocksByHeightForEthActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(String errMsg) {
-                Toast.makeText(QueryBlocksByHeightForEthActivity.this, errMsg, Toast.LENGTH_SHORT).show();
+            public void onError(Throwable e) {
+                Toast.makeText(QueryBlocksByHeightForEthActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
             }
 
             @Override

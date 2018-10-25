@@ -29,7 +29,7 @@ import com.apollographql.apollo.api.Operation;
 public interface CoreKitResultListener<T extends Operation.Data> {
     void onSuccess(T t);
 
-    void onError(String errMsg);
+    void onError(Throwable e);
 
     void onComplete();
 }

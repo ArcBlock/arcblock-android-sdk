@@ -29,7 +29,7 @@ import java.util.List;
 public interface CoreKitPagedQueryResultListener<K> {
     void onSuccess(List<K> datas);
 
-    void onError(String errMsg);
+    void onError(Throwable e);
 
     void onComplete();
 }
