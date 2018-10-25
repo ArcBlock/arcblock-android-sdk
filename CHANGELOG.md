@@ -1,3 +1,6 @@
+## 0.3.1 (October 25, 2018)
+  - optimize maven packaging
+
 ## 0.3.0 (October 21, 2018)
   - add mutation
   - update readme
