@@ -68,7 +68,7 @@ public class SupportHMACActivity extends AppCompatActivity {
 
     private void testQueryWithHMAC() {
         CoreKitQuery coreKitQuery = new CoreKitQuery(this, DemoApplication.getInstance().abCoreKitClientBtcWithHMAC());
-        coreKitQuery.query(BlocksByHeightQuery.builder().paging(PageInput.builder().size(100).build()).fromHeight(9888).toHeight(20000).build(), new CoreKitResultListener<BlocksByHeightQuery.Data>() {
+        coreKitQuery.query(BlocksByHeightQuery.builder().paging(PageInput.builder().size(100).build()).fromHeight(9889).toHeight(20000).build(), new CoreKitResultListener<BlocksByHeightQuery.Data>() {
             @Override
             public void onSuccess(BlocksByHeightQuery.Data data) {
                 CoreKitLogUtils.e("data size=>"+data.getBlocksByHeight().getData().size());

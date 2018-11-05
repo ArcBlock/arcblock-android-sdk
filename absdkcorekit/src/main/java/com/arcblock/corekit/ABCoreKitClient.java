@@ -24,6 +24,7 @@ package com.arcblock.corekit;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.ApolloMutationCall;
@@ -54,8 +55,6 @@ import com.arcblock.corekit.utils.CoreKitCommonUtils;
 import com.arcblock.corekit.utils.CoreKitLogUtils;
 import com.blankj.utilcode.util.MetaDataUtils;
 import com.blankj.utilcode.util.Utils;
-import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -115,7 +114,8 @@ public class ABCoreKitClient {
                         Buffer buffer = new Buffer();
                         requestBody.writeTo(buffer);
                         String oldParamsJson = buffer.readUtf8();
-                        HashMap<String, Object> rootMap = new Gson().fromJson(oldParamsJson, HashMap.class);  //原始参数
+
+                        HashMap<String, Object> rootMap = JSON.parseObject(oldParamsJson, HashMap.class);  //原始参数
 
                         if (rootMap != null && rootMap.containsKey("query") && rootMap.containsKey("variables") && rootMap.containsKey("operationName")) {
                             String query = (String) rootMap.get("query");
@@ -124,7 +124,7 @@ public class ABCoreKitClient {
                             // use fastjson for sort the json object by field names
                             JSONObject jsonObject = new JSONObject();
                             jsonObject.put("query", query);
-                            jsonObject.put("variables", new JSONObject(((LinkedTreeMap) rootMap.get("variables"))));
+                            jsonObject.put("variables", rootMap.get("variables"));
                             jsonObject.put("operationName", operationName);
 
                             String expectStr = URLEncoder.encode(jsonObject.toJSONString(), "UTF-8")

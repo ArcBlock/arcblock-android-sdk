@@ -41,7 +41,6 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:3.8.1'
     implementation 'com.alibaba:fastjson:1.1.70.android'
     api 'com.jakewharton.timber:timber:4.7.0'
-    implementation 'com.google.code.gson:gson:2.8.5'
     // socket
     api files('libs/jackson-annotations-2.8.3.jar')
     api files('libs/jackson-core-2.8.3.jar')
