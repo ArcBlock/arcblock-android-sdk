@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/TextView16_black"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/row_height"
+                android:background="@color/light_gray"
+                android:gravity="center_vertical"
+                android:paddingLeft="@dimen/txt_padding"
+                android:text="Read From Meta"
+                android:textStyle="bold"/>
+
+            <TextView
+                style="@style/TextView16_black"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/row_height"
+                android:gravity="center_vertical"
+                android:paddingLeft="@dimen/txt_padding"
+                android:text="Access Key："/>
+
+            <TextView
+                android:id="@+id/access_key_tv"
+                style="@style/TextView14_gray"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/row_height"
+                android:gravity="center_vertical"
+                android:hint="Your Access Key"
+                android:paddingLeft="@dimen/txt_padding"/>
+
+            <TextView
+                style="@style/TextView16_black"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/row_height"
+                android:gravity="center_vertical"
+                android:paddingLeft="@dimen/txt_padding"
+                android:text="Access Secret："/>
+
+            <TextView
+                android:id="@+id/access_secret_tv"
+                style="@style/TextView14_gray"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/row_height"
+                android:gravity="center_vertical"
+                android:hint="Your Access Secret"
+                android:paddingLeft="@dimen/txt_padding"/>
+
+            <Button
+                android:id="@+id/try_hmac_btn"
+                style="@style/TextView16_black"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/btn_bg"
+                android:text="Try HMAC"
+                android:textAllCaps="false"
+                android:textColor="@color/white"/>
+
+            <TextView
+                style="@style/TextView16_black"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/row_height"
+                android:gravity="center_vertical"
+                android:paddingLeft="@dimen/txt_padding"
+                android:text="Test HMAC result："/>
+
+            <TextView
+                android:id="@+id/result_tv"
+                style="@style/TextView18_gray"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/row_height"
+                android:gravity="center_vertical"
+                android:hint="Have a try?..."
+                android:paddingLeft="@dimen/txt_padding"/>
+
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

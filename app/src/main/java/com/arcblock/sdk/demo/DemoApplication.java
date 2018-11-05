@@ -44,6 +44,7 @@ public class DemoApplication extends Application {
     public static DemoApplication INSTANCE = null;
     private ABCoreKitClient mABCoreClientBtc;
     private ABCoreKitClient mABCoreClientEth;
+    private ABCoreKitClient mABCoreClientBtcWithHMAC;
 
     public static DemoApplication getInstance() {
         return INSTANCE;
@@ -62,6 +63,15 @@ public class DemoApplication extends Application {
 
         initBtcClient();
         initEthClient();
+        initBtcClientWithHMAC();
+    }
+
+    private void initBtcClientWithHMAC() {
+        mABCoreClientBtcWithHMAC = ABCoreKitClient.builder(this, CoreKitConfig.ApiType.API_TYPE_BTC)
+                .setOpenOkHttpLog(true)
+                .setEnableHMAC(true)
+                .setDefaultResponseFetcher(ApolloResponseFetchers.NETWORK_ONLY)
+                .build();
     }
 
     private void initBtcClient() {
@@ -115,5 +125,13 @@ public class DemoApplication extends Application {
             throw new RuntimeException("Please init corekit first.");
         }
         return mABCoreClientEth;
+    }
+
+    @NotNull
+    public ABCoreKitClient abCoreKitClientBtcWithHMAC() {
+        if (mABCoreClientBtcWithHMAC == null) {
+            throw new RuntimeException("Please init corekit for btc with hmac first.");
+        }
+        return mABCoreClientBtcWithHMAC;
     }
 }

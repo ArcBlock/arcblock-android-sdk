@@ -78,10 +78,20 @@
                 android:id="@+id/eth_new_block_subscription_in_main_btn"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/btn_height"
-                android:layout_marginBottom="@dimen/bottom_margin"
                 android:layout_marginTop="@dimen/top_margin"
                 android:background="@drawable/btn_bg"
                 android:text="@string/eth_new_block_in_main_subscription"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <Button
+                android:id="@+id/support_hmac_btn"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_height"
+                android:layout_marginBottom="@dimen/bottom_margin"
+                android:layout_marginTop="@dimen/top_margin"
+                android:background="@drawable/btn_bg"
+                android:text="Support HMAC"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"/>
 

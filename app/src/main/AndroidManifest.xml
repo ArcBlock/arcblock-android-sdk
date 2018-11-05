@@ -57,6 +57,20 @@
             android:name=".corekit.EthNewBlockSubscriptionActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustNothing|stateAlwaysHidden" />
+        <activity
+            android:name=".corekit.SupportHMACActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing|stateAlwaysHidden" />
+
+        <!-- For ArcBlock SDK-->
+        <meta-data
+            android:name="ArcBlock_Access_Key"
+            android:value="43705897-0f03-4349-b63d-17495b9d7103" />
+        <meta-data
+            android:name="ArcBlock_Access_Secret"
+            android:value="ddfa9b3cd015f65718c19fccf75564cc5ba6ac976c85cd7e8760206e1ff86d09" />
+
+
     </application>
 
 </manifest>
