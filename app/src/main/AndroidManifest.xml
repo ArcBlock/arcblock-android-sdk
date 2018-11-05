@@ -65,10 +65,10 @@
         <!-- For ArcBlock SDK-->
         <meta-data
             android:name="ArcBlock_Access_Key"
-            android:value="<Your Access Key>" />
+            android:value="Your Access Key" />
         <meta-data
             android:name="ArcBlock_Access_Secret"
-            android:value="<Your Access Secret>" />
+            android:value="Your Access Secret" />
 
 
     </application>
