@@ -1,3 +1,6 @@
+## 0.3.3 (November 05, 2018)
+  - support hmac
+
 ## 0.3.2 (October 25, 2018)
   - pass error to callback
 
