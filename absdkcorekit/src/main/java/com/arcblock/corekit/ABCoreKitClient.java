@@ -24,6 +24,8 @@ package com.arcblock.corekit;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.ApolloMutationCall;
 import com.apollographql.apollo.ApolloQueryCall;
@@ -49,11 +51,17 @@ import com.arcblock.corekit.socket.CoreKitSocketStatusCallBack;
 import com.arcblock.corekit.socket.IErrorCallback;
 import com.arcblock.corekit.socket.ISocketCloseCallback;
 import com.arcblock.corekit.socket.ISocketOpenCallback;
+import com.arcblock.corekit.utils.CoreKitCommonUtils;
 import com.arcblock.corekit.utils.CoreKitLogUtils;
+import com.blankj.utilcode.util.MetaDataUtils;
+import com.blankj.utilcode.util.Utils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,8 +73,13 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
+import okio.Buffer;
 import timber.log.Timber;
 
 import static com.apollographql.apollo.fetcher.ApolloResponseFetchers.CACHE_FIRST;
@@ -88,6 +101,53 @@ public class ABCoreKitClient {
         } else {
             okHttpClientBuilder = builder.mOkHttpClient.newBuilder();
         }
+
+        if (builder.enableHMAC) {
+            final String accessKey = MetaDataUtils.getMetaDataInApp("ArcBlock_Access_Key");
+            final String accessSecret = MetaDataUtils.getMetaDataInApp("ArcBlock_Access_Secret");
+            if (!TextUtils.isEmpty(accessKey) && !TextUtils.isEmpty(accessSecret)) {
+                okHttpClientBuilder.addInterceptor(new Interceptor() {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        Request request = chain.request();
+                        RequestBody requestBody = request.body();
+                        Buffer buffer = new Buffer();
+                        requestBody.writeTo(buffer);
+                        String oldParamsJson = buffer.readUtf8();
+
+                        HashMap<String, Object> rootMap = JSON.parseObject(oldParamsJson, HashMap.class);  //原始参数
+
+                        if (rootMap != null && rootMap.containsKey("query") && rootMap.containsKey("variables") && rootMap.containsKey("operationName")) {
+                            String query = (String) rootMap.get("query");
+                            String operationName = (String) rootMap.get("operationName");
+
+                            // use fastjson for sort the json object by field names
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("query", query);
+                            jsonObject.put("variables", rootMap.get("variables"));
+                            jsonObject.put("operationName", operationName);
+
+                            String expectStr = URLEncoder.encode(jsonObject.toJSONString(), "UTF-8")
+                                    .replaceAll("\\+", "%20")
+                                    .replaceAll("%21", "!")
+                                    .replaceAll("%28", "(")
+                                    .replaceAll("%29", ")");
+
+                            long timestamp = System.currentTimeMillis() / 1000;
+                            String sigInput = "accessKey=" + accessKey + "&query=" + expectStr + "&timestamp=" + timestamp;
+                            String signature = CoreKitCommonUtils.sha256HMACAndBase64(sigInput, accessSecret);
+                            request = request.newBuilder().header("Authorization", "AB1-HMAC-SHA256 access_key=" + accessKey + ",timestamp=" + timestamp + ",signature=" + signature)
+                                    .build();
+
+                        }
+                        return chain.proceed(request);
+                    }
+                });
+            } else {
+                CoreKitLogUtils.e("Please set the ArcBlock_Access_Key and ArcBlock_Access_Secret correctly.");
+            }
+        }
+
         if (builder.openOkHttpLog) {
             HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
                 @Override
@@ -160,9 +220,11 @@ public class ABCoreKitClient {
         private boolean openOkHttpLog;
         private String serverUrl;
         private String subscriptionServerUrl;
+        private boolean enableHMAC;
 
         private Builder(Context context, CoreKitConfig.ApiType apiType) {
             this.mContext = context;
+            Utils.init(context);
             this.apiType = apiType;
         }
 
@@ -219,6 +281,11 @@ public class ABCoreKitClient {
         public <T> Builder addCustomTypeAdapter(@NotNull ScalarType scalarType,
                                                 @NotNull final CustomTypeAdapter<T> customTypeAdapter) {
             customTypeAdapters.put(scalarType, customTypeAdapter);
+            return this;
+        }
+
+        public Builder setEnableHMAC(boolean enableHMAC) {
+            this.enableHMAC = enableHMAC;
             return this;
         }
 

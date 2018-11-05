@@ -72,4 +72,5 @@ dependencies {
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.30'
     implementation 'com.yuyh.json:jsonviewer:1.0.6'
     implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.blankj:utilcode:1.21.2'
 }

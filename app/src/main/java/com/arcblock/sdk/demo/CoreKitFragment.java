@@ -37,6 +37,7 @@ import com.arcblock.sdk.demo.corekit.MultiQueryInOnePageActivity;
 import com.arcblock.sdk.demo.corekit.QueryBlocksByHeightActivity;
 import com.arcblock.sdk.demo.corekit.QueryBlocksByHeightForEthActivity;
 import com.arcblock.sdk.demo.corekit.QueryRichestAccountsActivity;
+import com.arcblock.sdk.demo.corekit.SupportHMACActivity;
 import com.arcblock.sdk.demo.corekit.TransactionDetailActivity;
 import com.arcblock.sdk.demo.eth.NewBlockMinedSubscription;
 
@@ -105,6 +106,13 @@ public class CoreKitFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), EthNewBlockSubscriptionActivity.class);
+                startActivity(intent);
+            }
+        });
+        view.findViewById(R.id.support_hmac_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), SupportHMACActivity.class);
                 startActivity(intent);
             }
         });
