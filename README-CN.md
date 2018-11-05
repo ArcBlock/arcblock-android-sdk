@@ -42,11 +42,7 @@ apollo {
 
 //......
 dependencies {
-  // x.x.x => release version
-  def absdkcorekitversion = "x.x.x"
-  implementation("com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"){
-	transitive = true
-  }
+  implementation 'com.arcblock.corekit:absdkcorekit:0.3.3'
 }
 ```
 
@@ -257,7 +253,33 @@ dependencies {
 
 > 一个 CoreKitSubscription 对象只能服务于一个特定的 Subscription 对象。
 
-#### 7. 其他配置
+#### 7. 支持 HMAC Authentication
+
+1. 去 [https://console.arcblock.io](https://console.arcblock.io) 注册一个账户，并在 `Settings->Security Settings` 中创建一组 `Access Key` 和 `Access Secret`。
+
+2. 创建一个 `ABCoreKitClient` 并打开 HMAC Authentication 开关：
+
+	```java
+	mABCoreClientBtcWithHMAC = ABCoreKitClient.builder(this, CoreKitConfig.ApiType.API_TYPE_BTC)
+		.setOpenOkHttpLog(true)
+		.setEnableHMAC(true) // 打开 hmac
+		.setDefaultResponseFetcher(ApolloResponseFetchers.NETWORK_ONLY)
+		.build();
+	```
+
+3. 在 app module 的 `AndroidManifest.xml` 中配置申请的 `Access Key` 和 `Access Secret`：
+
+	```xml
+	<!-- For ArcBlock SDK-->
+	<meta-data
+		android:name="ArcBlock_Access_Key"
+		android:value="<Your Access Key>" />
+	<meta-data
+		android:name="ArcBlock_Access_Secret"
+		android:value="<Your Access Secret>" />
+	```
+
+#### 8. 其他配置
 
 1. `CustomType` 配置：
 

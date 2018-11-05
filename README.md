@@ -41,11 +41,7 @@ apollo {
 
 //......
 dependencies {
-  // x.x.x => release version
-  def absdkcorekitversion = "x.x.x" 
-  implementation("com.arcblock.corekit:absdkcorekit:$absdkcorekitversion:release@aar"){
-	transitive = true
-  }
+  implementation 'com.arcblock.corekit:absdkcorekit:0.3.3'
 }
 ```
 
@@ -256,7 +252,32 @@ dependencies {
 
 > A CoreKitSubscription object can only serve a specific Subscription object.
 
-#### 7. Other Settings
+#### 7. support HMAC Authentication
+
+1. Go [https://console.arcblock.io](https://console.arcblock.io) registered an account, and in `Settings -> Security Settings` to create a set of `Access Key` and `Access Secret`.
+
+2. Create a `ABCoreKitClient` and open the HMAC Authentication switch:
+
+	```java
+	mABCoreClientBtcWithHMAC = ABCoreKitClient.builder(this, CoreKitConfig.ApiType.API_TYPE_BTC)
+		.setOpenOkHttpLog(true)
+		.setEnableHMAC(true) // open HMAC Authentication
+		.setDefaultResponseFetcher(ApolloResponseFetchers.NETWORK_ONLY)
+		.build();
+	```
+3. In app module `AndroidManifest.xml` configured in the application of `Access Key` and `Access Secret`:
+
+	```xml
+	<!-- For ArcBlock SDK-->
+	<meta-data
+		android:name="ArcBlock_Access_Key"
+		android:value="<Your Access Key>" />
+	<meta-data
+		android:name="ArcBlock_Access_Secret"
+		android:value="<Your Access Secret>" />
+	```
+
+#### 8. Other Settings
 
 1. `CustomType` Setting：
 	1. First, add `customTypeMapping` in the `build.gradle` file of `app module`:
