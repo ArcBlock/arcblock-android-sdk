@@ -1,3 +1,6 @@
+## 0.3.4 (November 05, 2018)
+  - update readme with hmac auth
+
 ## 0.3.3 (November 05, 2018)
   - support hmac
 
