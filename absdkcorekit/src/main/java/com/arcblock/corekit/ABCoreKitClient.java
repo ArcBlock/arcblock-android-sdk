@@ -55,11 +55,11 @@ import com.arcblock.corekit.utils.CoreKitCommonUtils;
 import com.arcblock.corekit.utils.CoreKitLogUtils;
 import com.blankj.utilcode.util.MetaDataUtils;
 import com.blankj.utilcode.util.Utils;
+import com.google.common.net.UrlEscapers;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -74,6 +74,7 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import okhttp3.Interceptor;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -93,6 +94,7 @@ public class ABCoreKitClient {
     private CoreKitSocket mCoreKitSocket;
     private ScalarTypeAdapters scalarTypeAdapters;
     private List<CoreKitSocketStatusCallBack> mCoreKitSocketStatusCallBacks = new ArrayList<>();
+    public static final MediaType JSONType = MediaType.parse("application/json:charset=utf-8");
 
     private ABCoreKitClient(Builder builder) {
         OkHttpClient.Builder okHttpClientBuilder;
@@ -120,23 +122,34 @@ public class ABCoreKitClient {
                         if (rootMap != null && rootMap.containsKey("query") && rootMap.containsKey("variables") && rootMap.containsKey("operationName")) {
                             String query = (String) rootMap.get("query");
                             String operationName = (String) rootMap.get("operationName");
+                            JSONObject variablesJsonObj = (JSONObject) rootMap.get("variables");
 
                             // use fastjson for sort the json object by field names
                             JSONObject jsonObject = new JSONObject();
                             jsonObject.put("query", query);
-                            jsonObject.put("variables", rootMap.get("variables"));
+                            jsonObject.put("variables", variablesJsonObj);
                             jsonObject.put("operationName", operationName);
 
-                            String expectStr = URLEncoder.encode(jsonObject.toJSONString(), "UTF-8")
-                                    .replaceAll("\\+", "%20")
-                                    .replaceAll("%21", "!")
-                                    .replaceAll("%28", "(")
-                                    .replaceAll("%29", ")");
+                            // remove the null field in the variables with fastjson lib
+                            JSONObject variablesJsonObjWithoutNull = JSON.parseObject(variablesJsonObj.toJSONString());
+                            rootMap.put("variables", variablesJsonObjWithoutNull);
+
+                            String expectStr = UrlEscapers.urlFragmentEscaper().escape(jsonObject.toJSONString())
+                                    .replaceAll(":", "%3A")
+                                    .replaceAll(",", "%2C")
+                                    .replaceAll("@", "%40")
+                                    .replaceAll("#", "%23")
+                                    .replaceAll("\\$", "%24")
+                                    .replaceAll("&", "%26")
+                                    .replaceAll("\\+", "%2B");
 
                             long timestamp = System.currentTimeMillis() / 1000;
                             String sigInput = "accessKey=" + accessKey + "&query=" + expectStr + "&timestamp=" + timestamp;
                             String signature = CoreKitCommonUtils.sha256HMACAndBase64(sigInput, accessSecret);
-                            request = request.newBuilder().header("Authorization", "AB1-HMAC-SHA256 access_key=" + accessKey + ",timestamp=" + timestamp + ",signature=" + signature)
+
+                            request = request.newBuilder()
+                                    .header("Authorization", "AB1-HMAC-SHA256 access_key=" + accessKey + ",timestamp=" + timestamp + ",signature=" + signature)
+                                    .post(RequestBody.create(JSONType, JSON.toJSONString(rootMap)))
                                     .build();
 
                         }
