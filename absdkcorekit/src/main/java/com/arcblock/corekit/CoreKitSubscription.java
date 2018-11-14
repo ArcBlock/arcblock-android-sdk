@@ -27,7 +27,6 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.text.TextUtils;
 
-import com.alibaba.fastjson.JSON;
 import com.apollographql.apollo.api.Operation;
 import com.apollographql.apollo.subscription.OperationClientMessage;
 import com.arcblock.corekit.socket.Binding;
@@ -42,6 +41,7 @@ import com.arcblock.corekit.socket.ISocketOpenCallback;
 import com.arcblock.corekit.utils.CoreKitLogUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.Gson;
 
 import org.json.JSONObject;
 import org.reactivestreams.Subscriber;
@@ -443,7 +443,7 @@ public class CoreKitSubscription<T extends Operation.Data, D extends com.apollog
                     String data = msgBean.getPayload().get("result").get("data").toString();
                     String tempSubId = msgBean.getPayload().get("subscriptionId").asText("");
                     if (TextUtils.equals(tempSubId, v.channel.getGraphSubAndSubIdMapItemValueByKey(v.graphQlSubId))) {
-                        T temp = JSON.parseObject(data, tClass);
+                        T temp = new Gson().fromJson(data, tClass);
                         if (temp != null && !emitter.isCancelled()) {
                             emitter.onNext(temp);
                         } else {

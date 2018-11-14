@@ -1,6 +1,5 @@
 subscription tokenReceived($address: String!){
   tokenSent(address:$address){
-    hash
     blockHash
     blockHeight
   }

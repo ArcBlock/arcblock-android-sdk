@@ -43,5 +43,6 @@ public class EthListBlocksAdapter extends BaseQuickAdapter<BlocksByHeightQuery.D
     protected void convert(BaseViewHolder helper, BlocksByHeightQuery.Datum item) {
         helper.setText(R.id.hash_tv, item.getHash());
         helper.setText(R.id.height_tv, "" + item.getHeight());
+        helper.setText(R.id.txs_tv, item.getTotal().toString());
     }
 }

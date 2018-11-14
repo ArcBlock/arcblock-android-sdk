@@ -32,7 +32,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     // apollo library
-    def apolloReleaseVersion = "1.0.0-alpha"
+    def apolloReleaseVersion = "1.0.0-alpha3"
     api "com.apollographql.apollo:apollo-runtime:$apolloReleaseVersion"
     api "com.apollographql.apollo:apollo-android-support:$apolloReleaseVersion"
     api "com.apollographql.apollo:apollo-rx2-support:$apolloReleaseVersion"
@@ -40,6 +40,7 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.8.1'
     implementation 'com.alibaba:fastjson:1.1.70.android'
+    implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.google.guava:guava:26.0-android'
     api 'com.jakewharton.timber:timber:4.7.0'
     // socket
