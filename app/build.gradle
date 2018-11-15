@@ -12,7 +12,8 @@ apollo {
     useJavaBeansSemanticNaming = true
     customTypeMapping = [
             "Date" : "java.util.Date",
-            "BigNumber" : "java.math.BigInteger"
+            "BigNumber" : "java.math.BigInteger",
+            "FunctionInput" : "java.lang.String"
     ]
 }
 

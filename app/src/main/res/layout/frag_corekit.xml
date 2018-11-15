@@ -88,10 +88,20 @@
                 android:id="@+id/support_hmac_btn"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/btn_height"
-                android:layout_marginBottom="@dimen/bottom_margin"
                 android:layout_marginTop="@dimen/top_margin"
                 android:background="@drawable/btn_bg"
                 android:text="Support HMAC"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"/>
+
+            <Button
+                android:id="@+id/function_input_btn"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_height"
+                android:layout_marginBottom="@dimen/bottom_margin"
+                android:layout_marginTop="@dimen/top_margin"
+                android:background="@drawable/btn_bg"
+                android:text="Test FunctionInput"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"/>
 
