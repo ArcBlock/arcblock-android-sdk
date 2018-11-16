@@ -28,10 +28,46 @@
             {
               "type": {
                 "ofType": null,
-                "name": "Int",
+                "name": "Long",
                 "kind": "SCALAR"
               },
               "name": "balance",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "Int",
+                "kind": "SCALAR"
+              },
+              "name": "numberTxsReceived",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "Int",
+                "kind": "SCALAR"
+              },
+              "name": "numberTxsSent",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "Float",
+                "kind": "SCALAR"
+              },
+              "name": "priceInUsd",
               "isDeprecated": false,
               "description": null,
               "deprecationReason": null,
@@ -72,6 +108,30 @@
                 "kind": "LIST"
               },
               "name": "subKeys",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "Long",
+                "kind": "SCALAR"
+              },
+              "name": "totalAmountReceived",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "Long",
+                "kind": "SCALAR"
+              },
+              "name": "totalAmountSent",
               "isDeprecated": false,
               "description": null,
               "deprecationReason": null,
@@ -138,7 +198,7 @@
               "type": {
                 "ofType": {
                   "ofType": null,
-                  "name": "Int",
+                  "name": "Long",
                   "kind": "SCALAR"
                 },
                 "name": null,
@@ -154,7 +214,7 @@
               "type": {
                 "ofType": {
                   "ofType": null,
-                  "name": "Int",
+                  "name": "Long",
                   "kind": "SCALAR"
                 },
                 "name": null,
@@ -193,6 +253,18 @@
                 "kind": "NON_NULL"
               },
               "name": "height",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "Float",
+                "kind": "SCALAR"
+              },
+              "name": "historyPrice",
               "isDeprecated": false,
               "description": null,
               "deprecationReason": null,
@@ -242,7 +314,7 @@
               "type": {
                 "ofType": {
                   "ofType": null,
-                  "name": "Int",
+                  "name": "Long",
                   "kind": "SCALAR"
                 },
                 "name": null,
@@ -288,9 +360,21 @@
             },
             {
               "type": {
+                "ofType": null,
+                "name": "Float",
+                "kind": "SCALAR"
+              },
+              "name": "priceInUsd",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
                 "ofType": {
                   "ofType": null,
-                  "name": "Int",
+                  "name": "Long",
                   "kind": "SCALAR"
                 },
                 "name": null,
@@ -354,7 +438,7 @@
               "type": {
                 "ofType": {
                   "ofType": null,
-                  "name": "Int",
+                  "name": "Long",
                   "kind": "SCALAR"
                 },
                 "name": null,
@@ -393,7 +477,7 @@
               "type": {
                 "ofType": {
                   "ofType": null,
-                  "name": "Int",
+                  "name": "Long",
                   "kind": "SCALAR"
                 },
                 "name": null,
@@ -424,6 +508,172 @@
           ],
           "enumValues": null,
           "description": "The bitcoin block object implements Block interface for Bitcoin chain."
+        },
+        {
+          "possibleTypes": null,
+          "name": "BitcoinChain",
+          "kind": "OBJECT",
+          "interfaces": [],
+          "inputFields": null,
+          "fields": [
+            {
+              "type": {
+                "ofType": null,
+                "name": "Float",
+                "kind": "SCALAR"
+              },
+              "name": "avgBlockGap",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "Float",
+                "kind": "SCALAR"
+              },
+              "name": "avgFees",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "Float",
+                "kind": "SCALAR"
+              },
+              "name": "avgFeesOverWeight",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "Float",
+                "kind": "SCALAR"
+              },
+              "name": "avgTotal",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "PagedBitcoinBlocks",
+                "kind": "OBJECT"
+              },
+              "name": "blocks",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "PageInput",
+                    "kind": "INPUT_OBJECT"
+                  },
+                  "name": "paging",
+                  "description": null,
+                  "defaultValue": null
+                }
+              ]
+            },
+            {
+              "type": {
+                "ofType": {
+                  "ofType": null,
+                  "name": "String",
+                  "kind": "SCALAR"
+                },
+                "name": null,
+                "kind": "NON_NULL"
+              },
+              "name": "consensus",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": {
+                  "ofType": null,
+                  "name": "String",
+                  "kind": "SCALAR"
+                },
+                "name": null,
+                "kind": "NON_NULL"
+              },
+              "name": "instance",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "String",
+                "kind": "SCALAR"
+              },
+              "name": "latestHash",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "Int",
+                "kind": "SCALAR"
+              },
+              "name": "latestHeight",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "DateTime",
+                "kind": "SCALAR"
+              },
+              "name": "latestUpdateTime",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": {
+                  "ofType": null,
+                  "name": "String",
+                  "kind": "SCALAR"
+                },
+                "name": null,
+                "kind": "NON_NULL"
+              },
+              "name": "name",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            }
+          ],
+          "enumValues": null,
+          "description": "The Bitcoin object implements Blockchain interface."
         },
         {
           "possibleTypes": null,
@@ -468,7 +718,7 @@
               "type": {
                 "ofType": {
                   "ofType": null,
-                  "name": "Int",
+                  "name": "Long",
                   "kind": "SCALAR"
                 },
                 "name": null,
@@ -507,6 +757,18 @@
                 "kind": "NON_NULL"
               },
               "name": "hash",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "Float",
+                "kind": "SCALAR"
+              },
+              "name": "historyPrice",
               "isDeprecated": false,
               "description": null,
               "deprecationReason": null,
@@ -555,7 +817,7 @@
               "type": {
                 "ofType": {
                   "ofType": null,
-                  "name": "Int",
+                  "name": "Long",
                   "kind": "SCALAR"
                 },
                 "name": null,
@@ -624,6 +886,18 @@
             },
             {
               "type": {
+                "ofType": null,
+                "name": "Float",
+                "kind": "SCALAR"
+              },
+              "name": "priceInUsd",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
                 "ofType": {
                   "ofType": null,
                   "name": "Int",
@@ -656,9 +930,21 @@
             },
             {
               "type": {
+                "ofType": null,
+                "name": "DateTime",
+                "kind": "SCALAR"
+              },
+              "name": "time",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
                 "ofType": {
                   "ofType": null,
-                  "name": "Int",
+                  "name": "Long",
                   "kind": "SCALAR"
                 },
                 "name": null,
@@ -674,7 +960,7 @@
               "type": {
                 "ofType": {
                   "ofType": null,
-                  "name": "Int",
+                  "name": "Long",
                   "kind": "SCALAR"
                 },
                 "name": null,
@@ -750,6 +1036,41 @@
         },
         {
           "possibleTypes": null,
+          "name": "CryptoHistoryPrice",
+          "kind": "OBJECT",
+          "interfaces": [],
+          "inputFields": null,
+          "fields": [
+            {
+              "type": {
+                "ofType": null,
+                "name": "DateTime",
+                "kind": "SCALAR"
+              },
+              "name": "date",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "String",
+                "kind": "SCALAR"
+              },
+              "name": "price",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            }
+          ],
+          "enumValues": null,
+          "description": "Token history price."
+        },
+        {
+          "possibleTypes": null,
           "name": "DateTime",
           "kind": "SCALAR",
           "interfaces": null,
@@ -777,6 +1098,16 @@
           "fields": null,
           "enumValues": null,
           "description": "The `Int` scalar type represents non-fractional signed whole numeric values.\nInt can represent values between `-(2^53 - 1)` and `2^53 - 1` since it is\nrepresented in JSON as double-precision floating point numbers specified\nby [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point)."
+        },
+        {
+          "possibleTypes": null,
+          "name": "Long",
+          "kind": "SCALAR",
+          "interfaces": null,
+          "inputFields": null,
+          "fields": null,
+          "enumValues": null,
+          "description": "The `Long` type represnets 64 bits signed integer.\n"
         },
         {
           "possibleTypes": null,
@@ -1028,6 +1359,45 @@
         },
         {
           "possibleTypes": null,
+          "name": "PagedCryptoHistoryPrice",
+          "kind": "OBJECT",
+          "interfaces": [],
+          "inputFields": null,
+          "fields": [
+            {
+              "type": {
+                "ofType": {
+                  "ofType": null,
+                  "name": "CryptoHistoryPrice",
+                  "kind": "OBJECT"
+                },
+                "name": null,
+                "kind": "LIST"
+              },
+              "name": "data",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "PageInfo",
+                "kind": "OBJECT"
+              },
+              "name": "page",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            }
+          ],
+          "enumValues": null,
+          "description": "Represents paginated crypto_history_price list."
+        },
+        {
+          "possibleTypes": null,
           "name": "PagedTransactionInputs",
           "kind": "OBJECT",
           "interfaces": [],
@@ -1195,6 +1565,33 @@
             {
               "type": {
                 "ofType": null,
+                "name": "BitcoinChain",
+                "kind": "OBJECT"
+              },
+              "name": "blockchainInfo",
+              "isDeprecated": false,
+              "description": "Returns the general information of a blockchain.",
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": {
+                      "ofType": null,
+                      "name": "String",
+                      "kind": "SCALAR"
+                    },
+                    "name": null,
+                    "kind": "NON_NULL"
+                  },
+                  "name": "instance",
+                  "description": "The name of the blockchain instance.",
+                  "defaultValue": null
+                }
+              ]
+            },
+            {
+              "type": {
+                "ofType": null,
                 "name": "PagedBitcoinBlocks",
                 "kind": "OBJECT"
               },
@@ -1235,6 +1632,71 @@
                   },
                   "name": "toHeight",
                   "description": "The height of block to which to return.",
+                  "defaultValue": null
+                }
+              ]
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "PagedCryptoHistoryPrice",
+                "kind": "OBJECT"
+              },
+              "name": "cryptoHistoryPrice",
+              "isDeprecated": false,
+              "description": "return a list of history price based on start_date and end_date",
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": {
+                      "ofType": null,
+                      "name": "DateTime",
+                      "kind": "SCALAR"
+                    },
+                    "name": null,
+                    "kind": "NON_NULL"
+                  },
+                  "name": "endDate",
+                  "description": "the end_date of the interval",
+                  "defaultValue": null
+                },
+                {
+                  "type": {
+                    "ofType": null,
+                    "name": "PageInput",
+                    "kind": "INPUT_OBJECT"
+                  },
+                  "name": "paging",
+                  "description": "Describes which page of data to return.",
+                  "defaultValue": null
+                },
+                {
+                  "type": {
+                    "ofType": {
+                      "ofType": null,
+                      "name": "DateTime",
+                      "kind": "SCALAR"
+                    },
+                    "name": null,
+                    "kind": "NON_NULL"
+                  },
+                  "name": "startDate",
+                  "description": "the start_date of the interval",
+                  "defaultValue": null
+                },
+                {
+                  "type": {
+                    "ofType": {
+                      "ofType": null,
+                      "name": "String",
+                      "kind": "SCALAR"
+                    },
+                    "name": null,
+                    "kind": "NON_NULL"
+                  },
+                  "name": "token",
+                  "description": "the name of the token",
                   "defaultValue": null
                 }
               ]
@@ -1564,6 +2026,95 @@
         },
         {
           "possibleTypes": null,
+          "name": "RootSubscriptionType",
+          "kind": "OBJECT",
+          "interfaces": [],
+          "inputFields": null,
+          "fields": [
+            {
+              "type": {
+                "ofType": null,
+                "name": "BitcoinTransaction",
+                "kind": "OBJECT"
+              },
+              "name": "bigTransactionExecuted",
+              "isDeprecated": false,
+              "description": "return transaction data once a big transaction happened. The threshold is 100 bitcoin.",
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "BitcoinTransaction",
+                "kind": "OBJECT"
+              },
+              "name": "coinReceived",
+              "isDeprecated": false,
+              "description": "return transaction once an address received bitcoin.",
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": {
+                      "ofType": null,
+                      "name": "String",
+                      "kind": "SCALAR"
+                    },
+                    "name": null,
+                    "kind": "NON_NULL"
+                  },
+                  "name": "address",
+                  "description": "",
+                  "defaultValue": null
+                }
+              ]
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "BitcoinTransaction",
+                "kind": "OBJECT"
+              },
+              "name": "coinSent",
+              "isDeprecated": false,
+              "description": "return transaction once an address sent bitcoin.",
+              "deprecationReason": null,
+              "args": [
+                {
+                  "type": {
+                    "ofType": {
+                      "ofType": null,
+                      "name": "String",
+                      "kind": "SCALAR"
+                    },
+                    "name": null,
+                    "kind": "NON_NULL"
+                  },
+                  "name": "address",
+                  "description": "",
+                  "defaultValue": null
+                }
+              ]
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "BitcoinBlock",
+                "kind": "OBJECT"
+              },
+              "name": "newBlockMined",
+              "isDeprecated": false,
+              "description": "return block data once a new block is mined",
+              "deprecationReason": null,
+              "args": []
+            }
+          ],
+          "enumValues": null,
+          "description": null
+        },
+        {
+          "possibleTypes": null,
           "name": "TransactionInput",
           "kind": "OBJECT",
           "interfaces": [],
@@ -1689,7 +2240,7 @@
               "type": {
                 "ofType": {
                   "ofType": null,
-                  "name": "Int",
+                  "name": "Long",
                   "kind": "SCALAR"
                 },
                 "name": null,
@@ -1737,7 +2288,7 @@
               "type": {
                 "ofType": {
                   "ofType": null,
-                  "name": "Int",
+                  "name": "Long",
                   "kind": "SCALAR"
                 },
                 "name": null,
@@ -1880,7 +2431,7 @@
               "type": {
                 "ofType": {
                   "ofType": null,
-                  "name": "Int",
+                  "name": "Long",
                   "kind": "SCALAR"
                 },
                 "name": null,
@@ -1895,6 +2446,65 @@
           ],
           "enumValues": null,
           "description": "The TransactionInput object represents the transaction outputs in a Bitcoin transaction."
+        },
+        {
+          "possibleTypes": null,
+          "name": "__InputValue",
+          "kind": "OBJECT",
+          "interfaces": [],
+          "inputFields": null,
+          "fields": [
+            {
+              "type": {
+                "ofType": null,
+                "name": "String",
+                "kind": "SCALAR"
+              },
+              "name": "defaultValue",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "String",
+                "kind": "SCALAR"
+              },
+              "name": "description",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "String",
+                "kind": "SCALAR"
+              },
+              "name": "name",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "__Type",
+                "kind": "OBJECT"
+              },
+              "name": "type",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            }
+          ],
+          "enumValues": null,
+          "description": null
         },
         {
           "possibleTypes": null,
@@ -1998,264 +2608,6 @@
           ],
           "enumValues": null,
           "description": "Represents a directive"
-        },
-        {
-          "possibleTypes": null,
-          "name": "__DirectiveLocation",
-          "kind": "ENUM",
-          "interfaces": null,
-          "inputFields": null,
-          "fields": null,
-          "enumValues": [
-            {
-              "name": "FIELD",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null
-            },
-            {
-              "name": "FRAGMENT_DEFINITION",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null
-            },
-            {
-              "name": "FRAGMENT_SPREAD",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null
-            },
-            {
-              "name": "INLINE_FRAGMENT",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null
-            },
-            {
-              "name": "MUTATION",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null
-            },
-            {
-              "name": "QUERY",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null
-            },
-            {
-              "name": "SUBSCRIPTION",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null
-            }
-          ],
-          "description": null
-        },
-        {
-          "possibleTypes": null,
-          "name": "__EnumValue",
-          "kind": "OBJECT",
-          "interfaces": [],
-          "inputFields": null,
-          "fields": [
-            {
-              "type": {
-                "ofType": null,
-                "name": "String",
-                "kind": "SCALAR"
-              },
-              "name": "deprecationReason",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": null,
-                "name": "String",
-                "kind": "SCALAR"
-              },
-              "name": "description",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": null,
-                "name": "Boolean",
-                "kind": "SCALAR"
-              },
-              "name": "isDeprecated",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": null,
-                "name": "String",
-                "kind": "SCALAR"
-              },
-              "name": "name",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            }
-          ],
-          "enumValues": null,
-          "description": null
-        },
-        {
-          "possibleTypes": null,
-          "name": "__Field",
-          "kind": "OBJECT",
-          "interfaces": [],
-          "inputFields": null,
-          "fields": [
-            {
-              "type": {
-                "ofType": {
-                  "ofType": null,
-                  "name": "__InputValue",
-                  "kind": "OBJECT"
-                },
-                "name": null,
-                "kind": "LIST"
-              },
-              "name": "args",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": null,
-                "name": "String",
-                "kind": "SCALAR"
-              },
-              "name": "deprecationReason",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": null,
-                "name": "String",
-                "kind": "SCALAR"
-              },
-              "name": "description",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": null,
-                "name": "Boolean",
-                "kind": "SCALAR"
-              },
-              "name": "isDeprecated",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": null,
-                "name": "String",
-                "kind": "SCALAR"
-              },
-              "name": "name",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": null,
-                "name": "__Type",
-                "kind": "OBJECT"
-              },
-              "name": "type",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            }
-          ],
-          "enumValues": null,
-          "description": null
-        },
-        {
-          "possibleTypes": null,
-          "name": "__InputValue",
-          "kind": "OBJECT",
-          "interfaces": [],
-          "inputFields": null,
-          "fields": [
-            {
-              "type": {
-                "ofType": null,
-                "name": "String",
-                "kind": "SCALAR"
-              },
-              "name": "defaultValue",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": null,
-                "name": "String",
-                "kind": "SCALAR"
-              },
-              "name": "description",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": null,
-                "name": "String",
-                "kind": "SCALAR"
-              },
-              "name": "name",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            },
-            {
-              "type": {
-                "ofType": null,
-                "name": "__Type",
-                "kind": "OBJECT"
-              },
-              "name": "type",
-              "isDeprecated": false,
-              "description": null,
-              "deprecationReason": null,
-              "args": []
-            }
-          ],
-          "enumValues": null,
-          "description": null
         },
         {
           "possibleTypes": null,
@@ -2496,9 +2848,210 @@
           ],
           "enumValues": null,
           "description": "Represents scalars, interfaces, object types, unions, enums in the system"
+        },
+        {
+          "possibleTypes": null,
+          "name": "__EnumValue",
+          "kind": "OBJECT",
+          "interfaces": [],
+          "inputFields": null,
+          "fields": [
+            {
+              "type": {
+                "ofType": null,
+                "name": "String",
+                "kind": "SCALAR"
+              },
+              "name": "deprecationReason",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "String",
+                "kind": "SCALAR"
+              },
+              "name": "description",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "Boolean",
+                "kind": "SCALAR"
+              },
+              "name": "isDeprecated",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "String",
+                "kind": "SCALAR"
+              },
+              "name": "name",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            }
+          ],
+          "enumValues": null,
+          "description": null
+        },
+        {
+          "possibleTypes": null,
+          "name": "__Field",
+          "kind": "OBJECT",
+          "interfaces": [],
+          "inputFields": null,
+          "fields": [
+            {
+              "type": {
+                "ofType": {
+                  "ofType": null,
+                  "name": "__InputValue",
+                  "kind": "OBJECT"
+                },
+                "name": null,
+                "kind": "LIST"
+              },
+              "name": "args",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "String",
+                "kind": "SCALAR"
+              },
+              "name": "deprecationReason",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "String",
+                "kind": "SCALAR"
+              },
+              "name": "description",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "Boolean",
+                "kind": "SCALAR"
+              },
+              "name": "isDeprecated",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "String",
+                "kind": "SCALAR"
+              },
+              "name": "name",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            },
+            {
+              "type": {
+                "ofType": null,
+                "name": "__Type",
+                "kind": "OBJECT"
+              },
+              "name": "type",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null,
+              "args": []
+            }
+          ],
+          "enumValues": null,
+          "description": null
+        },
+        {
+          "possibleTypes": null,
+          "name": "__DirectiveLocation",
+          "kind": "ENUM",
+          "interfaces": null,
+          "inputFields": null,
+          "fields": null,
+          "enumValues": [
+            {
+              "name": "FIELD",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null
+            },
+            {
+              "name": "FRAGMENT_DEFINITION",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null
+            },
+            {
+              "name": "FRAGMENT_SPREAD",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null
+            },
+            {
+              "name": "INLINE_FRAGMENT",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null
+            },
+            {
+              "name": "MUTATION",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null
+            },
+            {
+              "name": "QUERY",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null
+            },
+            {
+              "name": "SUBSCRIPTION",
+              "isDeprecated": false,
+              "description": null,
+              "deprecationReason": null
+            }
+          ],
+          "description": null
         }
       ],
-      "subscriptionType": null,
+      "subscriptionType": {
+        "name": "RootSubscriptionType"
+      },
       "queryType": {
         "name": "RootQueryType"
       },

@@ -100,7 +100,7 @@ public class DemoApplication extends Application {
         mABCoreClientBtc = ABCoreKitClient.builder(this, CoreKitConfig.ApiType.API_TYPE_BTC)
                 .addCustomTypeAdapter(CustomType.DATETIME, dateCustomTypeAdapter)
                 .setOpenOkHttpLog(true)
-                .setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_FIRST)
+                .setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK)
                 .build();
     }
 
