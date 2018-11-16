@@ -1,3 +1,8 @@
+## 0.3.5 (November 16, 2018)
+  - add btc Long custom type
+  - support eth custom type FunctionInput
+  - support eth schema v2
+
 ## 0.3.4 (November 05, 2018)
   - update readme with hmac auth
 
