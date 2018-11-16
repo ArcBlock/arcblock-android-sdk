@@ -10,7 +10,12 @@ version = new File(rootDir.getAbsolutePath()+'/version').text.replace("\n", "")
 
 apollo {
     useJavaBeansSemanticNaming = true
-    customTypeMapping['DateTime'] = "java.util.Date"
+    customTypeMapping = [
+            "Date" : "java.util.Date",
+            "BigNumber" : "java.math.BigInteger",
+            "FunctionInput" : "java.lang.String",
+            "Long" : "java.lang.Long",
+    ]
 }
 
 android {

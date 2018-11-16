@@ -32,13 +32,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.arcblock.corekit.CoreKitResultListener;
 import com.arcblock.corekit.CoreKitQuery;
+import com.arcblock.corekit.CoreKitResultListener;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.TsReceiverAdapter;
 import com.arcblock.sdk.demo.adapter.TsSentAdapter;
 import com.arcblock.sdk.demo.btc.AccountByAddressQuery;
+import com.arcblock.sdk.demo.utils.BtcValueUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +85,7 @@ public class AccountDetailActivity extends AppCompatActivity {
             public void onSuccess(AccountByAddressQuery.Data data) {
                 AccountByAddressQuery.AccountByAddress accountByAddress = data.getAccountByAddress();
                 if (accountByAddress != null) {
-                    balance_tv.setText(accountByAddress.getBalance() == null ? "0 BTC" : accountByAddress.getBalance() + " BTC");
+                    balance_tv.setText(BtcValueUtils.formatBtcValue(accountByAddress.getBalance()));
                     if (accountByAddress.getTxsSent() != null && accountByAddress.getTxsSent().getData() != null) {
                         sents.clear();
                         sents.addAll(accountByAddress.getTxsSent().getData());

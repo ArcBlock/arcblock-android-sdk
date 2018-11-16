@@ -1,0 +1,13 @@
+query blockByHeight($height:Int!){
+  blockByHeight(height: $height) {
+    transactions {
+      data {
+        traces {
+          data {
+            actionFunctionInput
+          }
+       }
+      }
+    }
+  }
+}

@@ -24,22 +24,30 @@ package com.arcblock.sdk.demo.adapter;
 import android.support.annotation.Nullable;
 
 import com.arcblock.sdk.demo.R;
-import com.arcblock.sdk.demo.btc.RichestAccountsQuery;
-import com.arcblock.sdk.demo.utils.BtcValueUtils;
+import com.arcblock.sdk.demo.eth.BlockByHeightQuery;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 
 import java.util.List;
 
-public class RichestAccountsAdapter extends BaseQuickAdapter<RichestAccountsQuery.Datum, BaseViewHolder> {
-    public RichestAccountsAdapter(int layoutResId, @Nullable List<RichestAccountsQuery.Datum> data) {
+/**
+*  Created by Nate on 2018/11/15
+**/
+public class TestFunctionInputAdapter extends BaseQuickAdapter<BlockByHeightQuery.Datum, BaseViewHolder> {
+    public TestFunctionInputAdapter(int layoutResId, @Nullable List<BlockByHeightQuery.Datum> data) {
         super(layoutResId, data);
     }
 
     @Override
-    protected void convert(BaseViewHolder helper, RichestAccountsQuery.Datum item) {
-        helper.setText(R.id.address_tv, item.getAddress());
-        helper.setText(R.id.balance_tv, BtcValueUtils.formatBtcValue(item.getBalance()));
-        helper.setText(R.id.order_tv, helper.getAdapterPosition() + 1 + "");
+    protected void convert(BaseViewHolder helper, BlockByHeightQuery.Datum item) {
+        if (item.getTraces()!=null&&item.getTraces().getData()!=null&&item.getTraces().getData().get(0)!=null) {
+            if (item.getTraces().getData().get(0).getActionFunctionInput()!=null) {
+                helper.setText(R.id.item_tv,item.getTraces().getData().get(0).getActionFunctionInput().get(0));
+            } else {
+                helper.setText(R.id.item_tv,"No input.");
+            }
+        }else{
+            helper.setText(R.id.item_tv,"No input.");
+        }
     }
 }

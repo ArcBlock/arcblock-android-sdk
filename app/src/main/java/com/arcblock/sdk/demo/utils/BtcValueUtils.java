@@ -19,27 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.arcblock.sdk.demo.adapter;
+package com.arcblock.sdk.demo.utils;
 
-import android.support.annotation.Nullable;
+import java.text.DecimalFormat;
 
-import com.arcblock.sdk.demo.R;
-import com.arcblock.sdk.demo.btc.RichestAccountsQuery;
-import com.arcblock.sdk.demo.utils.BtcValueUtils;
-import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.chad.library.adapter.base.BaseViewHolder;
+/**
+ * Created by Nate on 2018/11/16
+ **/
+public class BtcValueUtils {
 
-import java.util.List;
-
-public class RichestAccountsAdapter extends BaseQuickAdapter<RichestAccountsQuery.Datum, BaseViewHolder> {
-    public RichestAccountsAdapter(int layoutResId, @Nullable List<RichestAccountsQuery.Datum> data) {
-        super(layoutResId, data);
+    /**
+     * @param value
+     * @return format the btc value to readable value
+     */
+    public static String formatBtcValue(Long value) {
+        if (value == null) {
+            return "0.00 BTC";
+        }
+        DecimalFormat df = new DecimalFormat("0.0000");
+        return df.format(value / (Math.pow(10, 8))) + " BTC";
     }
 
-    @Override
-    protected void convert(BaseViewHolder helper, RichestAccountsQuery.Datum item) {
-        helper.setText(R.id.address_tv, item.getAddress());
-        helper.setText(R.id.balance_tv, BtcValueUtils.formatBtcValue(item.getBalance()));
-        helper.setText(R.id.order_tv, helper.getAdapterPosition() + 1 + "");
-    }
 }

@@ -32,6 +32,7 @@ import com.arcblock.sdk.demo.btc.type.CustomType;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -99,12 +100,31 @@ public class DemoApplication extends Application {
         mABCoreClientBtc = ABCoreKitClient.builder(this, CoreKitConfig.ApiType.API_TYPE_BTC)
                 .addCustomTypeAdapter(CustomType.DATETIME, dateCustomTypeAdapter)
                 .setOpenOkHttpLog(true)
-                .setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_FIRST)
+                .setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK)
                 .build();
     }
 
     private void initEthClient() {
+
+        CustomTypeAdapter bigIntCustomTypeAdapter = new CustomTypeAdapter<BigInteger>() {
+            @Override
+            public BigInteger decode(CustomTypeValue value) {
+                try {
+                    return new BigInteger(value.value.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            public CustomTypeValue encode(BigInteger value) {
+                return new CustomTypeValue.GraphQLString(value.toString());
+            }
+        };
+
         mABCoreClientEth = ABCoreKitClient.builder(this, CoreKitConfig.ApiType.API_TYPE_ETH)
+                .addCustomTypeAdapter(com.arcblock.sdk.demo.eth.type.CustomType.BIGNUMBER, bigIntCustomTypeAdapter)
                 .setOpenOkHttpLog(true)
                 .setOpenSocket(true)
                 .setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_FIRST)

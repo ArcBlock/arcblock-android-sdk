@@ -33,13 +33,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.arcblock.corekit.CoreKitResultListener;
 import com.arcblock.corekit.CoreKitQuery;
+import com.arcblock.corekit.CoreKitResultListener;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.TsInputsAdapter;
 import com.arcblock.sdk.demo.adapter.TsOutputsAdapter;
 import com.arcblock.sdk.demo.btc.TransactionByHashQuery;
+import com.arcblock.sdk.demo.utils.BtcValueUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +84,7 @@ public class TransactionDetailActivity extends AppCompatActivity {
         initView();
 
         // init CorekitQuery and do query
-        CoreKitQuery coreKitQuery = new CoreKitQuery(this,DemoApplication.getInstance().abCoreKitClientBtc());
+        CoreKitQuery coreKitQuery = new CoreKitQuery(this, DemoApplication.getInstance().abCoreKitClientBtc());
         coreKitQuery.query(TransactionByHashQuery.builder().hash(transactionHash).build(), new CoreKitResultListener<TransactionByHashQuery.Data>() {
             @Override
             public void onSuccess(TransactionByHashQuery.Data data) {
@@ -94,9 +95,9 @@ public class TransactionDetailActivity extends AppCompatActivity {
                     size_tv.setText(transactionByHash.getSize() + " Bytes");
                     virtual_size_tv.setText(transactionByHash.getVirtualSize() + " Bytes");
                     weight_tv.setText(transactionByHash.getWeight() + "");
-                    input_total_tv.setText(transactionByHash.getTotal() + " BTC");
-                    output_total_tv.setText(transactionByHash.getTotal() + " BTC");
-                    fees_tv.setText(transactionByHash.getFees() + " BTC");
+                    input_total_tv.setText(BtcValueUtils.formatBtcValue(transactionByHash.getTotal()));
+                    output_total_tv.setText(BtcValueUtils.formatBtcValue(transactionByHash.getTotal()));
+                    fees_tv.setText(BtcValueUtils.formatBtcValue(transactionByHash.getFees()));
 
                     input_title_tv.setText(String.format("Input(%s)", transactionByHash.getNumberInputs() + ""));
                     output_title_tv.setText(String.format("Output(%s)", transactionByHash.getNumberOutputs() + ""));

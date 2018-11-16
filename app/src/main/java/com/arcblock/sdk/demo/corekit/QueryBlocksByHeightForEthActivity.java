@@ -91,7 +91,7 @@ public class QueryBlocksByHeightForEthActivity extends AppCompatActivity {
         RecyclerView blocksRcv = (RecyclerView) findViewById(R.id.blocks_rcv);
         blocksRcv.setLayoutManager(new LinearLayoutManager(this));
 
-        mEthListBlocksAdapter = new EthListBlocksAdapter(R.layout.item_list_blocks, mBlocks);
+        mEthListBlocksAdapter = new EthListBlocksAdapter(R.layout.item_list_blocks_eth, mBlocks);
         mEthListBlocksAdapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
             @Override
             public void onLoadMoreRequested() {
