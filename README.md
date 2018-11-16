@@ -18,7 +18,7 @@ Add the following code to the project root directory `build.gradle` file:
 buildscript {
   dependencies {
     //...
-    classpath 'com.apollographql.apollo:apollo-gradle-plugin:1.0.0-alpha'
+    classpath 'com.apollographql.apollo:apollo-gradle-plugin:1.0.0-alpha3'
   }
 }
 
@@ -41,7 +41,7 @@ apollo {
 
 //......
 dependencies {
-  implementation 'com.arcblock.corekit:absdkcorekit:0.3.3'
+  implementation 'com.arcblock.corekit:absdkcorekit:0.3.5'
 }
 ```
 
@@ -284,7 +284,9 @@ dependencies {
 		
 		```groovy
 		apollo {
-		  customTypeMapping['DateTime'] = "java.util.Date"
+		  customTypeMapping = [
+			    "Date" : "java.util.Date"
+		    ]
 		}
 		```
 		
