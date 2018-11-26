@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">QuickStart</string>
+    <string name="note_str">借助这个快速开始的项目可以帮你快速的了解如何集成我们的sdk。</string>
+    <string name="et_hint_str">请输入一个BTC账户地址</string>
+    <string name="query_str">查询</string>
+    <string name="try_it_str">试一试！</string>
+    <string name="account_detail_str">账户详情</string>
+    <string name="Address_str">地址:</string>
+    <string name="balance_str">余额:</string>
+    <string name="total_amount_sent_str">总发送:</string>
+    <string name="total_amount_received_str">总接收:</string>
+</resources>
