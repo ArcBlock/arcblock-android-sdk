@@ -1,3 +1,6 @@
+## 0.3.6 (November 26, 2018)
+  - add quick start demo
+
 ## 0.3.5 (November 16, 2018)
   - add btc Long custom type
   - support eth custom type FunctionInput
