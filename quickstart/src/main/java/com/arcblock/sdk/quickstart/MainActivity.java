@@ -12,6 +12,7 @@ import com.arcblock.corekit.ABCoreKitClient;
 import com.arcblock.corekit.CoreKitQuery;
 import com.arcblock.corekit.CoreKitResultListener;
 import com.arcblock.corekit.config.CoreKitConfig;
+import com.blankj.utilcode.util.KeyboardUtils;
 import com.blankj.utilcode.util.ToastUtils;
 
 public class MainActivity extends AppCompatActivity {
@@ -57,19 +58,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void query() {
+        KeyboardUtils.hideSoftInput(addressEt);
+        resetDetail();
         if (TextUtils.isEmpty(addressEt.getText().toString())) {
             ToastUtils.showShort("Please input a btc account address");
             return;
         }
-
         CoreKitQuery coreKitQuery = new CoreKitQuery(this, ABCoreKitClient.defaultInstance(this, CoreKitConfig.ApiType.API_TYPE_BTC));
         coreKitQuery.query(AccountByAddressQuery.builder().address(addressEt.getText().toString()).build(), new CoreKitResultListener<AccountByAddressQuery.Data>() {
             @Override
             public void onSuccess(AccountByAddressQuery.Data data) {
-                addressTv.setText(data.getAccountByAddress().getAddress());
-                balanceTv.setText(BtcValueUtils.formatBtcValue(data.getAccountByAddress().getBalance()));
-                totalAmountSentTv.setText(BtcValueUtils.formatBtcValue(data.getAccountByAddress().getTotalAmountSent()));
-                totalAmountReceivedTv.setText(BtcValueUtils.formatBtcValue(data.getAccountByAddress().getTotalAmountReceived()));
+                if (data.getAccountByAddress()!=null) {
+                    addressTv.setText(data.getAccountByAddress().getAddress());
+                    balanceTv.setText(BtcValueUtils.formatBtcValue(data.getAccountByAddress().getBalance()));
+                    totalAmountSentTv.setText(BtcValueUtils.formatBtcValue(data.getAccountByAddress().getTotalAmountSent()));
+                    totalAmountReceivedTv.setText(BtcValueUtils.formatBtcValue(data.getAccountByAddress().getTotalAmountReceived()));
+                } else {
+                    ToastUtils.showShort("error=>data is null.");
+                }
             }
 
             @Override
@@ -82,5 +88,12 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void resetDetail(){
+        addressTv.setText("");
+        balanceTv.setText("");
+        totalAmountSentTv.setText("");
+        totalAmountReceivedTv.setText("");
     }
 }

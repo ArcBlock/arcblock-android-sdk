@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">QuickStart</string>
-    <string name="note_str">借助这个快速开始的项目可以帮你快速的了解如何集成我们的sdk。</string>
+    <string name="note_str">借助这个快速开始的项目可以帮你快速的了解如何集成并使用sdk。</string>
     <string name="et_hint_str">请输入一个BTC账户地址</string>
     <string name="query_str">查询</string>
     <string name="try_it_str">试一试！</string>
