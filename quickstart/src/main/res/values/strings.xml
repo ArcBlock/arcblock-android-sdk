@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">QuickStart</string>
+    <string name="note_str">This is a simple quick start project to show you how to integrate our sdk quickly.</string>
+    <string name="et_hint_str">Please input a btc account address</string>
+    <string name="query_str">Query</string>
+    <string name="try_it_str">Try it!</string>
+    <string name="account_detail_str">Account Detail</string>
+    <string name="Address_str">Address:</string>
+    <string name="balance_str">Balance:</string>
+    <string name="total_amount_sent_str">TotalAmountSent:</string>
+    <string name="total_amount_received_str">TotalAmountReceived:</string>
+</resources>

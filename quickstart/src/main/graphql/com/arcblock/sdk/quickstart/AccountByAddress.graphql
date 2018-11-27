@@ -1,0 +1,10 @@
+query accountByAddress($address: String!){
+  accountByAddress(address:$address) {
+    address
+    balance
+    numberTxsSent
+    numberTxsReceived
+    totalAmountSent
+    totalAmountReceived
+  }
+}
