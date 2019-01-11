@@ -1,4 +1,4 @@
-query transactionByHash($hash: String!) {
+query transactionByHash($hash: HexString!) {
   transactionByHash(hash: $hash) {
     blockHash
     blockHeight

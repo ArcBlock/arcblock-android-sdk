@@ -1,15 +1,10 @@
-query accountByAddress($address: String!) {
+query accountByAddress($address: String!,$role: BitcoinParticipantRole) {
   accountByAddress(address: $address) {
     address
     balance
     pubKey
     scriptType
-    txsReceived {
-      data {
-        hash
-      }
-    }
-    txsSent{
+    transactions(role:$role){
       data{
         hash
       }

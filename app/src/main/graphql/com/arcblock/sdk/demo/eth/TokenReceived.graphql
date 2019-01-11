@@ -1,4 +1,4 @@
-subscription tokenReceived($address: String!){
+subscription tokenReceived($address: HexString!){
   tokenSent(address:$address){
     blockHash
     blockHeight

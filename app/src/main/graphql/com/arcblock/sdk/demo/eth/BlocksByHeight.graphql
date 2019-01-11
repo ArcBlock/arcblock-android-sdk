@@ -1,5 +1,5 @@
-query blocksByHeight($fromHeight: Int!, $toHeight: Int, $paging: PageInput) {
-  blocksByHeight(fromHeight: $fromHeight, toHeight: $toHeight, paging: $paging) {
+query listBlocks($timeFilter:TimeFilter, $paging: PageInput) {
+  listBlocks(timeFilter: $timeFilter, paging: $paging) {
     data{
       height
       hash

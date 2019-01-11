@@ -80,7 +80,7 @@ public class DemoApplication extends Application {
             @Override
             public Date decode(CustomTypeValue value) {
                 try {
-                    SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
+                    SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
                     utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));//时区定义并进行时间获取
                     Date gpsUTCDate = utcFormat.parse(value.value.toString());
                     return gpsUTCDate;
@@ -92,7 +92,7 @@ public class DemoApplication extends Application {
 
             @Override
             public CustomTypeValue encode(Date value) {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
                 return new CustomTypeValue.GraphQLString(sdf.format(value));
             }
         };
