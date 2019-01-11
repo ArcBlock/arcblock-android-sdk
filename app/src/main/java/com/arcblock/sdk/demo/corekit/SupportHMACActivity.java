@@ -34,8 +34,9 @@ import com.arcblock.corekit.CoreKitResultListener;
 import com.arcblock.corekit.utils.CoreKitLogUtils;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
-import com.arcblock.sdk.demo.btc.BlocksByHeightQuery;
+import com.arcblock.sdk.demo.btc.ListBlocksQuery;
 import com.arcblock.sdk.demo.btc.type.PageInput;
+import com.arcblock.sdk.demo.btc.type.TimeFilter;
 import com.blankj.utilcode.util.MetaDataUtils;
 
 public class SupportHMACActivity extends AppCompatActivity {
@@ -68,12 +69,12 @@ public class SupportHMACActivity extends AppCompatActivity {
 
     private void testQueryWithHMAC() {
         CoreKitQuery coreKitQuery = new CoreKitQuery(this, DemoApplication.getInstance().abCoreKitClientBtcWithHMAC());
-        coreKitQuery.query(BlocksByHeightQuery.builder().paging(PageInput.builder().size(100).cursor(null).build()).fromHeight(9889).toHeight(20000).build(), new CoreKitResultListener<BlocksByHeightQuery.Data>() {
+        coreKitQuery.query(ListBlocksQuery.builder().paging(PageInput.builder().size(100).cursor(null).build()).timeFilter(TimeFilter.builder().fromHeight(9889).toHeight(20000).build()).build(), new CoreKitResultListener<ListBlocksQuery.Data>() {
             @Override
-            public void onSuccess(BlocksByHeightQuery.Data data) {
-                CoreKitLogUtils.e("data size=>"+data.getBlocksByHeight().getData().size());
+            public void onSuccess(ListBlocksQuery.Data data) {
+                CoreKitLogUtils.e("data size=>"+data.getListBlocks().getData().size());
                 // if the size == 100 , mean the hmac worked.
-                if (data.getBlocksByHeight().getData().size() == 100) {
+                if (data.getListBlocks().getData().size() == 100) {
                     result_tv.setText("Success!!! HMAC Worked~");
                     result_tv.setTextColor(Color.parseColor("#00F926"));
                 } else {

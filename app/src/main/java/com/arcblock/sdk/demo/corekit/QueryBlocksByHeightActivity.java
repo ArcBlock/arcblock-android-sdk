@@ -43,8 +43,9 @@ import com.arcblock.corekit.utils.CoreKitDiffUtil;
 import com.arcblock.sdk.demo.DemoApplication;
 import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.ListBlocksAdapter;
-import com.arcblock.sdk.demo.btc.BlocksByHeightQuery;
+import com.arcblock.sdk.demo.btc.ListBlocksQuery;
 import com.arcblock.sdk.demo.btc.type.PageInput;
+import com.arcblock.sdk.demo.btc.type.TimeFilter;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 
 import java.util.ArrayList;
@@ -57,11 +58,11 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
     SwipeRefreshLayout content;
     ProgressBar progressBar;
 
-    private List<BlocksByHeightQuery.Datum> mBlocks = new ArrayList<>();
+    private List<ListBlocksQuery.Datum> mBlocks = new ArrayList<>();
     private int startIndex = 448244;
     private int endIndex = 448344;
-    private CoreKitPagedQuery<BlocksByHeightQuery.Data, BlocksByHeightQuery.Datum> mCoreKitPagedQuery;
-    private PagedQueryHelper<BlocksByHeightQuery.Data, BlocksByHeightQuery.Datum> mPagedQueryHelper;
+    private CoreKitPagedQuery<ListBlocksQuery.Data, ListBlocksQuery.Datum> mCoreKitPagedQuery;
+    private PagedQueryHelper<ListBlocksQuery.Data, ListBlocksQuery.Datum> mPagedQueryHelper;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -113,10 +114,10 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
         feedRecyclerView.setAdapter(mListBlocksAdapter);
 
         // init page query help
-        mPagedQueryHelper = new PagedQueryHelper<BlocksByHeightQuery.Data, BlocksByHeightQuery.Datum>() {
+        mPagedQueryHelper = new PagedQueryHelper<ListBlocksQuery.Data, ListBlocksQuery.Datum>() {
             @Override
             public Query getInitialQuery() {
-                return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).build();
+                return ListBlocksQuery.builder().timeFilter(TimeFilter.builder().fromHeight(startIndex).toHeight(endIndex).build()).build();
             }
 
             @Override
@@ -125,31 +126,31 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
                 if (!TextUtils.isEmpty(getCursor())) {
                     pageInput = PageInput.builder().cursor(getCursor()).build();
                 }
-                return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).paging(pageInput).build();
+                return ListBlocksQuery.builder().timeFilter(TimeFilter.builder().fromHeight(startIndex).toHeight(endIndex).build()).paging(pageInput).build();
             }
 
             @Override
-            public List<BlocksByHeightQuery.Datum> map(BlocksByHeightQuery.Data data) {
-                if (data.getBlocksByHeight() != null) {
+            public List<ListBlocksQuery.Datum> map(ListBlocksQuery.Data data) {
+                if (data.getListBlocks() != null) {
                     // set page info to PagedQueryHelper
-                    if (data.getBlocksByHeight().getPage() != null) {
+                    if (data.getListBlocks().getPage() != null) {
                         // set is have next flag to PagedQueryHelper
-                        setHasMore(data.getBlocksByHeight().getPage().isNext());
+                        setHasMore(data.getListBlocks().getPage().isNext());
                         // set new cursor to PagedQueryHelper
-                        setCursor(data.getBlocksByHeight().getPage().getCursor());
+                        setCursor(data.getListBlocks().getPage().getCursor());
                     }
-                    return data.getBlocksByHeight().getData();
+                    return data.getListBlocks().getData();
                 }
                 return null;
             }
         };
         // init a CoreKitPagedQuery and set result listener
         mCoreKitPagedQuery = new CoreKitPagedQuery(this, DemoApplication.getInstance().abCoreKitClientBtc(), mPagedQueryHelper);
-        mCoreKitPagedQuery.setPagedQueryResultListener(new CoreKitPagedQueryResultListener<BlocksByHeightQuery.Datum>() {
+        mCoreKitPagedQuery.setPagedQueryResultListener(new CoreKitPagedQueryResultListener<ListBlocksQuery.Datum>() {
             @Override
-            public void onSuccess(List<BlocksByHeightQuery.Datum> datas) {
+            public void onSuccess(List<ListBlocksQuery.Datum> datas) {
                 // new a old list
-                List<BlocksByHeightQuery.Datum> oldList = new ArrayList<>();
+                List<ListBlocksQuery.Datum> oldList = new ArrayList<>();
                 oldList.addAll(mBlocks);
                 // set mBlocks with new data
                 mBlocks = datas;

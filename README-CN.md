@@ -65,7 +65,7 @@ dependencies {
 2. 发起查询请求，只需在方法中设置好对应的查询对象和回调对象，查询的结果可以在回调对象中拿到：
 
 	```java
-	coreKitQuery.query(AccountByAddressQuery.builder().address(address).build(), new CoreKitResultListener<AccountByAddressQuery.Data>() {
+	coreKitQuery.query(AccountByAddressQuery.builder().address(address).role(BitcoinParticipantRole.RECEIVER).build(), new CoreKitResultListener<AccountByAddressQuery.Data>() {
 		@Override
 		public void onSuccess(AccountByAddressQuery.Data data) {
 			// 获得数据
@@ -90,10 +90,10 @@ dependencies {
 1. new 一个 `PagedQueryHelper` 对象, 这个对象用于构建分页查询用到的初始（刷新）查询对象和加在更多查询对象，以及进行数据的 map 处理，设置分页相关标志：
 
 	```java
-	mPagedQueryHelper = new PagedQueryHelper<BlocksByHeightQuery.Data, BlocksByHeightQuery.Datum>() {
+	mPagedQueryHelper = new PagedQueryHelper<ListBlocksQuery.Data, ListBlocksQuery.Datum>() {
 		@Override
 		public Query getInitialQuery() {
-			return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).build();
+			return ListBlocksQuery.builder().timeFilter(TimeFilter.builder().fromHeight(startIndex).toHeight(endIndex).build()).build();
 		}
 
 		@Override
@@ -102,20 +102,20 @@ dependencies {
 			if (!TextUtils.isEmpty(getCursor())) {
 				pageInput = PageInput.builder().cursor(getCursor()).build();
 			}
-			return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).paging(pageInput).build();
+			return ListBlocksQuery.builder().timeFilter(TimeFilter.builder().fromHeight(startIndex).toHeight(endIndex).build()).paging(pageInput).build();
 		}
 
 		@Override
-		public List<BlocksByHeightQuery.Datum> map(BlocksByHeightQuery.Data data) {
-			if (data.getBlocksByHeight() != null) {
+		public List<ListBlocksQuery.Datum> map(ListBlocksQuery.Data data) {
+			if (data.getListBlocks() != null) {
 				// set page info to PagedQueryHelper
-				if (data.getBlocksByHeight().getPage() != null) {
+				if (data.getListBlocks().getPage() != null) {
 					// set is have next flag to PagedQueryHelper
-					setHasMore(data.getBlocksByHeight().getPage().isNext());
+					setHasMore(data.getListBlocks().getPage().isNext());
 					// set new cursor to PagedQueryHelper
-					setCursor(data.getBlocksByHeight().getPage().getCursor());
+					setCursor(data.getListBlocks().getPage().getCursor());
 				}
-				return data.getBlocksByHeight().getData();
+				return data.getListBlocks().getData();
 			}
 			return null;
 		}
@@ -131,9 +131,9 @@ dependencies {
 3. 设置分页查询数据处理回调并发起首页查询：
 
 	```java
-	mCoreKitPagedQuery.setPagedQueryResultListener(new CoreKitPagedQueryResultListener<BlocksByHeightQuery.Datum>() {
+	mCoreKitPagedQuery.setPagedQueryResultListener(new CoreKitPagedQueryResultListener<ListBlocksQuery.Datum>() {
 		@Override
-		public void onSuccess(List<BlocksByHeightQuery.Datum> datas) {
+		public void onSuccess(List<ListBlocksQuery.Datum> datas) {
 		  // 处理分页回来的数据，这里会返回总量数据，具体参考 demo 代码
 		}
 
@@ -284,24 +284,24 @@ dependencies {
 1. `CustomType` 配置：
 
 	1. 首先，需要在 `app module` 的 `build.gradle` 文件中添加 `customTypeMapping` :
-		
+
 		```groovy
 		apollo {
 		  customTypeMapping = [
-			    "Date" : "java.util.Date"
+			    "DateTime" : "java.util.Date"
 		    ]
 		}
 		```
-		
+
 	2. 创建对应的 `CustomTypeAdapter` 用于解析对应的 `CustomType` ：
-		
+
 		```java
 		CustomTypeAdapter dateCustomTypeAdapter = new CustomTypeAdapter<Date>() {
 
 		@Override
 		public Date decode(CustomTypeValue value) {
 			try {
-				SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
+				SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 				utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));//时区定义并进行时间获取
 				Date gpsUTCDate = utcFormat.parse(value.value.toString());
 				return gpsUTCDate;
@@ -312,16 +312,16 @@ dependencies {
 		}
 		@Override
 		public CustomTypeValue encode(Date value) {
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 			return new CustomTypeValue.GraphQLString(sdf.format(value));
 		}
 		};
 		```
-		
+
 2. `ABCoreKitClient` 初始化：
-	
+
 	在主进程的 `Application onCreate` 方法中初始化一个全局单例的 `ABCoreKitClient` 对象：
-	
+
 	```java
 	mABCoreClientBtc = ABCoreKitClient.builder(this, CoreKitConfig.ApiType.API_TYPE_BTC)
                     .addCustomTypeAdapter(CustomType.DATETIME, dateCustomTypeAdapter)
@@ -329,7 +329,7 @@ dependencies {
                     .setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_FIRST)
                     .build();
 	```
-	
+
 	在初始化的时候，你可以传入自定义的 `okHttpClient` ，`CustomTypeAdapter` ，`ResponseFetcher` 等参数。
 
 ## License

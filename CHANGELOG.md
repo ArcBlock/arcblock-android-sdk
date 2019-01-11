@@ -1,3 +1,7 @@
+## 0.3.7 (January 11, 2019)
+  - update readme
+  - update schema
+
 ## 0.3.6 (November 26, 2018)
   - add quick start demo
 

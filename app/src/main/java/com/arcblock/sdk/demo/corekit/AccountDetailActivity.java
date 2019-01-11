@@ -39,6 +39,7 @@ import com.arcblock.sdk.demo.R;
 import com.arcblock.sdk.demo.adapter.TsReceiverAdapter;
 import com.arcblock.sdk.demo.adapter.TsSentAdapter;
 import com.arcblock.sdk.demo.btc.AccountByAddressQuery;
+import com.arcblock.sdk.demo.btc.type.BitcoinParticipantRole;
 import com.arcblock.sdk.demo.utils.BtcValueUtils;
 
 import java.util.ArrayList;
@@ -61,7 +62,7 @@ public class AccountDetailActivity extends AppCompatActivity {
 
     private TsSentAdapter mTsSentAdapter;
     private TsReceiverAdapter mTsReceiverAdapter;
-    private List<AccountByAddressQuery.Datum1> sents = new ArrayList<>();
+    private List<AccountByAddressQuery.Datum> sents = new ArrayList<>();
     private List<AccountByAddressQuery.Datum> receives = new ArrayList<>();
 
     @Override
@@ -80,20 +81,39 @@ public class AccountDetailActivity extends AppCompatActivity {
 
         // init CorekitQuery and do query
         CoreKitQuery coreKitQuery = new CoreKitQuery(this, DemoApplication.getInstance().abCoreKitClientBtc());
-        coreKitQuery.query(AccountByAddressQuery.builder().address(address).build(), new CoreKitResultListener<AccountByAddressQuery.Data>() {
+        coreKitQuery.query(AccountByAddressQuery.builder().address(address).role(BitcoinParticipantRole.SENDER).build(), new CoreKitResultListener<AccountByAddressQuery.Data>() {
             @Override
             public void onSuccess(AccountByAddressQuery.Data data) {
                 AccountByAddressQuery.AccountByAddress accountByAddress = data.getAccountByAddress();
                 if (accountByAddress != null) {
                     balance_tv.setText(BtcValueUtils.formatBtcValue(accountByAddress.getBalance()));
-                    if (accountByAddress.getTxsSent() != null && accountByAddress.getTxsSent().getData() != null) {
+                    if (accountByAddress.getTransactions() != null && accountByAddress.getTransactions().getData() != null) {
                         sents.clear();
-                        sents.addAll(accountByAddress.getTxsSent().getData());
+                        sents.addAll(accountByAddress.getTransactions().getData());
                         mTsSentAdapter.notifyDataSetChanged();
                     }
-                    if (accountByAddress.getTxsReceived() != null && accountByAddress.getTxsReceived().getData() != null) {
+                }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Toast.makeText(AccountDetailActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
+        coreKitQuery.query(AccountByAddressQuery.builder().address(address).role(BitcoinParticipantRole.RECEIVER).build(), new CoreKitResultListener<AccountByAddressQuery.Data>() {
+            @Override
+            public void onSuccess(AccountByAddressQuery.Data data) {
+                AccountByAddressQuery.AccountByAddress accountByAddress = data.getAccountByAddress();
+                if (accountByAddress != null) {
+                    if (accountByAddress.getTransactions() != null && accountByAddress.getTransactions().getData() != null) {
                         receives.clear();
-                        receives.addAll(accountByAddress.getTxsReceived().getData());
+                        receives.addAll(accountByAddress.getTransactions().getData());
                         mTsReceiverAdapter.notifyDataSetChanged();
                     }
                 }
