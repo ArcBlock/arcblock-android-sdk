@@ -49,7 +49,7 @@ dependencies {
 
 > Recommend to create a directory which is the same as app module package name, such as sample code of `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/`，`arcblock-android-sdk/app/src/main/graphql/` behind relatively catalogue and sample project package name is consistent, Of course, you can also specify directory correlation, please refer to the [explicit-schema-location](https://github.com/apollographql/apollo-android#explicit-schema-location) .
 
-1. `schema.json` download address: [bitcoin.json](https://ocap.arcblock.io/doc/bitcoin.json), [ethereum.json](https://ocap.arcblock.io/doc/ethereum.json) download later and all need to be renamed as `schema.json`, you can be in the sample project of `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/btc/` or `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/eth/` directory to find this file, you can directly copy to use. 
+1. `schema.json` download address: [bitcoin.json](https://ocap.arcblock.io/doc/bitcoin.json), [ethereum.json](https://ocap.arcblock.io/doc/ethereum.json) download later and all need to be renamed as `schema.json`, you can be in the sample project of `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/btc/` or `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/eth/` directory to find this file, you can directly copy to use.
 2. Using [ArcBlock OCAP Playground](https://ocap.arcblock.io/)  write and test by GraphQL statements, and make a copy of it to a `.graphql` file, you can be in the sample project of `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/btc/` or `arcblock-android-sdk/app/src/main/graphql/com/arcblock/sdk/demo/eth/` directory to find similar sample files.
 3. Build your project, after successful compilation, will you be in `build` found directory compiled automatically generated `Java` code, you can be in the sample project of `arcblock-android-sdk/app/build/generated/source/apollo/` directory to see the generated code, you don't need to modify the automatically generated code.
 
@@ -64,7 +64,7 @@ dependencies {
 2. To initiate a query request, you only need to set the corresponding query object and callback object in the method, and the results of the query can be obtained in the callback object:
 
 	```java
-	coreKitQuery.query(AccountByAddressQuery.builder().address(address).build(), new CoreKitResultListener<AccountByAddressQuery.Data>() {
+	coreKitQuery.query(AccountByAddressQuery.builder().address(address).role(BitcoinParticipantRole.RECEIVER).build(), new CoreKitResultListener<AccountByAddressQuery.Data>() {
 		@Override
 		public void onSuccess(AccountByAddressQuery.Data data) {
 			// get the data
@@ -83,16 +83,16 @@ dependencies {
 	```
 
 > A CoreKitQuery object can be used for processing multiple query objects.
-	
+
 #### 4. Implement paged Query function
 
 1. New `PagedQueryHelper` object, which is used to build the initial (or refresh) query object used for paging queries and to add more query objects, as well as map processing of the data, sets the paged flag:
 
 	```java
-	mPagedQueryHelper = new PagedQueryHelper<BlocksByHeightQuery.Data, BlocksByHeightQuery.Datum>() {
+	mPagedQueryHelper = new PagedQueryHelper<ListBlocksQuery.Data, ListBlocksQuery.Datum>() {
 		@Override
 		public Query getInitialQuery() {
-			return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).build();
+			return ListBlocksQuery.builder().timeFilter(TimeFilter.builder().fromHeight(startIndex).toHeight(endIndex).build()).build();
 		}
 
 		@Override
@@ -101,20 +101,20 @@ dependencies {
 			if (!TextUtils.isEmpty(getCursor())) {
 				pageInput = PageInput.builder().cursor(getCursor()).build();
 			}
-			return BlocksByHeightQuery.builder().fromHeight(startIndex).toHeight(endIndex).paging(pageInput).build();
+			return ListBlocksQuery.builder().timeFilter(TimeFilter.builder().fromHeight(startIndex).toHeight(endIndex).build()).paging(pageInput).build();
 		}
 
 		@Override
-		public List<BlocksByHeightQuery.Datum> map(BlocksByHeightQuery.Data data) {
-			if (data.getBlocksByHeight() != null) {
+		public List<ListBlocksQuery.Datum> map(ListBlocksQuery.Data data) {
+			if (data.getListBlocks() != null) {
 				// set page info to PagedQueryHelper
-				if (data.getBlocksByHeight().getPage() != null) {
+				if (data.getListBlocks().getPage() != null) {
 					// set is have next flag to PagedQueryHelper
-					setHasMore(data.getBlocksByHeight().getPage().isNext());
+					setHasMore(data.getListBlocks().getPage().isNext());
 					// set new cursor to PagedQueryHelper
-					setCursor(data.getBlocksByHeight().getPage().getCursor());
+					setCursor(data.getListBlocks().getPage().getCursor());
 				}
-				return data.getBlocksByHeight().getData();
+				return data.getListBlocks().getData();
 			}
 			return null;
 		}
@@ -130,9 +130,9 @@ dependencies {
 3. Set the paging query data processing callback and launch the initial page query:
 
 	```java
-	mCoreKitPagedQuery.setPagedQueryResultListener(new CoreKitPagedQueryResultListener<BlocksByHeightQuery.Datum>() {
+	mCoreKitPagedQuery.setPagedQueryResultListener(new CoreKitPagedQueryResultListener<ListBlocksQuery.Datum>() {
 		@Override
-		public void onSuccess(List<BlocksByHeightQuery.Datum> datas) {
+		public void onSuccess(List<ListBlocksQuery.Datum> datas) {
 		  // Processing the data that comes back from paging, the total data will be returned here, please refer to the demo code for details
 		}
 
@@ -281,24 +281,24 @@ dependencies {
 
 1. `CustomType` Setting：
 	1. First, add `customTypeMapping` in the `build.gradle` file of `app module`:
-		
+
 		```groovy
 		apollo {
 		  customTypeMapping = [
-			    "Date" : "java.util.Date"
+			    "DateTime" : "java.util.Date"
 		    ]
 		}
 		```
-		
+
 	2. Create the corresponding `CustomTypeAdapter` used to resolve the corresponding `CustomType` :
-	
+
 		```java
 		CustomTypeAdapter dateCustomTypeAdapter = new CustomTypeAdapter<Date>() {
-		
+
 		@Override
 		public Date decode(CustomTypeValue value) {
 			try {
-				SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
+				SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 				utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 				Date gpsUTCDate = utcFormat.parse(value.value.toString());
 				return gpsUTCDate;
@@ -309,16 +309,16 @@ dependencies {
 		}
 		@Override
 		public CustomTypeValue encode(Date value) {
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.000000'Z'");
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 			return new CustomTypeValue.GraphQLString(sdf.format(value));
 		}
 		};
 		```
-		
+
 2. `ABCoreKitClient` initialization:
-	
+
 	Recommended in the main process of ` Application onCreate ` method initializes a global singleton ` ABCoreKitClient ` object:
-	
+
 	```java
 	mABCoreClientBtc = ABCoreKitClient.builder(this, CoreKitConfig.ApiType.API_TYPE_BTC)
                     .addCustomTypeAdapter(CustomType.DATETIME, dateCustomTypeAdapter)
@@ -326,7 +326,7 @@ dependencies {
                     .setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_FIRST)
                     .build();
 	```
-	
+
 	At the time of initialization, you can pass in custom `okHttpClient`, `CustomTypeAdapter`, `ResponseFetcher` parameters.
 
 ## License
