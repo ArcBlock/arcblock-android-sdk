@@ -36,6 +36,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.apollographql.apollo.api.Query;
+import com.apollographql.apollo.api.cache.http.HttpCachePolicy;
 import com.arcblock.corekit.CoreKitPagedQueryResultListener;
 import com.arcblock.corekit.CoreKitPagedQuery;
 import com.arcblock.corekit.PagedQueryHelper;
@@ -145,7 +146,7 @@ public class QueryBlocksByHeightActivity extends AppCompatActivity {
             }
         };
         // init a CoreKitPagedQuery and set result listener
-        mCoreKitPagedQuery = new CoreKitPagedQuery(this, DemoApplication.getInstance().abCoreKitClientBtc(), mPagedQueryHelper);
+        mCoreKitPagedQuery = new CoreKitPagedQuery(this, DemoApplication.getInstance().abCoreKitClientBtc(), mPagedQueryHelper, HttpCachePolicy.NETWORK_FIRST);
         mCoreKitPagedQuery.setPagedQueryResultListener(new CoreKitPagedQueryResultListener<ListBlocksQuery.Datum>() {
             @Override
             public void onSuccess(List<ListBlocksQuery.Datum> datas) {

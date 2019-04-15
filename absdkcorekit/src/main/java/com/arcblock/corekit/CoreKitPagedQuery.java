@@ -25,177 +25,184 @@ import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
-
 import com.apollographql.apollo.api.Error;
 import com.apollographql.apollo.api.Operation;
 import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.api.Response;
+import com.apollographql.apollo.api.cache.http.HttpCachePolicy;
 import com.apollographql.apollo.rx2.Rx2Apollo;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Nate on 2018/10/21
  **/
 public class CoreKitPagedQuery<T extends Operation.Data, K> implements LifecycleObserver {
 
-    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
-    private ABCoreKitClient mABCoreKitClient;
-    private PagedQueryHelper mPagedQueryHelper;
-    private CoreKitPagedQueryResultListener<K> mPagedQueryResultListener;
-    private boolean isLoading;
-    private List<K> resultDatas = new ArrayList<>();
+  private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+  private ABCoreKitClient mABCoreKitClient;
+  private PagedQueryHelper mPagedQueryHelper;
+  private CoreKitPagedQueryResultListener<K> mPagedQueryResultListener;
+  private boolean isLoading;
+  private List<K> resultDatas = new ArrayList<>();
+  private HttpCachePolicy.Policy httpCachePolicy = HttpCachePolicy.NETWORK_ONLY;
 
-    public CoreKitPagedQuery(LifecycleOwner lifecycleOwner, ABCoreKitClient aBCoreKitClient, PagedQueryHelper pagedQueryHelper) {
-        this.mABCoreKitClient = aBCoreKitClient;
-        this.mPagedQueryHelper = pagedQueryHelper;
-        lifecycleOwner.getLifecycle().addObserver(this);
+  public CoreKitPagedQuery(LifecycleOwner lifecycleOwner, ABCoreKitClient aBCoreKitClient,
+      PagedQueryHelper pagedQueryHelper) {
+    this(lifecycleOwner, aBCoreKitClient, pagedQueryHelper, HttpCachePolicy.NETWORK_ONLY);
+  }
+
+  public CoreKitPagedQuery(LifecycleOwner lifecycleOwner, ABCoreKitClient aBCoreKitClient,
+      PagedQueryHelper pagedQueryHelper, HttpCachePolicy.Policy httpCachePolicy) {
+    this.mABCoreKitClient = aBCoreKitClient;
+    this.mPagedQueryHelper = pagedQueryHelper;
+    lifecycleOwner.getLifecycle().addObserver(this);
+    this.httpCachePolicy = httpCachePolicy;
+  }
+
+  public void setPagedQueryResultListener(
+      CoreKitPagedQueryResultListener<K> pagedQueryResultListener) {
+    mPagedQueryResultListener = pagedQueryResultListener;
+  }
+
+  public void startInitQuery() {
+    if (isLoading) {
+      if (mPagedQueryResultListener != null) {
+        mPagedQueryResultListener.onError(
+            new Throwable("Cannot do refresh or initial query when loading."));
+      }
+      return;
     }
-
-    public void setPagedQueryResultListener(CoreKitPagedQueryResultListener<K> pagedQueryResultListener) {
-        mPagedQueryResultListener = pagedQueryResultListener;
+    if (mPagedQueryHelper != null && mPagedQueryHelper.getInitialQuery() != null) {
+      resultDatas.clear();
+      isLoading = true;
+      mPagedQueryHelper.setHasMoreForRefresh();
+      query(mPagedQueryHelper.getInitialQuery());
+    } else {
+      if (mPagedQueryResultListener != null) {
+        mPagedQueryResultListener.onError(new Throwable("Initial query is empty."));
+      }
     }
+  }
 
-    public void startInitQuery() {
-        if (isLoading) {
+  public void startLoadMoreQuery() {
+    if (isLoading) {
+      if (mPagedQueryResultListener != null) {
+        mPagedQueryResultListener.onError(new Throwable("Cannot do loadMore when loading."));
+      }
+      return;
+    }
+    if (mPagedQueryHelper != null && mPagedQueryHelper.getLoadMoreQuery() != null) {
+      isLoading = true;
+      query(mPagedQueryHelper.getLoadMoreQuery());
+    } else {
+      if (mPagedQueryResultListener != null) {
+        mPagedQueryResultListener.onError(new Throwable("Load more query is empty."));
+      }
+    }
+  }
+
+  private void query(Query query) {
+    Rx2Apollo.from(mABCoreKitClient.query(query).httpCachePolicy(this.httpCachePolicy))
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Observer<Response<T>>() {
+          @Override
+          public void onSubscribe(Disposable d) {
+            mCompositeDisposable.add(d);
+          }
+
+          @Override
+          public void onNext(Response<T> t) {
+            if (t != null && t.data() != null) {
+              if (t.hasErrors()) {
+                try {
+                  if (mPagedQueryResultListener != null) {
+                    mPagedQueryResultListener.onError(
+                        new Throwable(((Error) ((Response) t).errors().get(0)).message()));
+                  }
+                } catch (Exception e) {
+                  if (mPagedQueryResultListener != null) {
+                    mPagedQueryResultListener.onError(e);
+                  }
+                }
+              } else {
+                handleData(t.data());
+                isLoading = false;
+              }
+            } else {
+              if (mPagedQueryResultListener != null) {
+                mPagedQueryResultListener.onError(new Throwable("The result is empty."));
+              }
+            }
+          }
+
+          @Override
+          public void onError(Throwable e) {
             if (mPagedQueryResultListener != null) {
-                mPagedQueryResultListener.onError(new Throwable("Cannot do refresh or initial query when loading."));
+              mPagedQueryResultListener.onError(new Throwable("The result is empty."));
             }
-            return;
-        }
-        if (mPagedQueryHelper != null && mPagedQueryHelper.getInitialQuery() != null) {
-            resultDatas.clear();
-            isLoading = true;
-            mPagedQueryHelper.setHasMoreForRefresh();
-            query(mPagedQueryHelper.getInitialQuery());
-        } else {
+          }
+
+          @Override
+          public void onComplete() {
             if (mPagedQueryResultListener != null) {
-                mPagedQueryResultListener.onError(new Throwable("Initial query is empty."));
+              mPagedQueryResultListener.onComplete();
             }
-        }
+          }
+        });
+  }
+
+  /**
+   * handle response t to the data which are we want.
+   */
+  private synchronized void handleData(Operation.Data data) {
+    if (mPagedQueryHelper == null) {
+      if (mPagedQueryResultListener != null) {
+        mPagedQueryResultListener.onError(
+            new Throwable("The PagedQueryHelper is empty when handleData."));
+      }
+      return;
     }
-
-    public void startLoadMoreQuery() {
-        if (isLoading) {
-            if (mPagedQueryResultListener != null) {
-                mPagedQueryResultListener.onError(new Throwable("Cannot do loadMore when loading."));
-            }
-            return;
-        }
-        if (mPagedQueryHelper != null && mPagedQueryHelper.getLoadMoreQuery() != null) {
-            isLoading = true;
-            query(mPagedQueryHelper.getLoadMoreQuery());
-        } else {
-            if (mPagedQueryResultListener != null) {
-                mPagedQueryResultListener.onError(new Throwable("Load more query is empty."));
-            }
-        }
+    List<K> temp = mPagedQueryHelper.map(data);
+    if (temp == null) {
+      if (mPagedQueryResultListener != null) {
+        mPagedQueryResultListener.onError(
+            new Throwable("The paged result is empty when handleData."));
+      }
+      return;
     }
-
-    private void query(Query query) {
-        Rx2Apollo.from(mABCoreKitClient.query(query))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Response<T>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        mCompositeDisposable.add(d);
-                    }
-
-                    @Override
-                    public void onNext(Response<T> t) {
-                        if (t != null && t.data() != null) {
-                            if (t.hasErrors()) {
-                                try {
-                                    if (mPagedQueryResultListener != null) {
-                                        mPagedQueryResultListener.onError(new Throwable(((Error) ((Response) t).errors().get(0)).message()));
-                                    }
-                                } catch (Exception e) {
-                                    if (mPagedQueryResultListener != null) {
-                                        mPagedQueryResultListener.onError(e);
-                                    }
-                                }
-                            } else {
-                                handleData(t.data());
-                                isLoading = false;
-                            }
-                        } else {
-                            if (mPagedQueryResultListener != null) {
-                                mPagedQueryResultListener.onError(new Throwable("The result is empty."));
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        if (mPagedQueryResultListener != null) {
-                            mPagedQueryResultListener.onError(new Throwable("The result is empty."));
-                        }
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        if (mPagedQueryResultListener != null) {
-                            mPagedQueryResultListener.onComplete();
-                        }
-                    }
-                });
+    // handle list for repeated data
+    for (int i = 0; i < temp.size(); i++) {
+      if (isNotInBlocks(temp.get(i))) {
+        resultDatas.add(temp.get(i));
+      }
     }
-
-    /**
-     * handle response t to the data which are we want.
-     *
-     * @param data
-     */
-    private synchronized void handleData(Operation.Data data) {
-        if (mPagedQueryHelper == null) {
-            if (mPagedQueryResultListener != null) {
-                mPagedQueryResultListener.onError(new Throwable("The PagedQueryHelper is empty when handleData."));
-            }
-            return;
-        }
-        List<K> temp = mPagedQueryHelper.map(data);
-        if (temp == null) {
-            if (mPagedQueryResultListener != null) {
-                mPagedQueryResultListener.onError(new Throwable("The paged result is empty when handleData."));
-            }
-            return;
-        }
-        // handle list for repeated data
-        for (int i = 0; i < temp.size(); i++) {
-            if (isNotInBlocks(temp.get(i))) {
-                resultDatas.add(temp.get(i));
-            }
-        }
-        if (mPagedQueryResultListener != null) {
-            mPagedQueryResultListener.onSuccess(resultDatas);
-        }
+    if (mPagedQueryResultListener != null) {
+      mPagedQueryResultListener.onSuccess(resultDatas);
     }
+  }
 
-    /**
-     * @param k
-     * @return if the item k is not in the listDatas
-     */
-    private boolean isNotInBlocks(K k) {
-        for (int i = 0; i < resultDatas.size(); i++) {
-            if (k.equals(resultDatas.get(i))) {
-                return false;
-            }
-        }
-        return true;
+  /**
+   * @return if the item k is not in the listDatas
+   */
+  private boolean isNotInBlocks(K k) {
+    for (int i = 0; i < resultDatas.size(); i++) {
+      if (k.equals(resultDatas.get(i))) {
+        return false;
+      }
     }
+    return true;
+  }
 
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    public void onDestroy() {
-        mCompositeDisposable.dispose();
-        mCompositeDisposable.clear();
-    }
+  @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+  public void onDestroy() {
+    mCompositeDisposable.dispose();
+    mCompositeDisposable.clear();
+  }
 }

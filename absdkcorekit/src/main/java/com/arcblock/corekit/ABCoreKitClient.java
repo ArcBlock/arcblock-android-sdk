@@ -36,6 +36,8 @@ import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.api.ResponseField;
 import com.apollographql.apollo.api.ScalarType;
 import com.apollographql.apollo.api.Subscription;
+import com.apollographql.apollo.cache.http.ApolloHttpCache;
+import com.apollographql.apollo.cache.http.DiskLruHttpCacheStore;
 import com.apollographql.apollo.cache.normalized.CacheKey;
 import com.apollographql.apollo.cache.normalized.CacheKeyResolver;
 import com.apollographql.apollo.cache.normalized.NormalizedCacheFactory;
@@ -57,6 +59,7 @@ import com.blankj.utilcode.util.MetaDataUtils;
 import com.blankj.utilcode.util.Utils;
 import com.google.common.net.UrlEscapers;
 
+import java.io.File;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -84,6 +87,7 @@ import okio.Buffer;
 import timber.log.Timber;
 
 import static com.apollographql.apollo.fetcher.ApolloResponseFetchers.CACHE_FIRST;
+import static com.apollographql.apollo.fetcher.ApolloResponseFetchers.NETWORK_ONLY;
 
 public class ABCoreKitClient {
 
@@ -199,6 +203,18 @@ public class ABCoreKitClient {
         if (builder.mDefaultResponseFetcher != null) {
             apolloClientBuilder.defaultResponseFetcher(builder.mDefaultResponseFetcher);
         }
+
+        //Directory where cached responses will be stored
+        File file = Utils.getApp().getCacheDir();
+
+        //Size in bytes of the cache
+        int size = 1024*1024;
+
+        //Create the http response cache store
+        DiskLruHttpCacheStore cacheStore = new DiskLruHttpCacheStore(file, size);
+
+        // enable http cache by this line
+        //apolloClientBuilder.httpCache(new ApolloHttpCache(cacheStore));
         mApolloClient = apolloClientBuilder.build();
     }
 
@@ -225,7 +241,7 @@ public class ABCoreKitClient {
         private Map<ScalarType, CustomTypeAdapter> customTypeAdapters = new LinkedHashMap<>();
         private Executor mDispatcher;
         private OkHttpClient mOkHttpClient;
-        private ResponseFetcher mDefaultResponseFetcher = CACHE_FIRST;
+        private ResponseFetcher mDefaultResponseFetcher = NETWORK_ONLY;
         private Context mContext;
         private String dbName;
         private CoreKitConfig.ApiType apiType;

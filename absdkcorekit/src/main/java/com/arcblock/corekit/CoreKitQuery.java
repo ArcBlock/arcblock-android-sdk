@@ -25,13 +25,12 @@ import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
-
 import com.apollographql.apollo.api.Error;
 import com.apollographql.apollo.api.Operation;
 import com.apollographql.apollo.api.Query;
 import com.apollographql.apollo.api.Response;
+import com.apollographql.apollo.api.cache.http.HttpCachePolicy;
 import com.apollographql.apollo.rx2.Rx2Apollo;
-
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -43,56 +42,65 @@ import io.reactivex.schedulers.Schedulers;
  **/
 public class CoreKitQuery implements LifecycleObserver {
 
-    private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
-    private ABCoreKitClient mABCoreKitClient;
+  private CompositeDisposable mCompositeDisposable = new CompositeDisposable();
+  private ABCoreKitClient mABCoreKitClient;
+  private HttpCachePolicy.Policy httpCachePolicy = HttpCachePolicy.NETWORK_ONLY;
 
-    public CoreKitQuery(LifecycleOwner lifecycleOwner, ABCoreKitClient aBCoreKitClient) {
-        this.mABCoreKitClient = aBCoreKitClient;
-        lifecycleOwner.getLifecycle().addObserver(this);
-    }
+  public CoreKitQuery(LifecycleOwner lifecycleOwner, ABCoreKitClient aBCoreKitClient) {
+    this(lifecycleOwner, aBCoreKitClient, HttpCachePolicy.NETWORK_ONLY);
+  }
 
-    public <T extends Operation.Data> void query(Query query, final CoreKitResultListener<T> listener) {
-        Rx2Apollo.from(mABCoreKitClient.query(query))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<Response<T>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        mCompositeDisposable.add(d);
-                    }
+  public CoreKitQuery(LifecycleOwner lifecycleOwner, ABCoreKitClient aBCoreKitClient,
+      HttpCachePolicy.Policy httpCachePolicy) {
+    this.mABCoreKitClient = aBCoreKitClient;
+    lifecycleOwner.getLifecycle().addObserver(this);
+    this.httpCachePolicy = httpCachePolicy;
+  }
 
-                    @Override
-                    public void onNext(Response<T> t) {
-                        if (t != null && t.data() != null) {
-                            if (t.hasErrors()) {
-                                try {
-                                    listener.onError(new Throwable(((Error) ((Response) t).errors().get(0)).message()));
-                                } catch (Exception e) {
-                                    listener.onError(e);
-                                }
-                            } else {
-                                listener.onSuccess(t.data());
-                            }
-                        } else {
-                            listener.onError(new Throwable("The result is empty."));
-                        }
-                    }
+  public <T extends Operation.Data> void query(Query query,
+      final CoreKitResultListener<T> listener) {
+    Rx2Apollo.from(mABCoreKitClient.query(query).httpCachePolicy(this.httpCachePolicy))
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Observer<Response<T>>() {
+          @Override
+          public void onSubscribe(Disposable d) {
+            mCompositeDisposable.add(d);
+          }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        listener.onError(e);
-                    }
+          @Override
+          public void onNext(Response<T> t) {
+            if (t != null && t.data() != null) {
+              if (t.hasErrors()) {
+                try {
+                  listener.onError(
+                      new Throwable(((Error) ((Response) t).errors().get(0)).message()));
+                } catch (Exception e) {
+                  listener.onError(e);
+                }
+              } else {
+                listener.onSuccess(t.data());
+              }
+            } else {
+              listener.onError(new Throwable("The result is empty."));
+            }
+          }
 
-                    @Override
-                    public void onComplete() {
-                        listener.onComplete();
-                    }
-                });
-    }
+          @Override
+          public void onError(Throwable e) {
+            listener.onError(e);
+          }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    public void onDestroy() {
-        mCompositeDisposable.dispose();
-        mCompositeDisposable.clear();
-    }
+          @Override
+          public void onComplete() {
+            listener.onComplete();
+          }
+        });
+  }
+
+  @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+  public void onDestroy() {
+    mCompositeDisposable.dispose();
+    mCompositeDisposable.clear();
+  }
 }

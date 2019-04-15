@@ -71,7 +71,7 @@ public class DemoApplication extends Application {
         mABCoreClientBtcWithHMAC = ABCoreKitClient.builder(this, CoreKitConfig.ApiType.API_TYPE_BTC)
                 .setOpenOkHttpLog(true)
                 .setEnableHMAC(true)
-                .setDefaultResponseFetcher(ApolloResponseFetchers.NETWORK_ONLY)
+                //.setDefaultResponseFetcher(ApolloResponseFetchers.NETWORK_ONLY)
                 .build();
     }
 
@@ -100,7 +100,6 @@ public class DemoApplication extends Application {
         mABCoreClientBtc = ABCoreKitClient.builder(this, CoreKitConfig.ApiType.API_TYPE_BTC)
                 .addCustomTypeAdapter(CustomType.DATETIME, dateCustomTypeAdapter)
                 .setOpenOkHttpLog(true)
-                .setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_AND_NETWORK)
                 .build();
     }
 
@@ -127,7 +126,7 @@ public class DemoApplication extends Application {
                 .addCustomTypeAdapter(com.arcblock.sdk.demo.eth.type.CustomType.BIGNUMBER, bigIntCustomTypeAdapter)
                 .setOpenOkHttpLog(true)
                 .setOpenSocket(true)
-                .setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_FIRST)
+                //.setDefaultResponseFetcher(ApolloResponseFetchers.CACHE_FIRST)
                 .build();
     }
 
