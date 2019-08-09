@@ -47,7 +47,7 @@ public class EthNewBlockSubscriptionActivity extends AppCompatActivity {
     private TextView connect_status_tv;
     private ListView transactions_lv;
     private NewEthBlockTxsAdapter mNewEthBlockTxsAdapter;
-    private List<NewBlockMinedSubscription.Datum> mDatumList = new ArrayList<>();
+    private List<NewBlockMinedSubscription.Data1> mDatumList = new ArrayList<>();
     private CoreKitSubscription<NewBlockMinedSubscription.Data, NewBlockMinedSubscription> mCoreKitSubscription;
 
     @Override

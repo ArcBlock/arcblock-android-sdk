@@ -19,15 +19,15 @@ Absdkcorekit Library 是在 [apollo-android](https://github.com/apollographql/ap
 buildscript {
   dependencies {
     //...
-    classpath 'com.apollographql.apollo:apollo-gradle-plugin:1.0.0-alpha3'
+    classpath 'com.apollographql.apollo:apollo-gradle-plugin:1.0.2'
   }
 }
 
 allprojects {
-   repositories {
-	//...
-	maven { url "http://android-docs.arcblock.io/release" }
-   }
+  repositories {
+    //...
+    maven { url "http://android-docs.arcblock.io/release" }
+  }
 }
 ```
 
@@ -42,7 +42,7 @@ apollo {
 
 //......
 dependencies {
-  implementation 'com.arcblock.corekit:absdkcorekit:0.3.5'
+  implementation 'com.arcblock.corekit:absdkcorekit:0.3.8'
 }
 ```
 

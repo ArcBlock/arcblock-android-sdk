@@ -57,12 +57,12 @@ public class QueryBlocksByHeightForEthActivity extends AppCompatActivity {
     SwipeRefreshLayout content;
     ProgressBar progressBar;
 
-    private List<ListBlocksQuery.Datum> mBlocks = new ArrayList<>();
+    private List<ListBlocksQuery.Data1> mBlocks = new ArrayList<>();
     private int startIndex = 10000;
     private int endIndex = 10011;
 
-    private CoreKitPagedQuery<ListBlocksQuery.Data, ListBlocksQuery.Datum> mCoreKitPagedQuery;
-    private PagedQueryHelper<ListBlocksQuery.Data, ListBlocksQuery.Datum> mPagedQueryHelper;
+    private CoreKitPagedQuery<ListBlocksQuery.Data, ListBlocksQuery.Data1> mCoreKitPagedQuery;
+    private PagedQueryHelper<ListBlocksQuery.Data, ListBlocksQuery.Data1> mPagedQueryHelper;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -114,7 +114,7 @@ public class QueryBlocksByHeightForEthActivity extends AppCompatActivity {
 
 
         // init page query help
-        mPagedQueryHelper = new PagedQueryHelper<ListBlocksQuery.Data, ListBlocksQuery.Datum>() {
+        mPagedQueryHelper = new PagedQueryHelper<ListBlocksQuery.Data, ListBlocksQuery.Data1>() {
             @Override
             public Query getInitialQuery() {
                 return ListBlocksQuery.builder().timeFilter(TimeFilter.builder().fromHeight(startIndex).toHeight(endIndex).build()).build();
@@ -130,7 +130,7 @@ public class QueryBlocksByHeightForEthActivity extends AppCompatActivity {
             }
 
             @Override
-            public List<ListBlocksQuery.Datum> map(ListBlocksQuery.Data data) {
+            public List<ListBlocksQuery.Data1> map(ListBlocksQuery.Data data) {
                 if (data.getListBlocks() != null) {
                     // set page info to PagedQueryHelper
                     if (data.getListBlocks().getPage() != null) {
@@ -146,11 +146,11 @@ public class QueryBlocksByHeightForEthActivity extends AppCompatActivity {
         };
         // init a CoreKitPagedQuery and set result listener
         mCoreKitPagedQuery = new CoreKitPagedQuery(this, DemoApplication.getInstance().abCoreKitClientEth(), mPagedQueryHelper);
-        mCoreKitPagedQuery.setPagedQueryResultListener(new CoreKitPagedQueryResultListener<ListBlocksQuery.Datum>() {
+        mCoreKitPagedQuery.setPagedQueryResultListener(new CoreKitPagedQueryResultListener<ListBlocksQuery.Data1>() {
             @Override
-            public void onSuccess(List<ListBlocksQuery.Datum> datas) {
+            public void onSuccess(List<ListBlocksQuery.Data1> datas) {
                 // new a old list
-                List<ListBlocksQuery.Datum> oldList = new ArrayList<>();
+                List<ListBlocksQuery.Data1> oldList = new ArrayList<>();
                 oldList.addAll(mBlocks);
                 // set mBlocks with new data
                 mBlocks = datas;

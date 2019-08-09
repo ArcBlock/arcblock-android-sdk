@@ -61,7 +61,7 @@ public class BlockDetailActivity extends AppCompatActivity {
     private ListView transactions_lv;
 
     private BlockDetailTransactionsAdapter mBlockDetailTransactionsAdapter;
-    private List<BlockByHashQuery.Datum> mDatumList = new ArrayList<>();
+    private List<BlockByHashQuery.Data1> mDatumList = new ArrayList<>();
 
     private SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 

@@ -62,8 +62,8 @@ public class AccountDetailActivity extends AppCompatActivity {
 
     private TsSentAdapter mTsSentAdapter;
     private TsReceiverAdapter mTsReceiverAdapter;
-    private List<AccountByAddressQuery.Datum> sents = new ArrayList<>();
-    private List<AccountByAddressQuery.Datum> receives = new ArrayList<>();
+    private List<AccountByAddressQuery.Data1> sents = new ArrayList<>();
+    private List<AccountByAddressQuery.Data1> receives = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

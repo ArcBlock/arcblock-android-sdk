@@ -31,13 +31,13 @@ import com.chad.library.adapter.base.BaseViewHolder;
 
 import java.util.List;
 
-public class RichestAccountsAdapter extends BaseQuickAdapter<RichestAccountsQuery.Datum, BaseViewHolder> {
-    public RichestAccountsAdapter(int layoutResId, @Nullable List<RichestAccountsQuery.Datum> data) {
+public class RichestAccountsAdapter extends BaseQuickAdapter<RichestAccountsQuery.Data1, BaseViewHolder> {
+    public RichestAccountsAdapter(int layoutResId, @Nullable List<RichestAccountsQuery.Data1> data) {
         super(layoutResId, data);
     }
 
     @Override
-    protected void convert(BaseViewHolder helper, RichestAccountsQuery.Datum item) {
+    protected void convert(BaseViewHolder helper, RichestAccountsQuery.Data1 item) {
         helper.setText(R.id.address_tv, item.getAddress());
         helper.setText(R.id.balance_tv, BtcValueUtils.formatBtcValue(item.getBalance()));
         helper.setText(R.id.order_tv, helper.getAdapterPosition() + 1 + "");

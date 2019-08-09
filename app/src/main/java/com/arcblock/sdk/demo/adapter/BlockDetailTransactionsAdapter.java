@@ -30,14 +30,14 @@ import com.arcblock.sdk.demo.btc.BlockByHashQuery;
 
 import java.util.List;
 
-public class BlockDetailTransactionsAdapter extends CustomBaseAdapter<BlockByHashQuery.Datum> {
+public class BlockDetailTransactionsAdapter extends CustomBaseAdapter<BlockByHashQuery.Data1> {
 
-    public BlockDetailTransactionsAdapter(Context context, int resource, List<BlockByHashQuery.Datum> list) {
+    public BlockDetailTransactionsAdapter(Context context, int resource, List<BlockByHashQuery.Data1> list) {
         super(context, resource, list);
     }
 
     @Override
-    public void setConvert(BaseViewHolder viewHolder, BlockByHashQuery.Datum item) {
+    public void setConvert(BaseViewHolder viewHolder, BlockByHashQuery.Data1 item) {
         viewHolder.setTextView(R.id.item_tv, item.getHash());
     }
 }

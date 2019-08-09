@@ -1,3 +1,7 @@
+## 0.3.8 (August 09, 2019)
+  - update apollo version
+  - update util code version and update upload s3 dir
+
 ## 0.3.7 (January 11, 2019)
   - update readme
   - update schema

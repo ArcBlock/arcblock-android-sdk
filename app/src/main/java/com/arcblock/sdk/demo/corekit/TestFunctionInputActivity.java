@@ -44,7 +44,7 @@ import java.util.List;
 public class TestFunctionInputActivity  extends AppCompatActivity {
 
     private TestFunctionInputAdapter mTestFunctionInputAdapter;
-    private List<BlockByHeightQuery.Datum> mDatumList = new ArrayList<>();
+    private List<BlockByHeightQuery.Data1> mDatumList = new ArrayList<>();
 
 
     @Override

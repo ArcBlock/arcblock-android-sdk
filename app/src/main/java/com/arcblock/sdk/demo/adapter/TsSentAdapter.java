@@ -31,13 +31,13 @@ import com.arcblock.sdk.demo.btc.AccountByAddressQuery;
 
 import java.util.List;
 
-public class TsSentAdapter extends CustomBaseAdapter<AccountByAddressQuery.Datum> {
-    public TsSentAdapter(Context context, int resource, List<AccountByAddressQuery.Datum> list) {
+public class TsSentAdapter extends CustomBaseAdapter<AccountByAddressQuery.Data1> {
+    public TsSentAdapter(Context context, int resource, List<AccountByAddressQuery.Data1> list) {
         super(context, resource, list);
     }
 
     @Override
-    public void setConvert(BaseViewHolder viewHolder, AccountByAddressQuery.Datum datum1) {
+    public void setConvert(BaseViewHolder viewHolder, AccountByAddressQuery.Data1 datum1) {
         viewHolder.setTextView(R.id.item_tv, TextUtils.isEmpty(datum1.getHash()) ? "txsHash is empty!" : datum1.getHash());
     }
 }
