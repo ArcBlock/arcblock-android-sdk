@@ -50,7 +50,7 @@ public class QueryRichestAccountsActivity extends AppCompatActivity {
 
     ViewGroup content;
     ProgressBar progressBar;
-    List<RichestAccountsQuery.Datum> mAccounts = new ArrayList<>();
+    List<RichestAccountsQuery.Data1> mAccounts = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

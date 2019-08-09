@@ -68,8 +68,8 @@ public class TransactionDetailActivity extends AppCompatActivity {
 
     private TsInputsAdapter mTsInputsAdapter;
     private TsOutputsAdapter mTsOutputsAdapter;
-    private List<TransactionByHashQuery.Datum1> inputs = new ArrayList<>();
-    private List<TransactionByHashQuery.Datum> outputs = new ArrayList<>();
+    private List<TransactionByHashQuery.Data2> inputs = new ArrayList<>();
+    private List<TransactionByHashQuery.Data1> outputs = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

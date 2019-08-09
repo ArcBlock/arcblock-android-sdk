@@ -3,193 +3,211 @@ apply plugin: 'com.apollographql.android'
 apply plugin: 'maven-publish'
 
 def suffix = project.hasProperty('RELEASE') ? "" : "-SNAPSHOT"
-def libraryVersion = new File(rootDir.getAbsolutePath()+'/version').text.replace("\n", "") + suffix
+def libraryVersion = new File(rootDir.getAbsolutePath() + '/version').text.replace("\n", "") +
+    suffix
 
 android {
-    compileSdkVersion 27
-    defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 27
-        versionCode 1
-        versionName libraryVersion
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
+  compileSdkVersion rootProject.ext.android["compileSdkVersion"]
+  buildToolsVersion rootProject.ext.android["buildToolsVersion"]
 
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
+  defaultConfig {
+    minSdkVersion rootProject.ext.android["minSdkVersion"]
+    targetSdkVersion rootProject.ext.android["targetSdkVersion"]
+    versionCode 1
+    versionName libraryVersion
+    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+  }
+  buildTypes {
+    release {
+      minifyEnabled false
+
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
+  }
 }
 
 dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support:recyclerview-v7:27.1.1'
-    implementation 'com.blankj:utilcode:1.25.4'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.2'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    // apollo library
-    def apolloReleaseVersion = "1.0.0-alpha3"
-    api "com.apollographql.apollo:apollo-runtime:$apolloReleaseVersion"
-    api "com.apollographql.apollo:apollo-android-support:$apolloReleaseVersion"
-    api "com.apollographql.apollo:apollo-rx2-support:$apolloReleaseVersion"
-    // other libraries
-    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    implementation 'com.squareup.okhttp3:logging-interceptor:3.8.1'
-    implementation 'com.alibaba:fastjson:1.1.70.android'
-    implementation 'com.google.code.gson:gson:2.8.5'
-    implementation 'com.google.guava:guava:26.0-android'
-    api 'com.jakewharton.timber:timber:4.7.0'
-    // socket
-    api files('libs/jackson-annotations-2.8.3.jar')
-    api files('libs/jackson-core-2.8.3.jar')
-    api files('libs/jackson-databind-2.8.3.jar')
+  implementation fileTree(include: ['*.jar'], dir: 'libs')
+  implementation rootProject.ext.dependencies["appcompat-v7"]
+  implementation rootProject.ext.dependencies["recyclerview-v7"]
+  implementation (rootProject.ext.dependencies["utilcode"]){
+    exclude module: 'gson'
+  }
+  implementation rootProject.ext.dependencies["rxjava2"]
+  implementation rootProject.ext.dependencies["rxandroid2"]
+  implementation rootProject.ext.dependencies["logging-interceptor"]
+  implementation rootProject.ext.dependencies["fastjson"]
+  implementation rootProject.ext.dependencies["gson"]
+  implementation rootProject.ext.dependencies["guava"]
+  api rootProject.ext.dependencies["timber"]
+  api files('libs/jackson-annotations-2.8.3.jar')
+  api files('libs/jackson-core-2.8.3.jar')
+  api files('libs/jackson-databind-2.8.3.jar')
+  api (rootProject.ext.dependencies["apollo-runtime"]){
+    exclude module: 'jsr305'
+  }
+  api rootProject.ext.dependencies["apollo-android-support"]
+  api (rootProject.ext.dependencies["apollo-rx2-support"]){
+    exclude module: 'rxjava'
+  }
+  //test
+  testImplementation rootProject.ext.dependencies["junit"]
+  androidTestImplementation rootProject.ext.dependencies["runner"]
+  androidTestImplementation rootProject.ext.dependencies["espresso-core"]
 }
 
 // Loop over all variants
 android.libraryVariants.all { variant ->
-    variant.outputs.all { output ->
-        if (!output.name.equalsIgnoreCase('debug')) {
-            // This creates a publication for each variant
-            publishing.publications.create(variant.name, MavenPublication) {
+  variant.outputs.all { output ->
+    if (!output.name.equalsIgnoreCase('debug')) {
+      // This creates a publication for each variant
+      publishing.publications.create(variant.name, MavenPublication) {
 
-                groupId 'com.arcblock.corekit'
-                version libraryVersion
-                artifactId project.getName()
+        groupId 'com.arcblock.corekit'
+        version libraryVersion
+        artifactId project.getName()
 
-                artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+        artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
 
-                pom.withXml {
-                    def dependenciesNode = asNode().appendNode('dependencies')
-                    def finished = []
-                    def addDependency = { configuration, scope ->
-                        configuration.allDependencies.each { dep ->
-                            if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified" || finished.contains(dep))
-                                return
+        pom.withXml {
+          def dependenciesNode = asNode().appendNode('dependencies')
+          def finished = []
+          def addDependency = { configuration, scope ->
+            configuration.allDependencies.each { dep ->
+              if (dep.group == null ||
+                  dep.version ==
+                  null ||
+                  dep.name ==
+                  null ||
+                  dep.name ==
+                  "unspecified" ||
+                  finished.contains(dep)) {
+                return
+              }
 
-                            finished << dep
+              finished << dep
 
-                            // DefaultProjectDependency (local module) should be resolved first,
-                            // or its version with be 'unspecified'. Besides we can also get the type
-                            // after resolving
-                            def dependencyFiles
-                            def extension
-                            def error
-                            try {
-                                dependencyFiles = configuration.files(dep)
-                            } catch (ignored) {
-                                // Maybe 'Resolving configuration xxx directly is not allowed'
-                                // Try to resolve with archives configuration any way
-                                error = ignored
-                                try {
-                                    dependencyFiles = configurations.archives.files(dep)
-                                } catch (exception) {
-                                    error = exception
-                                }
-                            }
-                            if (dependencyFiles != null && dependencyFiles.size() > 0) {
-                                def firstFile = dependencyFiles.first()
-                                extension = firstFile.name.substring(firstFile.name.lastIndexOf(".") + 1)
-                            }
-                            def version = dep.version
-                            if (version == "unspecified") {
-                                // This is our last chance, retrieve directly from project property
-                                version = project.version
-                                if (version == "unspecified")
-                                    throw new GradleException(
-                                            "Can not resolve verson of [$dep.name] ${error ? error.message : ''}"
-                                    )
-                            }
-
-                            def node = dependenciesNode.appendNode('dependency')
-                            node.appendNode('groupId', dep.group)
-                            node.appendNode('artifactId', dep.name)
-                            node.appendNode('version', version)
-                            node.appendNode('scope', scope)
-                            if (extension) node.appendNode('type', extension)
-
-                            // Exclusions (transitive dependencies of the current dependency)
-                            if (!dep.transitive) {
-                                // If this dependency is transitive, we should force exclude all its dependencies them from the POM
-                                final exclusionNode = node.appendNode('exclusions').appendNode('exclusion')
-                                exclusionNode.appendNode('groupId', '*')
-                                exclusionNode.appendNode('artifactId', '*')
-                            } else if (!dep.properties.excludeRules.empty) {
-                                // Otherwise add specified exclude rules
-                                final exclusionNode = node.appendNode('exclusions').appendNode('exclusion')
-                                dep.properties.excludeRules.each { ExcludeRule rule ->
-                                    exclusionNode.appendNode('groupId', rule.group ?: '*')
-                                    exclusionNode.appendNode('artifactId', rule.module ?: '*')
-                                }
-                            }
-                        }
-                    }
-
-                    // actually add
-                    addDependency(configurations.compile, 'compile')
-                    addDependency(configurations.provided, 'provided')
-                    addDependency(configurations.api, 'compile')
-                    addDependency(configurations.implementation, 'compile')
-                    addDependency(configurations.compileOnly, 'provided')
-                    addDependency(configurations.runtimeOnly, 'runtime')
-                    addDependency(configurations.androidTestCompile, 'test')
-                    addDependency(configurations.androidTestApi, 'test')
-                    addDependency(configurations.androidTestImplementation, 'test')
-                    addDependency(configurations.testCompile, 'test')
-                    addDependency(configurations.testApi, 'test')
-                    addDependency(configurations.testImplementation, 'test')
-
-                    // Config pom.xml extra info
-                    asNode().children().last() + {
-
-                        name "ArcBlockSdk-CoreKit"
-                        url "https://github.com/ArcBlock/arcblock-android-sdk"
-                        description "https://github.com/ArcBlock/arcblock-android-sdk"
-
-                        scm {
-                            url "https://github.com/ArcBlock/arcblock-android-sdk"
-                            connection "scm:git@github.com:ArcBlock/arcblock-android-sdk.git"
-                            developerConnection "scm:git@github.com:ArcBlock/arcblock-android-sdk.git"
-                        }
-
-                        licenses {
-                            license {
-                                name "MIT license"
-                                url "https://github.com/ArcBlock/arcblock-android-sdk/blob/master/LICENSE"
-                                distribution "repo"
-                            }
-                        }
-                        developers {
-                            developer {
-                                id "arcblock"
-                                name "ArcBlock"
-                            }
-                        }
-                    }
+              // DefaultProjectDependency (local module) should be resolved first,
+              // or its version with be 'unspecified'. Besides we can also get the type
+              // after resolving
+              def dependencyFiles
+              def extension
+              def error
+              try {
+                dependencyFiles = configuration.files(dep)
+              } catch (ignored) {
+                // Maybe 'Resolving configuration xxx directly is not allowed'
+                // Try to resolve with archives configuration any way
+                error = ignored
+                try {
+                  dependencyFiles = configurations.archives.files(dep)
+                } catch (exception) {
+                  error = exception
                 }
+              }
+              if (dependencyFiles != null && dependencyFiles.size() > 0) {
+                def firstFile = dependencyFiles.first()
+                extension = firstFile.name.substring(firstFile.name.lastIndexOf(".") + 1)
+              }
+              def version = dep.version
+              if (version == "unspecified") {
+                // This is our last chance, retrieve directly from project property
+                version = project.version
+                if (version == "unspecified") {
+                  throw new GradleException(
+                      "Can not resolve verson of [$dep.name] ${error ? error.message : ''}"
+                  )
+                }
+              }
+
+              def node = dependenciesNode.appendNode('dependency')
+              node.appendNode('groupId', dep.group)
+              node.appendNode('artifactId', dep.name)
+              node.appendNode('version', version)
+              node.appendNode('scope', scope)
+              if (extension) node.appendNode('type', extension)
+
+              // Exclusions (transitive dependencies of the current dependency)
+              if (!dep.transitive) {
+                // If this dependency is transitive, we should force exclude all its dependencies them from the POM
+                final exclusionNode = node.appendNode('exclusions').appendNode('exclusion')
+                exclusionNode.appendNode('groupId', '*')
+                exclusionNode.appendNode('artifactId', '*')
+              } else if (!dep.properties.excludeRules.empty) {
+                // Otherwise add specified exclude rules
+                final exclusionNode = node.appendNode('exclusions').appendNode('exclusion')
+                dep.properties.excludeRules.each { ExcludeRule rule ->
+                  exclusionNode.appendNode('groupId', rule.group ?: '*')
+                  exclusionNode.appendNode('artifactId', rule.module ?: '*')
+                }
+              }
             }
+          }
+
+          // actually add
+          addDependency(configurations.compile, 'compile')
+          addDependency(configurations.provided, 'provided')
+          addDependency(configurations.api, 'compile')
+          addDependency(configurations.implementation, 'compile')
+          addDependency(configurations.compileOnly, 'provided')
+          addDependency(configurations.runtimeOnly, 'runtime')
+          addDependency(configurations.androidTestCompile, 'test')
+          addDependency(configurations.androidTestApi, 'test')
+          addDependency(configurations.androidTestImplementation, 'test')
+          addDependency(configurations.testCompile, 'test')
+          addDependency(configurations.testApi, 'test')
+          addDependency(configurations.testImplementation, 'test')
+
+          // Config pom.xml extra info
+          asNode().children().last() + {
+
+            name "ArcBlockSdk-CoreKit"
+            url "https://github.com/ArcBlock/arcblock-android-sdk"
+            description "https://github.com/ArcBlock/arcblock-android-sdk"
+
+            scm {
+              url "https://github.com/ArcBlock/arcblock-android-sdk"
+              connection "scm:git@github.com:ArcBlock/arcblock-android-sdk.git"
+              developerConnection "scm:git@github.com:ArcBlock/arcblock-android-sdk.git"
+            }
+
+            licenses {
+              license {
+                name "MIT license"
+                url "https://github.com/ArcBlock/arcblock-android-sdk/blob/master/LICENSE"
+                distribution "repo"
+              }
+            }
+            developers {
+              developer {
+                id "arcblock"
+                name "ArcBlock"
+              }
+            }
+          }
         }
+      }
     }
+  }
 }
 
 // Ensure that the publish task depends on assembly
 tasks.all { task ->
-    if (task instanceof AbstractPublishToMaven) {
-        task.dependsOn assemble
-    }
+  if (task instanceof AbstractPublishToMaven) {
+    task.dependsOn assemble
+  }
 }
 
 publishing {
-    repositories {
-        maven {
-            url "s3://android-docs.arcblock.io.s3.amazonaws.com/release"
-            credentials(AwsCredentials) {
-                accessKey project.hasProperty("AWS_S3_ACCESSKEY") ? AWS_S3_ACCESSKEY : System.getenv("AWS_S3_ACCESSKEY")
-                secretKey project.hasProperty("AWS_S3_SECRETKEY") ? AWS_S3_SECRETKEY : System.getenv("AWS_S3_SECRETKEY")
-            }
-        }
+  repositories {
+    maven {
+      url "s3://android-docs.arcblock.io.s3.amazonaws.com/release"
+      credentials(AwsCredentials) {
+        accessKey project.hasProperty("AWS_S3_ACCESSKEY") ? AWS_S3_ACCESSKEY :
+            System.getenv("AWS_S3_ACCESSKEY")
+        secretKey project.hasProperty("AWS_S3_SECRETKEY") ? AWS_S3_SECRETKEY :
+            System.getenv("AWS_S3_SECRETKEY")
+      }
     }
+  }
 }

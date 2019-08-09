@@ -33,13 +33,13 @@ import java.util.List;
 /**
 *  Created by Nate on 2018/11/15
 **/
-public class TestFunctionInputAdapter extends BaseQuickAdapter<BlockByHeightQuery.Datum, BaseViewHolder> {
-    public TestFunctionInputAdapter(int layoutResId, @Nullable List<BlockByHeightQuery.Datum> data) {
+public class TestFunctionInputAdapter extends BaseQuickAdapter<BlockByHeightQuery.Data1, BaseViewHolder> {
+    public TestFunctionInputAdapter(int layoutResId, @Nullable List<BlockByHeightQuery.Data1> data) {
         super(layoutResId, data);
     }
 
     @Override
-    protected void convert(BaseViewHolder helper, BlockByHeightQuery.Datum item) {
+    protected void convert(BaseViewHolder helper, BlockByHeightQuery.Data1 item) {
         if (item.getTraces()!=null&&item.getTraces().getData()!=null&&item.getTraces().getData().get(0)!=null) {
             if (item.getTraces().getData().get(0).getActionFunctionInput()!=null) {
                 helper.setText(R.id.item_tv,item.getTraces().getData().get(0).getActionFunctionInput().get(0));

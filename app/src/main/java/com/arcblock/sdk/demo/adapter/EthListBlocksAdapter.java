@@ -30,17 +30,17 @@ import com.chad.library.adapter.base.BaseViewHolder;
 
 import java.util.List;
 
-public class EthListBlocksAdapter extends BaseQuickAdapter<ListBlocksQuery.Datum, BaseViewHolder> {
-    public EthListBlocksAdapter(int layoutResId, @Nullable List<ListBlocksQuery.Datum> data) {
+public class EthListBlocksAdapter extends BaseQuickAdapter<ListBlocksQuery.Data1, BaseViewHolder> {
+    public EthListBlocksAdapter(int layoutResId, @Nullable List<ListBlocksQuery.Data1> data) {
         super(layoutResId, data);
     }
 
-    public void setNewListData(List<ListBlocksQuery.Datum> newList) {
+    public void setNewListData(List<ListBlocksQuery.Data1> newList) {
         this.mData = newList;
     }
 
     @Override
-    protected void convert(BaseViewHolder helper, ListBlocksQuery.Datum item) {
+    protected void convert(BaseViewHolder helper, ListBlocksQuery.Data1 item) {
         helper.setText(R.id.hash_tv, item.getHash());
         helper.setText(R.id.height_tv, "" + item.getHeight());
         helper.setText(R.id.txs_tv, item.getTotal().toString());

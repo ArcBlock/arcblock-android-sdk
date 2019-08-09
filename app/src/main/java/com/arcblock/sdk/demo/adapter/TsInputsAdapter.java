@@ -31,13 +31,13 @@ import com.arcblock.sdk.demo.btc.TransactionByHashQuery;
 
 import java.util.List;
 
-public class TsInputsAdapter extends CustomBaseAdapter<TransactionByHashQuery.Datum1> {
-    public TsInputsAdapter(Context context, int resource, List<TransactionByHashQuery.Datum1> list) {
+public class TsInputsAdapter extends CustomBaseAdapter<TransactionByHashQuery.Data2> {
+    public TsInputsAdapter(Context context, int resource, List<TransactionByHashQuery.Data2> list) {
         super(context, resource, list);
     }
 
     @Override
-    public void setConvert(BaseViewHolder viewHolder, TransactionByHashQuery.Datum1 datum1) {
+    public void setConvert(BaseViewHolder viewHolder, TransactionByHashQuery.Data2 datum1) {
         viewHolder.setTextView(R.id.item_tv, TextUtils.isEmpty(datum1.getAccount()) ? "CoinBase" : datum1.getAccount());
     }
 }
