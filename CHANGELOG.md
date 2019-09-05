@@ -1,3 +1,6 @@
+## 0.4.0 (September 05, 2019)
+  - set isloading to false after fail
+
 ## 0.3.9 (September 05, 2019)
   - update paged query utils
 

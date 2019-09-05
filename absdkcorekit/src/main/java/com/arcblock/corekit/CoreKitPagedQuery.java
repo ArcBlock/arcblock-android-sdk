@@ -134,6 +134,7 @@ public class CoreKitPagedQuery<T extends Operation.Data, K> implements Lifecycle
 
                     @Override
                     public void onError(Throwable e) {
+                        isLoading = false;
                         if (mPagedQueryResultListener != null) {
                             mPagedQueryResultListener.onError(new Throwable("The result is empty."));
                         }
