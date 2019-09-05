@@ -1,3 +1,6 @@
+## 0.3.9 (September 05, 2019)
+  - update paged query utils
+
 ## 0.3.8 (August 09, 2019)
   - update apollo version
   - update util code version and update upload s3 dir
