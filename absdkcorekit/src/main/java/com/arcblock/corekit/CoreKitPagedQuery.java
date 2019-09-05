@@ -124,7 +124,6 @@ public class CoreKitPagedQuery<T extends Operation.Data, K> implements Lifecycle
                                 }
                             } else {
                                 handleData(t.data());
-                                isLoading = false;
                             }
                         } else {
                             if (mPagedQueryResultListener != null) {
@@ -142,6 +141,7 @@ public class CoreKitPagedQuery<T extends Operation.Data, K> implements Lifecycle
 
                     @Override
                     public void onComplete() {
+                        isLoading = false;
                         if (mPagedQueryResultListener != null) {
                             mPagedQueryResultListener.onComplete();
                         }
