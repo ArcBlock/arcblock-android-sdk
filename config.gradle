@@ -23,9 +23,9 @@ ext {
       "design": "com.android.support:design:${version["androidSupportSdkVersion"]}",
 
       //tools
-      "utilcode": "com.blankj:utilcode:1.25.4",
+      "utilcode": "com.blankj:utilcode:1.28.4",
       "fastjson": "com.alibaba:fastjson:1.1.71.android",
-      "gson": "com.google.code.gson:gson:2.8.5",
+      "gson": "com.google.code.gson:gson:2.8.6",
       "guava": "com.google.guava:guava:${version["guavaVersion"]}",
       "timber": "com.jakewharton.timber:timber:4.7.0",
       "absdkcorekit": "com.arcblock.corekit:absdkcorekit:${version["absdkcorekitversion"]}",
