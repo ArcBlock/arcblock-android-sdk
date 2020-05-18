@@ -1,3 +1,6 @@
+## 0.4.1 (May 18, 2020)
+  - update lib version
+
 ## 0.4.0 (September 05, 2019)
   - set isloading to false after fail
 
